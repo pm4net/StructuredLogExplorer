@@ -1,5 +1,4 @@
 global using RazorSvelte;
-global using RazorSvelte.Auth;
 global using Microsoft.AspNetCore.Mvc.RazorPages;
 global using System;
 global using System.Linq;
@@ -18,7 +17,6 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings{ContractResolver 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient().AddOptions();
-var authBuilder = new AuthBuilder(builder);
 
 var app = builder.Build();
 
@@ -34,8 +32,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
-authBuilder.BuildAuth(app);
 
 app.UseAuthorization();
 

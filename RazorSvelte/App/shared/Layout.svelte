@@ -26,7 +26,6 @@
     import UserAvatarFilledAlt20 from "carbon-icons-svelte/lib/UserAvatarFilledAlt.svelte";
     import Logout16 from "carbon-icons-svelte/lib/Logout.svelte";
 
-
     import urls from "./urls";
     import { getAll } from "./config";
 
@@ -38,7 +37,6 @@
     const links = [
         {href: urls.indexUrl, text: "Home"},
         {href: urls.aboutUrl, text: "About"},
-        {href: urls.authorizedUrl, text: "Authorized Access"},
         {href: urls.spaUrl, text: "Spa Example"},
     ];
 
