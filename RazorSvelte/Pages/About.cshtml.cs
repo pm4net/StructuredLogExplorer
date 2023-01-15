@@ -1,3 +1,9 @@
 namespace RazorSvelte.Pages;
 
-public class AboutModel : PageModel {}
+public class AboutModel : PageModel
+{
+    public void OnGet()
+    {
+        
+    }
+}

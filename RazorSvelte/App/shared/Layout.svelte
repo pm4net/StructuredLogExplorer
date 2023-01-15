@@ -50,7 +50,7 @@
 
 <Theme bind:theme persist persistKey="__razor-svelte-theme" />
 
-<Header persistentHamburgerMenu={true} platformName="RazorSvelte" bind:isSideNavOpen>
+<Header persistentHamburgerMenu={true} platformName="Structured Log Explorer" bind:isSideNavOpen>
     <svelte:fragment slot="skip-to-content">
         <SkipToContent />
     </svelte:fragment>
@@ -61,14 +61,6 @@
     </HeaderNav>
 
     <HeaderUtilities>
-        <TooltipDefinition tooltipText="{user.isSigned ? "Logout" : "Login"}">
-        {#if user.isSigned}
-            <HeaderActionLink href="{urls.logoutUrl}" icon={Logout16} />
-        {:else}
-            <HeaderActionLink href="{urls.loginUrl}" icon={UserAvatarFilledAlt20} />
-        {/if}
-        </TooltipDefinition>
-
         <HeaderAction bind:isOpen={isMenuOpen}>
             <HeaderPanelLinks>
                 <HeaderPanelDivider>Select Theme</HeaderPanelDivider>
