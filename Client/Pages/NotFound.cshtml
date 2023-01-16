@@ -1,0 +1,14 @@
+﻿@page
+@attribute [RazorCompiledItemMetadata("RouteTemplate", Urls.NotFoundUrl)]
+@using Client
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Razor.Hosting
+@model Client.Pages.NotFoundModel
+@{
+    ViewData["Title"] = "404 Not Found";
+}
+
+@section HeadSection {
+    <link href="~/build/404.css" asp-append-version="true" rel="stylesheet" />
+    <script defer src="~/build/404.js" asp-append-version="true"></script>
+}

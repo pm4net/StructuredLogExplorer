@@ -1,0 +1,16 @@
+﻿@page
+@attribute [RazorCompiledItemMetadata("RouteTemplate", Urls.AboutUrl)]
+@using Client
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Razor.Hosting
+@model Client.Pages.AboutModel
+@{
+    ViewData["Title"] = "About";
+}
+
+@section HeadSection {
+    <link href="~/build/about.css" asp-append-version="true" rel="stylesheet" />
+    <script defer src="~/build/about.js" asp-append-version="true"></script>
+}
+
+<input id="title" type="hidden" value="@ViewData["Title"]" />

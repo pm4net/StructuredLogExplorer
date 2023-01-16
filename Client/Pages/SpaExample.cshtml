@@ -1,0 +1,14 @@
+﻿@page
+@using Client
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Razor.Hosting
+@model Client.Pages.SpaExampleModel
+@attribute [RazorCompiledItemMetadata("RouteTemplate", Urls.SpaUrl)]
+@{
+    ViewData["Title"] = "Spa Example";
+}
+<partial name="_Loading" />
+@section HeadSection {
+    <link href="~/build/spa-example.css" asp-append-version="true" rel="stylesheet" />
+    <script defer src="~/build/spa-example.js" asp-append-version="true"></script>
+}
