@@ -1,5 +1,8 @@
 ﻿@page
-@model SpaExampleModel
+@using Client
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Razor.Hosting
+@model Client.Pages.SpaExampleModel
 @attribute [RazorCompiledItemMetadata("RouteTemplate", Urls.SpaUrl)]
 @{
     ViewData["Title"] = "Spa Example";

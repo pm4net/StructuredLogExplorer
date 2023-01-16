@@ -1,4 +1,4 @@
-namespace RazorSvelte.Pages;
+namespace Client.Pages;
 
 public class AboutModel : PageModel
 {
