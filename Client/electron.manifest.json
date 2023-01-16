@@ -1,15 +1,15 @@
 {
-  "executable": "Client",
+  "executable": "StructuredLogExplorer",
   "splashscreen": {
     "imageFile": ""
   },
-  "name": "Client",
+  "name": "StructuredLogExplorer",
   "author": "",
   "singleInstance": false,
   "environment": "Production",
   "build": {
-    "appId": "com.Client.app",
-    "productName": "Client",
+    "appId": "com.StructuredLogExplorer.app",
+    "productName": "StructuredLogExplorer",
     "copyright": "Copyright © 2020",
     "buildVersion": "1.0.0",
     "compression": "maximum",

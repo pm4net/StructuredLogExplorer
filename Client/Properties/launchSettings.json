@@ -15,7 +15,7 @@
       "workingDirectory": "."
     },
 
-    "App": {
+    "StructuredLogExplorer": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

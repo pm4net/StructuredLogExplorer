@@ -1,4 +1,3 @@
-global using Client;
 global using Microsoft.AspNetCore.Mvc.RazorPages;
 global using System.Linq;
 
@@ -8,6 +7,7 @@ using System.Globalization;
 using ElectronNET.API;
 using ElectronNET.API.Entities;
 using Microsoft.AspNetCore.Localization;
+using StructuredLogExplorer;
 
 JsonConvert.DefaultSettings = () => new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 

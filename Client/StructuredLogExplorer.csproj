@@ -50,7 +50,7 @@
     <Folder Include="wwwroot\build\" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <PreBuildEvent>npm run frontend-build-all --color=always</PreBuildEvent>
+    <PreBuildEvent>npm run fe-build-all --color=always</PreBuildEvent>
   </PropertyGroup>
   <ItemGroup>
     <Content Update="electron.manifest.json">
