@@ -5,11 +5,16 @@ global using System.Linq;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using System.Globalization;
+using ElectronNET.API;
+using ElectronNET.API.Entities;
 using Microsoft.AspNetCore.Localization;
+
+JsonConvert.DefaultSettings = () => new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 
 var builder = WebApplication.CreateBuilder(args);
 
-JsonConvert.DefaultSettings = () => new JsonSerializerSettings{ContractResolver = new CamelCasePropertyNamesContractResolver()};
+// Configure web host
+builder.WebHost.UseElectron(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -67,4 +72,18 @@ if (localizationEnabled is true)
     };
 }
 
+if (HybridSupport.IsElectronActive) {
+    CreateElectronWindow();
+}
+
 app.Run();
+
+static async void CreateElectronWindow()
+{
+    BrowserWindow window = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
+    {
+        AutoHideMenuBar = true
+    });
+    
+    window.OnClosed += () => Electron.App.Quit();
+}
