@@ -1,3 +1,3 @@
-﻿namespace Client.Pages;
+﻿namespace StructuredLogExplorer.Pages;
 
 public class IndexModel : PageModel {}

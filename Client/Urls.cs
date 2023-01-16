@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Client;
+namespace StructuredLogExplorer;
 
 public class Urls
 {

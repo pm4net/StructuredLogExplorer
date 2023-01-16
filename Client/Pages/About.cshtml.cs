@@ -1,4 +1,4 @@
-namespace Client.Pages;
+namespace StructuredLogExplorer.Pages;
 
 public class AboutModel : PageModel
 {

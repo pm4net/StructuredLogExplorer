@@ -8,7 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solutiom Items", "Solutiom 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "Client\Client.csproj", "{D8F20331-4F6E-49EF-9706-3CEFDA4C49E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StructuredLogExplorer", "Client\StructuredLogExplorer.csproj", "{D8F20331-4F6E-49EF-9706-3CEFDA4C49E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
