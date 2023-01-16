@@ -40,7 +40,8 @@ export default (param, globals) => {
             format: "iife",
             name: appObject,
             file: jsOutput,
-            globals: globals || {}
+            globals: globals || {},
+            inlineDynamicImports: true
         },
         plugins: [
             replace({

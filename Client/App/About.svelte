@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ClickableTile } from "carbon-components-svelte";
+    import { ClickableTile, DatePicker, DatePickerInput } from "carbon-components-svelte";
     import Layout from "./shared/layout.svelte";
 </script>
 
@@ -13,4 +13,8 @@
         </p>
         
     </ClickableTile>
+
+    <DatePicker datePickerType="single" on:change>
+        <DatePickerInput labelText="Meeting date" placeholder="mm/dd/yyyy" />
+    </DatePicker>
 </Layout>
