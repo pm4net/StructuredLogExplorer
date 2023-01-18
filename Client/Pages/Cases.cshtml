@@ -1,0 +1,16 @@
+﻿@page
+@attribute [RazorCompiledItemMetadata("RouteTemplate", Urls.CasesUrl)]
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Razor.Hosting
+@using StructuredLogExplorer
+@model StructuredLogExplorer.Pages.CasesModel
+@{
+    ViewData["Title"] = "Cases";
+}
+
+@section HeadSection {
+    <link href="~/build/cases.css" asp-append-version="true" rel="stylesheet" />
+    <script defer src="~/build/cases.js" asp-append-version="true"></script>
+}
+
+<input id="title" type="hidden" value="@ViewData["Title"]" />

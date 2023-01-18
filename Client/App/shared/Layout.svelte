@@ -31,9 +31,11 @@
     let isMenuOpen = false;
 
     const links = [
-        {href: urls.indexUrl, text: "Home", isSelected: title === "Home"},
-        {href: urls.aboutUrl, text: "About", isSelected: title === "About"},
-        {href: urls.spaUrl, text: "Spa Example", isSelected: title === "Spa Example"},
+        {href: urls.homeUrl, text: "Home", isSelected: title === "Home"},
+        {href: urls.filesUrl, text: "Files", isSelected: title === "Files"},
+        {href: urls.mapUrl, text: "Map", isSelected: title === "Map"},
+        {href: urls.statisticsUrl, text: "Statistics", isSelected: title === "Statistics"},
+        {href: urls.casesUrl, text: "Cases", isSelected: title === "Cases"},
     ];
 
     let theme: any = "g100";

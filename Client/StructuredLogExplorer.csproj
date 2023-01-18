@@ -15,6 +15,24 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Update="Pages\Cases.entry.ts">
+      <DependentUpon>Cases.cshtml</DependentUpon>
+    </None>
+    <None Update="Pages\Cases.rollup.config.js">
+      <DependentUpon>Cases.cshtml</DependentUpon>
+    </None>
+    <None Update="Pages\Statistics.entry.ts">
+      <DependentUpon>Statistics.cshtml</DependentUpon>
+    </None>
+    <None Update="Pages\Statistics.rollup.config.js">
+      <DependentUpon>Statistics.cshtml</DependentUpon>
+    </None>
+    <None Update="Pages\Map.entry.ts">
+      <DependentUpon>Map.cshtml</DependentUpon>
+    </None>
+    <None Update="Pages\Map.rollup.config.js">
+      <DependentUpon>Map.cshtml</DependentUpon>
+    </None>
     <None Update="Pages\Index.rollup.config.js">
       <DependentUpon>Index.cshtml</DependentUpon>
     </None>
@@ -33,18 +51,12 @@
     <None Update="Pages\NotFound.entry.ts">
       <DependentUpon>NotFound.cshtml</DependentUpon>
     </None>
-    <None Update="Pages\About.rollup.config.js">
-      <DependentUpon>About.cshtml</DependentUpon>
-    </None>
-    <None Update="Pages\About.entry.ts">
-      <DependentUpon>About.cshtml</DependentUpon>
-    </None>
-    <None Update="Pages\SpaExample.rollup.config.js">
-      <DependentUpon>SpaExample.cshtml</DependentUpon>
-    </None>
-    <None Update="Pages\SpaExample.entry.ts">
-      <DependentUpon>SpaExample.cshtml</DependentUpon>
-    </None>
+	<None Update="Pages\Files.rollup.config.js">
+	  <DependentUpon>Files.cshtml</DependentUpon>
+	</None>
+	<None Update="Pages\Files.entry.ts">
+	  <DependentUpon>Files.cshtml</DependentUpon>
+	</None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\build\" />
