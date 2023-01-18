@@ -48,7 +48,7 @@ const promises = [];
 promises.push(exec(`npm run fe-scss-build`));
 
 for (let config of getAllConfigs("./Pages")) {
-    promises.push(exec("rollup -c " + config));
+    promises.push(exec("rollup -c " + config + " --bundleConfigAsCjs"));
 }
 
 promises.push(removeMaps());
