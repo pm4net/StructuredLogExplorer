@@ -19,25 +19,21 @@
         Grid,
         Row,
         Column,
-        Theme,
-        TooltipDefinition
+        Theme
     } from "carbon-components-svelte";
 
-    import UserAvatarFilledAlt20 from "carbon-icons-svelte/lib/UserAvatarFilledAlt.svelte";
-    import Logout16 from "carbon-icons-svelte/lib/Logout.svelte";
-
     import urls from "./urls";
-    import { getAll } from "./config";
+    import { get } from "./config";
 
-    let user = getAll<{isSigned: Boolean, email: string}>();
+    let title = get<string>("title");
 
     let isSideNavOpen = false;
     let isMenuOpen = false;
 
     const links = [
-        {href: urls.indexUrl, text: "Home"},
-        {href: urls.aboutUrl, text: "About"},
-        {href: urls.spaUrl, text: "Spa Example"},
+        {href: urls.indexUrl, text: "Home", isSelected: title === "Home"},
+        {href: urls.aboutUrl, text: "About", isSelected: title === "About"},
+        {href: urls.spaUrl, text: "Spa Example", isSelected: title === "Spa Example"},
     ];
 
     let theme: any = "g100";
@@ -50,13 +46,13 @@
 
 <Theme bind:theme persist persistKey="__razor-svelte-theme" />
 
-<Header persistentHamburgerMenu={true} platformName="Structured Log Explorer" bind:isSideNavOpen>
+<Header persistentHamburgerMenu={true} company="pm4net" platformName="Structured Log Explorer" bind:isSideNavOpen>
     <svelte:fragment slot="skip-to-content">
         <SkipToContent />
     </svelte:fragment>
     <HeaderNav>
         {#each links as link}
-            <HeaderNavItem href="{link.href}" text="{link.text}" />
+            <HeaderNavItem href="{link.href}" text="{link.text}" isSelected="{link.isSelected}" />
         {/each}
     </HeaderNav>
 
@@ -76,7 +72,7 @@
     <SideNav bind:isOpen={isSideNavOpen}>
         <SideNavItems>
             {#each links as link}
-                <SideNavLink href="{link.href}" text="{link.text}" />
+                <SideNavLink href="{link.href}" text="{link.text}" isSelected="{link.isSelected}" />
             {/each}
         </SideNavItems>
     </SideNav>

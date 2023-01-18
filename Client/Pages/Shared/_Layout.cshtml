@@ -10,11 +10,12 @@
 </head>
 <body>
     @*
-        These hiddens are needed by the header component on each page.
+        These hidden inputs are needed by the header component on each page.
         Display basic login info in the header and make urls available to the client.
     *@
     <input id="urls" type="hidden" value='@Html.Raw(Urls.Json)' />
+    <input id="title" type="hidden" value='@Html.Raw(ViewData["Title"])'/>
 
-    @RenderBody()
+@RenderBody()
 </body>
 </html>
