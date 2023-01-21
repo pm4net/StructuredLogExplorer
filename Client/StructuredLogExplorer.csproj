@@ -1,19 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="ElectronNET.API" Version="13.5.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
+
   <ItemGroup>
     <Content Update="package.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
   <ItemGroup>
     <None Update="Pages\Cases.entry.ts">
       <DependentUpon>Cases.cshtml</DependentUpon>
@@ -58,15 +61,13 @@
 	  <DependentUpon>Files.cshtml</DependentUpon>
 	</None>
   </ItemGroup>
+
   <ItemGroup>
     <Folder Include="wwwroot\build\" />
   </ItemGroup>
+
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <PreBuildEvent>npm run fe-build-all --color=always</PreBuildEvent>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Update="electron.manifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+
 </Project>
