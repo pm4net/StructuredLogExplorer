@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -15,6 +15,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+	<PackageReference Include="ElectronNET.API" Version="13.5.1" />
   </ItemGroup>
 	
   <Target Name="NSwag" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
@@ -86,5 +87,11 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <PreBuildEvent>npm run fe-build-all --color=always</PreBuildEvent>
   </PropertyGroup>
+	
+  <ItemGroup>
+	<Content Update="electron.manifest.json">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+  </ItemGroup>
 
 </Project>
