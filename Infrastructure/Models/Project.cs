@@ -6,5 +6,13 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Models
 {
-    public record Project(string Name, string Directory);
+    public class Project
+    {
+        public Project(string name)
+        {
+            Name = name;
+        }
+
+        public string Name { get; set; }
+    }
 }

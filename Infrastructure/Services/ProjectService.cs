@@ -6,6 +6,7 @@ namespace Infrastructure.Services
     public class ProjectService : IProjectService
     {
         private readonly string _projectDirectory;
+        private Project _activeProject;
 
         public ProjectService(string projectDirectory)
         {
@@ -15,22 +16,29 @@ namespace Infrastructure.Services
             Directory.CreateDirectory(projectDirectory);
         }
 
-        public async Task<IEnumerable<Project>> GetAvailableProjects()
+        public IEnumerable<Project> GetAvailableProjects()
         {
-            return new List<Project>();
+            var dirInfo = new DirectoryInfo(_projectDirectory);
+            var files = dirInfo.EnumerateFiles().Where(f => f.Extension is "db");
+            return files.Select(x => new Project(x.Name));
         }
 
-        public async Task<Project> GetActiveProject()
+        public Project GetActiveProject()
         {
-            return new Project("Test", "C:\\");
+            if (_activeProject != null)
+            {
+                return _activeProject;
+            }
+
+            return null;
         }
 
-        public async Task AddProject(Project project)
+        public void AddProject(Project project)
         {
             
         }
 
-        public async Task DeleteProject(Project project)
+        public void DeleteProject(Project project)
         {
             
         }

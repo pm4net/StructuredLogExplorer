@@ -4,12 +4,12 @@ namespace Infrastructure.Interfaces
 {
     public interface IProjectService
     {
-        Task<IEnumerable<Project>> GetAvailableProjects();
+        IEnumerable<Project> GetAvailableProjects();
 
-        Task<Project> GetActiveProject();
+        Project GetActiveProject();
 
-        Task AddProject(Project project);
+        void AddProject(Project project);
 
-        Task DeleteProject(Project project);
+        void DeleteProject(Project project);
     }
 }

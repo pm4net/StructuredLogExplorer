@@ -1,6 +1,5 @@
 global using Microsoft.AspNetCore.Mvc.RazorPages;
 global using System.Linq;
-using System.Reflection;
 using Infrastructure.Interfaces;
 using Infrastructure.Services;
 using Newtonsoft.Json.Serialization;
