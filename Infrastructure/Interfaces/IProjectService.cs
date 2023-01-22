@@ -1,15 +1,18 @@
 ﻿using Infrastructure.Models;
+using LiteDB;
 
 namespace Infrastructure.Interfaces
 {
     public interface IProjectService
     {
-        IEnumerable<Project> GetAvailableProjects();
+        IEnumerable<ProjectInfo> GetAvailableProjects();
 
-        Project GetActiveProject();
+        ILiteDatabase GetProjectDatabase(string projectName, bool readOnly);
 
-        void AddProject(Project project);
+        void CreateProject(string projectName, string logDirectory);
 
-        void DeleteProject(Project project);
+        void CloseProject(string projectName);
+
+        void DeleteProject(string projectName);
     }
 }
