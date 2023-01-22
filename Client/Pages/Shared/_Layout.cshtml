@@ -1,4 +1,8 @@
-﻿@using StructuredLogExplorer
+﻿@using Infrastructure.Interfaces
+@using StructuredLogExplorer
+
+@inject IProjectService ProjectService
+
 <!DOCTYPE html public>
 <html lang="en">
 <head>
@@ -14,7 +18,8 @@
         Display basic login info in the header and make urls available to the client.
     *@
     <input id="urls" type="hidden" value='@Html.Raw(Urls.Json)' />
-    <input id="title" type="hidden" value='@Html.Raw(ViewData["Title"])'/>
+    <input id="title" type="hidden" value='@Html.Raw(ViewData["Title"])' />
+    <input id="project" type="hidden" value='@Html.Raw((await ProjectService.GetActiveProject()).Name)' />
 
 @RenderBody()
 </body>

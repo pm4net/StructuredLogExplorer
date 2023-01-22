@@ -1,10 +1,10 @@
 global using Microsoft.AspNetCore.Mvc.RazorPages;
 global using System.Linq;
-
+using System.Reflection;
+using Infrastructure.Interfaces;
+using Infrastructure.Services;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
-using System.Globalization;
-using Microsoft.AspNetCore.Localization;
 using StructuredLogExplorer;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +14,13 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings{ContractResolver 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient().AddOptions();
+
+// Add custom services
+builder.Services.AddSingleton<IProjectService>(x => {
+    var userDir = builder.Configuration["DataDirectory"];
+    var defaultDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "pm4net");
+    return new ProjectService(!string.IsNullOrWhiteSpace(userDir) ? userDir : defaultDir);
+});
 
 var app = builder.Build();
 
