@@ -24,6 +24,7 @@
 
     import urls from "./urls";
     import { get } from "./config";
+    import { getActiveProject } from "./storage";
 
     let title = get<string>("title");
 
@@ -46,9 +47,9 @@
     }
 </script>
 
-<Theme bind:theme persist persistKey="__razor-svelte-theme" />
+<Theme bind:theme persist persistKey="carbon-theme" />
 
-<Header persistentHamburgerMenu={true} company="pm4net" platformName="Structured Log Explorer" bind:isSideNavOpen>
+<Header persistentHamburgerMenu={true} company="pm4net" platformName={getActiveProject() ?? "No project selected"} bind:isSideNavOpen>
     <svelte:fragment slot="skip-to-content">
         <SkipToContent />
     </svelte:fragment>

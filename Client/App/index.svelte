@@ -5,8 +5,6 @@
         DataTable,
         InlineNotification,
         Modal,
-        OverflowMenu,
-        OverflowMenuItem,
         Pagination,
         TextInput,
         Toolbar,
@@ -17,18 +15,22 @@
 
     import isValidFilename from "valid-filename";
 
+    import { getActiveProject, setActiveProject } from "./shared/storage";
     import { getErrorMessage } from "./shared/helpers";
-    import { projectClient } from "./shared/clients";
+    import { projectClient } from "./shared/api-clients";
     import { getFromJson } from "./shared/config";
 
+    let activeProject = getActiveProject();
     let projects = getFromJson<{
         id: string;
         name: string;
         logDirectory: string;
         noOfEvents: number;
         noOfObjects: number;
+        active: boolean;
     }[]>("projects").map((val, _) => {
         val.id = val.name;
+        val.active = val.name === activeProject;
         return val;
     });
 
@@ -41,6 +43,11 @@
         } catch (e: unknown) {
             console.error(e);
         }
+    }
+
+    function activateProject(name: string) {
+        setActiveProject(name);
+        location.reload();
     }
 
     /* --- Modal logic --- */
@@ -110,8 +117,26 @@
 
         <svelte:fragment slot="cell" let:row let:cell>
             {#if cell.key === "overflow"}
-                <Button kind="ghost" iconDescription="Select project" icon={ChooseItem}></Button>
-                <Button on:click={() => deleteProject(row.id)} kind="ghost" iconDescription="Delete project" icon={TrashCan}></Button>
+                {#if row.active}
+                    <Button
+                        disabled
+                        icon={ChooseItem}>
+                        Activate
+                    </Button>
+                {:else}
+                    <Button
+                        on:click={() => activateProject(row.id)}
+                        icon={ChooseItem}>
+                        Activate
+                    </Button>
+                {/if}
+                
+                <Button
+                    on:click={() => deleteProject(row.id)} 
+                    kind="ghost" 
+                    iconDescription="Delete project" 
+                    icon={TrashCan}>
+                </Button>
             {:else}{cell.value}{/if}
         </svelte:fragment>
 
