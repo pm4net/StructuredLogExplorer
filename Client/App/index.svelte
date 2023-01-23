@@ -3,6 +3,7 @@
     import {
         Button,
         DataTable,
+        InlineNotification,
         Modal,
         Pagination,
         TextInput,
@@ -12,8 +13,10 @@
     } from "carbon-components-svelte";
     import FolderAdd from "carbon-icons-svelte/lib/FolderAdd.svelte";
 
+    import { concatDict } from "./shared/helpers";
     import { projectClient } from "./shared/clients";
     import { getFromJson } from "./shared/config";
+    import { SwaggerException } from "./shared/client";
 
     let projects = getFromJson<{
         id: string;
@@ -28,12 +31,45 @@
 
     let pagination = {pageSize: 10, page: 1}
 
-    let createModalOpen = false;
-    let createModalProjectName = "";
-    let createModalLogDirectory = "";
+    /* --- Modal logic --- */
+
+    let createModal = {
+        open: false,
+        project: { value: "", invalid: false },
+        logDirectory: { value: "", invalid: false }
+    }
+
+    let errorNotification = {
+        show: false,
+        message: ""
+    }
+
+    function validateProjectName() {
+        createModal.project.invalid = 
+            createModal.project.value === "" ||
+            projects.some(p => p.name == createModal.project.value);
+    }
+
+    function validateLogDirectory() {
+        createModal.logDirectory.invalid = createModal.logDirectory.value === "";
+    }
 
     async function createProject() {
-        await projectClient.create(createModalProjectName, createModalLogDirectory);
+        try {
+            await projectClient.create(createModal.project.value, createModal.logDirectory.value);   
+        } catch (e: unknown) {
+            errorNotification.show = true;
+            if (e instanceof SwaggerException) {
+                let json = JSON.parse(e.response);
+                if ("errors" in json) {
+                    errorNotification.message = concatDict(json.errors);
+                } else {
+                    errorNotification.message = e.response;
+                }
+            } else {
+                errorNotification.message = "Unknown error";
+            }
+        }
     }
 </script>
 
@@ -53,7 +89,7 @@
         <Toolbar>
             <ToolbarContent>
                 <ToolbarSearch persistent shouldFilterRows />
-                <Button icon={FolderAdd} on:click={() => createModalOpen = true}>Create</Button>
+                <Button icon={FolderAdd} on:click={() => createModal.open = true}>Create</Button>
             </ToolbarContent>
         </Toolbar>
 
@@ -67,36 +103,50 @@
     />
 
     <Modal
-        bind:open={createModalOpen}
+        bind:open={createModal.open}
         modalHeading="Create new project"
         primaryButtonText="Create"
         secondaryButtonText="Cancel"
         selectorPrimaryFocus="#project-name"
+        primaryButtonDisabled={createModal.project.invalid || createModal.logDirectory.invalid}
+        preventCloseOnClickOutside
         on:click:button--primary={createProject}
-        on:click:button--secondary={() => createModalOpen = false}
+        on:click:button--secondary={() => createModal.open = false}
         on:open
         on:close
         on:submit
     >
+
+        {#if errorNotification.show}
+            <InlineNotification
+                title="Error:"
+                subtitle={errorNotification.message}
+                lowContrast
+                on:close={() => errorNotification.show = false}
+            />
+        {/if}
+
         <!-- TODO: https://github.com/sindresorhus/valid-filename -->
         <TextInput
-            bind:value={createModalProjectName}
+            bind:value={createModal.project.value}
+            on:input={validateProjectName}
             id="project-name"
             labelText="Project name"
             placeholder="Enter your project's name..."
-            invalidText="Project name must be a valid file name"
-            invalid={createModalProjectName === ""}
+            invalidText="Must be a valid file name and can not be the same as an existing project"
+            invalid={createModal.project.invalid}
         />
 
         <br />
 
         <TextInput
-            bind:value={createModalLogDirectory}
+            bind:value={createModal.logDirectory.value}
+            on:input={validateLogDirectory}
             id="log-dir"
-            label="Log directory"
+            labelText="Log directory"
             placeholder="Enter the directory where your log files are stored..."
-            invalidText="Log directory must be a valid directory"
-            invalid={createModalLogDirectory === "test"}
+            invalidText="Must be a valid directory"
+            invalid={createModal.logDirectory.invalid}
         />
     </Modal>
 

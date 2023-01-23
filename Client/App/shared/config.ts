@@ -1,6 +1,4 @@
-﻿export const baseUrl = "https://localhost:5001"; // TODO: Store this in an environment-dependent config file
-
-export const get = <T>(id: string) => {
+﻿export const get = <T>(id: string) => {
     let e = document.querySelector(`input#${id}[type=hidden]`) as HTMLInputElement;
     if (!e) {
         return null;

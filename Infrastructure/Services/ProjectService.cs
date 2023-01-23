@@ -61,6 +61,9 @@ namespace Infrastructure.Services
             if (File.Exists(fileName))
                 throw new ArgumentException("Project already exists", nameof(projectName));
 
+            if (!Directory.Exists(logDirectory))
+                throw new ArgumentException("Directory does not exist", nameof(logDirectory));
+
             using var db = new LiteDatabase(fileName);
             var infoColl = db.GetCollection<ProjectInfo>(nameof(ProjectInfo));
             infoColl?.Insert(new ProjectInfo(logDirectory));
