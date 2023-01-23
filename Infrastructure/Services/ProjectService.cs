@@ -59,7 +59,7 @@ namespace Infrastructure.Services
         {
             var fileName = GetDbFileName(projectName);
             if (File.Exists(fileName))
-                return;
+                throw new ArgumentException("Project already exists", nameof(projectName));
 
             using var db = new LiteDatabase(fileName);
             var infoColl = db.GetCollection<ProjectInfo>(nameof(ProjectInfo));

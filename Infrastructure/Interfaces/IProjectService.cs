@@ -26,6 +26,7 @@ namespace Infrastructure.Interfaces
         /// <summary>
         /// Create a new project, if it doesn't already exist.
         /// </summary>
+        /// <exception cref="ArgumentException">If the project already exists.</exception>
         void CreateProject(string projectName, string logDirectory);
 
         /// <summary>
