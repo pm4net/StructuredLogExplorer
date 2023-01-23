@@ -1,18 +1,9 @@
 <script lang="ts">
     import Layout from "./shared/layout.svelte";
-    import { 
-        Select, 
-        SelectItem, 
-    
+    import {
         DataTable,
-        Toolbar,
-        ToolbarContent,
-        ToolbarSearch,
-        ToolbarMenu,
-        ToolbarMenuItem,
-        Pagination,
-
-        Button } from "carbon-components-svelte";
+        Pagination
+    } from "carbon-components-svelte";
 
     import { getFromJson } from "./shared/config";
 
@@ -20,10 +11,16 @@
         id: string;
         name: string;
         logDirectory: string;
-        isLoaded: boolean;
-    }[]>("projects");
+        noOfEvents: number;
+        noOfObjects: number;
+    }[]>("projects").map((val, _) => {
+        val.id = val.name;
+        return val;
+    });
 
-    let pagination = {pageSize: 10, page: 0}
+    console.log(projects);
+
+    let pagination = {pageSize: 10, page: 1}
 </script>
 
 <Layout>
@@ -31,7 +28,8 @@
         headers={[
             { key: "name", value: "Name" },
             { key: "logDirectory", value: "Log Directory" },
-            { key: "isLoaded", value: "Is Loaded" }
+            { key: "noOfEvents", value: "Events" },
+            { key: "noOfObjects", value: "Objects" },
         ]}
         pageSize={pagination.pageSize}
         page={pagination.page}

@@ -1,46 +1,34 @@
-﻿using Infrastructure.Interfaces;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using LiteDB;
 
 namespace Infrastructure.Services
 {
-    public class ProjectService : IProjectService
+    public class ProjectService : IProjectService, IDisposable
     {
-        private readonly string _projectDirectory;
-        private readonly IDictionary<string, ILiteDatabase> _projectDatabases;
+        private readonly string _projectDir;
+        private readonly IDictionary<string, ILiteDatabase> _dbConnections;
 
-        public ProjectService(string projectDirectory)
+        public ProjectService(string projectDir)
         {
-            _projectDirectory = projectDirectory;
-            _projectDatabases = new Dictionary<string, ILiteDatabase>();
+            _projectDir = projectDir;
+            _dbConnections = new Dictionary<string, ILiteDatabase>();
 
             // Ensure that the project directory exists
-            Directory.CreateDirectory(projectDirectory);
+            Directory.CreateDirectory(projectDir);
         }
 
-        private string GetDbFileName(string projectName)
+        public IEnumerable<string> GetAvailableProjects()
         {
-            return Path.Combine(_projectDirectory, $"{projectName}.db");
-        }
-
-        public IEnumerable<ProjectInfo> GetAvailableProjects()
-        {
-            var dirInfo = new DirectoryInfo(_projectDirectory);
-            IEnumerable<FileInfo> files = dirInfo.EnumerateFiles().Where(f => f.Extension is ".db");
-            return files.Select(x =>
-            {
-                var name = Path.GetFileNameWithoutExtension(x.Name);
-                var logDir = GetProjectDatabase(name, readOnly: true)
-                    .GetCollection<ProjectInfo>(nameof(ProjectInfo))?
-                    .Query()
-                    .FirstOrDefault()?.LogDirectory;
-
-                var projectInfo = new ProjectInfo(name, logDir ?? string.Empty)
-                {
-                    IsLoaded = _projectDatabases.ContainsKey(name)
-                };
-                return projectInfo;
-            });
+            var dirInfo = new DirectoryInfo(_projectDir);
+            var files = dirInfo.EnumerateFiles().Where(f => f.Extension is ".db");
+            return files.Select(f => Path.GetFileNameWithoutExtension(f.Name));
         }
 
         public ILiteDatabase GetProjectDatabase(string projectName, bool readOnly)
@@ -53,17 +41,17 @@ namespace Infrastructure.Services
 
             if (readOnly)
             {
-                // Remember to dispose after being done with it!
                 return new LiteDatabase($"Filename={fileName};ReadOnly=true;");
             }
 
-            if (_projectDatabases.ContainsKey(projectName))
+            _dbConnections.TryGetValue(projectName, out var db);
+            if (db is not null)
             {
-                return _projectDatabases[projectName];
+                return db;
             }
 
-            var db = new LiteDatabase(fileName);
-            _projectDatabases.Add(projectName, db);
+            db = new LiteDatabase(fileName);
+            _dbConnections.Add(projectName, db);
             return db;
         }
 
@@ -74,25 +62,38 @@ namespace Infrastructure.Services
                 return;
 
             using var db = new LiteDatabase(fileName);
-
-            ILiteCollection<ProjectInfo>? infoColl = db.GetCollection<ProjectInfo>(nameof(ProjectInfo));
-            infoColl?.Insert(new ProjectInfo(projectName, logDirectory));
-
+            var infoColl = db.GetCollection<ProjectInfo>(nameof(ProjectInfo));
+            infoColl?.Insert(new ProjectInfo(logDirectory));
             db.Dispose();
         }
 
         public void CloseProject(string projectName)
         {
-            if (_projectDatabases.ContainsKey(projectName))
-            {
-                _projectDatabases[projectName].Dispose();
-            }
+            _dbConnections.TryGetValue(projectName, out var db);
+            db?.Dispose();
+            _dbConnections.Remove(projectName);
         }
 
         public void DeleteProject(string projectName)
         {
             CloseProject(projectName);
-            File.Delete(Path.Combine(_projectDirectory, $"{projectName}.db"));
+            File.Delete(GetDbFileName(projectName));
+        }
+
+        public void Dispose()
+        {
+            foreach (var key in _dbConnections.Keys)
+            {
+                CloseProject(key);
+            }
+        }
+
+        /// <summary>
+        /// Get the full path to the database file with the given name.
+        /// </summary>
+        private string GetDbFileName(string projectName)
+        {
+            return Path.Combine(_projectDir, $"{projectName}.db");
         }
     }
 }

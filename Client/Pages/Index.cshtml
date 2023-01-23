@@ -5,13 +5,12 @@
 @using Microsoft.AspNetCore.Razor.Hosting
 @using Newtonsoft.Json
 @using StructuredLogExplorer
-@inject IProjectService ProjectService
 @model StructuredLogExplorer.Pages.IndexModel
 @{
     ViewData["Title"] = "Home";
 }
 
-<input id="projects" type="hidden" value='@Html.Raw(JsonConvert.SerializeObject(ProjectService.GetAvailableProjects()))'/>
+<input id="projects" type="hidden" value='@Html.Raw(JsonConvert.SerializeObject(Model.Projects))'/>
 
 @section HeadSection {
     <link href="~/build/index.css" asp-append-version="true" rel="stylesheet" />

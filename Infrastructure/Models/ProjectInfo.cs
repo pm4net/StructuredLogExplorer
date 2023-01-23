@@ -9,17 +9,20 @@ namespace Infrastructure.Models
 {
     public class ProjectInfo
     {
-        public ProjectInfo(string name, string logDirectory)
+        public ProjectInfo(string logDirectory)
         {
-            Name = name;
             LogDirectory = logDirectory;
         }
-
-        public string Name { get; set; }
 
         public string LogDirectory { get; set; }
 
         [BsonIgnore]
-        public bool IsLoaded { get; set; }
+        public string Name { get; set; } = string.Empty;
+
+        [BsonIgnore]
+        public int NoOfEvents { get; set; }
+
+        [BsonIgnore]
+        public int NoOfObjects { get; set; }
     }
 }
