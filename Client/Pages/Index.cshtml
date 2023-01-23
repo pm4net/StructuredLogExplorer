@@ -1,12 +1,16 @@
 ﻿@page
 @attribute [RazorCompiledItemMetadata("RouteTemplate", Urls.HomeUrl)]
+@using Infrastructure.Interfaces
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Microsoft.AspNetCore.Razor.Hosting
+@using Newtonsoft.Json
 @using StructuredLogExplorer
 @model StructuredLogExplorer.Pages.IndexModel
 @{
     ViewData["Title"] = "Home";
 }
+
+<input id="projects" type="hidden" value='@Html.Raw(JsonConvert.SerializeObject(Model.Projects))'/>
 
 @section HeadSection {
     <link href="~/build/index.css" asp-append-version="true" rel="stylesheet" />

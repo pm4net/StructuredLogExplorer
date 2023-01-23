@@ -1,7 +1,4 @@
-﻿@using Infrastructure.Interfaces
-@using StructuredLogExplorer
-
-@inject IProjectService ProjectService
+﻿@using StructuredLogExplorer
 
 <!DOCTYPE html public>
 <html lang="en">
@@ -19,7 +16,6 @@
     *@
     <input id="urls" type="hidden" value='@Html.Raw(Urls.Json)' />
     <input id="title" type="hidden" value='@Html.Raw(ViewData["Title"])' />
-    <input id="project" type="hidden" value='@Html.Raw((await ProjectService.GetActiveProject()).Name)' />
 
 @RenderBody()
 </body>

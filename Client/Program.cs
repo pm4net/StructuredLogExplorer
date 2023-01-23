@@ -1,8 +1,9 @@
 global using Microsoft.AspNetCore.Mvc.RazorPages;
 global using System.Linq;
-using System.Reflection;
+using System.Net;
 using Infrastructure.Interfaces;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.Diagnostics;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using StructuredLogExplorer;
@@ -14,6 +15,8 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings{ContractResolver 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient().AddOptions();
+builder.Services.AddMvcCore().AddApiExplorer();
+builder.Services.AddSwaggerDocument();
 
 // Add custom services
 builder.Services.AddSingleton<IProjectService>(x => {
@@ -27,19 +30,38 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler(Urls.ErrorUrl);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
+app.UseExceptionHandler(options =>
+{
+    // https://stackoverflow.com/a/47142207/2102106
+    options.Run(async context =>
+    {
+        context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+        context.Response.ContentType = "plain/text";
+        var ex = context.Features.Get<IExceptionHandlerFeature>();
+        if (ex != null)
+        {
+            var err = $"{ex.Error.Message}";
+            await context.Response.WriteAsync(err).ConfigureAwait(false);
+        }
+    });
+});
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
-app.UseAuthorization();
+app.UseOpenApi();
+app.UseSwaggerUi3(settings =>
+{
+    settings.Path = "/swagger";
+    settings.DocumentPath = "/api/spec.json";
+});
 
 app.MapRazorPages();
+app.MapControllers();
 
 app.MapFallback(context =>
 {
