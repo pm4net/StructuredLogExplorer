@@ -13,6 +13,8 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings{ContractResolver 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient().AddOptions();
+builder.Services.AddMvcCore().AddApiExplorer();
+builder.Services.AddSwaggerDocument();
 
 // Add custom services
 builder.Services.AddSingleton<IProjectService>(x => {
@@ -33,10 +35,13 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
-app.UseAuthorization();
+app.UseOpenApi();
+app.UseSwaggerUi3(settings =>
+{
+    settings.Path = "/swagger";
+    settings.DocumentPath = "/api/spec.json";
+});
 
 app.MapRazorPages();
 app.MapControllers();

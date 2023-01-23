@@ -5,16 +5,14 @@
         DataTable,
         Modal,
         Pagination,
-        Row,
         TextInput,
         Toolbar,
         ToolbarContent,
-        ToolbarMenu,
-        ToolbarMenuItem,
         ToolbarSearch
     } from "carbon-components-svelte";
     import FolderAdd from "carbon-icons-svelte/lib/FolderAdd.svelte";
 
+    import { projectClient } from "./shared/clients";
     import { getFromJson } from "./shared/config";
 
     let projects = getFromJson<{
@@ -34,8 +32,8 @@
     let createModalProjectName = "";
     let createModalLogDirectory = "";
 
-    function createProject() : void {
-        
+    async function createProject() {
+        await projectClient.create(createModalProjectName, createModalLogDirectory);
     }
 </script>
 
