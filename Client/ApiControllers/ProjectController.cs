@@ -21,5 +21,12 @@ namespace StructuredLogExplorer.ApiControllers
         {
             _projectService.CreateProject(name, logDir);
         }
+
+        [HttpDelete]
+        [Route("delete")]
+        public void Delete(string name)
+        {
+            _projectService.DeleteProject(name);
+        }
     }
 }

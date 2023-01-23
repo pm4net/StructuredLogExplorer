@@ -5,13 +5,17 @@
         DataTable,
         InlineNotification,
         Modal,
+        OverflowMenu,
+        OverflowMenuItem,
         Pagination,
         TextInput,
         Toolbar,
         ToolbarContent,
         ToolbarSearch
     } from "carbon-components-svelte";
-    import FolderAdd from "carbon-icons-svelte/lib/FolderAdd.svelte";
+    import { FolderAdd, TrashCan, ChooseItem } from "carbon-icons-svelte";
+
+    import isValidFilename from "valid-filename";
 
     import { getErrorMessage } from "./shared/helpers";
     import { projectClient } from "./shared/clients";
@@ -30,6 +34,15 @@
 
     let pagination = {pageSize: 10, page: 1}
 
+    async function deleteProject(name: string) {
+        try {
+            await projectClient.delete(name);
+            location.reload();
+        } catch (e: unknown) {
+            console.error(e);
+        }
+    }
+
     /* --- Modal logic --- */
 
     let createModal = {
@@ -46,12 +59,12 @@
     function validateProjectName() {
         createModal.project.invalid =
             createModal.project.value === "" ||
+            !isValidFilename(createModal.project.value) ||
             projects.some(p => p.name == createModal.project.value);
     }
 
     function validateLogDirectory() {
-        createModal.logDirectory.invalid = 
-            createModal.logDirectory.value === "";
+        createModal.logDirectory.invalid = createModal.logDirectory.value === "";
     }
 
     async function createProject() {
@@ -82,10 +95,11 @@
             { key: "logDirectory", value: "Log Directory" },
             { key: "noOfEvents", value: "Events" },
             { key: "noOfObjects", value: "Objects" },
+            { key: "overflow", empty: true }
         ]}
+        bind:rows={projects}
         pageSize={pagination.pageSize}
-        page={pagination.page}
-        rows={projects}>
+        page={pagination.page}>
 
         <Toolbar>
             <ToolbarContent>
@@ -93,6 +107,13 @@
                 <Button icon={FolderAdd} on:click={() => createModal.open = true}>Create</Button>
             </ToolbarContent>
         </Toolbar>
+
+        <svelte:fragment slot="cell" let:row let:cell>
+            {#if cell.key === "overflow"}
+                <Button kind="ghost" iconDescription="Select project" icon={ChooseItem}></Button>
+                <Button on:click={() => deleteProject(row.id)} kind="ghost" iconDescription="Delete project" icon={TrashCan}></Button>
+            {:else}{cell.value}{/if}
+        </svelte:fragment>
 
     </DataTable>
 
@@ -120,14 +141,14 @@
 
         {#if errorNotification.show}
             <InlineNotification
-                title="Error:"
                 subtitle={errorNotification.message}
                 lowContrast
                 on:close={() => errorNotification.show = false}
-            />
+            >
+                <strong slot="title">Error: </strong>
+            </InlineNotification>
         {/if}
 
-        <!-- TODO: https://github.com/sindresorhus/valid-filename -->
         <TextInput
             bind:value={createModal.project.value}
             on:input={validateProjectName}

@@ -32,6 +32,27 @@
           }
         }
       }
+    },
+    "/api/Project/delete": {
+      "delete": {
+        "tags": [
+          "Project"
+        ],
+        "operationId": "Project_Delete",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
     }
   }
 }
