@@ -13,10 +13,9 @@
     } from "carbon-components-svelte";
     import FolderAdd from "carbon-icons-svelte/lib/FolderAdd.svelte";
 
-    import { concatDict } from "./shared/helpers";
+    import { getErrorMessage } from "./shared/helpers";
     import { projectClient } from "./shared/clients";
     import { getFromJson } from "./shared/config";
-    import { SwaggerException } from "./shared/client";
 
     let projects = getFromJson<{
         id: string;
@@ -45,30 +44,32 @@
     }
 
     function validateProjectName() {
-        createModal.project.invalid = 
+        createModal.project.invalid =
             createModal.project.value === "" ||
             projects.some(p => p.name == createModal.project.value);
     }
 
     function validateLogDirectory() {
-        createModal.logDirectory.invalid = createModal.logDirectory.value === "";
+        createModal.logDirectory.invalid = 
+            createModal.logDirectory.value === "";
     }
 
     async function createProject() {
+        errorNotification.show = false;
+        errorNotification.message = "";
+
         try {
-            await projectClient.create(createModal.project.value, createModal.logDirectory.value);   
+            validateProjectName();
+            validateLogDirectory();
+
+            if (!createModal.project.invalid && !createModal.logDirectory.invalid) {
+                await projectClient.create(createModal.project.value, createModal.logDirectory.value);
+                createModal.open = false;
+                location.reload();
+            }
         } catch (e: unknown) {
             errorNotification.show = true;
-            if (e instanceof SwaggerException) {
-                let json = JSON.parse(e.response);
-                if ("errors" in json) {
-                    errorNotification.message = concatDict(json.errors);
-                } else {
-                    errorNotification.message = e.response;
-                }
-            } else {
-                errorNotification.message = "Unknown error";
-            }
+            errorNotification.message = getErrorMessage(e);
         }
     }
 </script>
