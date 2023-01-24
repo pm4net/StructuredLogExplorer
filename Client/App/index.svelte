@@ -48,6 +48,17 @@
         }
     }
 
+    // Close the modal and reset all fields
+    function closeAndResetCreateModal() {
+        createModal.open = false;
+            createModal.project.value = "";
+            createModal.project.invalid = false;
+            createModal.logDirectory.value = "";
+            createModal.logDirectory.invalid = false;
+            createModal.errorNotification.show = false;
+            createModal.errorNotification.message = "";
+    }
+
     // Update activated route to disable button, update previously active row to enable button, and save in local storage
     function activateProject(name: string) {
         let prevActiveIdx = projects.findIndex(p => p.name === get(activeProject));
@@ -72,7 +83,7 @@
 
             if (!createModal.project.invalid && !createModal.logDirectory.invalid) {
                 await projectClient.create(createModal.project.value, createModal.logDirectory.value);
-                createModal.open = false;
+                closeAndResetCreateModal();
 
                 // Add new project to the list
                 projects = [...projects, {
