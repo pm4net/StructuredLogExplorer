@@ -4,7 +4,6 @@
         HeaderNav,
         HeaderNavItem,
         HeaderUtilities,
-        HeaderActionLink,
         HeaderAction,
         HeaderPanelLinks,
         HeaderPanelDivider,
@@ -23,10 +22,10 @@
     } from "carbon-components-svelte";
 
     import urls from "./urls";
-    import { get } from "./config";
-    import { getActiveProject } from "./storage";
+    import { get as getVal } from "./config";
+    import { activeProject } from "./stores";
 
-    let title = get<string>("title");
+    let title = getVal<string>("title");
 
     let isSideNavOpen = false;
     let isMenuOpen = false;
@@ -40,7 +39,6 @@
     ];
 
     let theme: any = "g100";
-
     function setTheme(value: string) {
         theme = value;
         isMenuOpen = false;
@@ -49,7 +47,7 @@
 
 <Theme bind:theme persist persistKey="carbon-theme" />
 
-<Header persistentHamburgerMenu={true} company="pm4net" platformName={getActiveProject() ?? "No project selected"} bind:isSideNavOpen>
+<Header persistentHamburgerMenu={true} company="pm4net" platformName={$activeProject ?? "No project selected"} bind:isSideNavOpen>
     <svelte:fragment slot="skip-to-content">
         <SkipToContent />
     </svelte:fragment>
