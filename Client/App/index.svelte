@@ -12,15 +12,14 @@
         ToolbarSearch
     } from "carbon-components-svelte";
     import { FolderAdd, TrashCan, ChooseItem } from "carbon-icons-svelte";
-
+    import { get } from "svelte/store";
     import isValidFilename from "valid-filename";
 
-    import { getActiveProject, setActiveProject } from "./shared/storage";
     import { getErrorMessage } from "./shared/helpers";
     import { projectClient } from "./shared/api-clients";
     import { getFromJson } from "./shared/config";
+    import { activeProject } from "./shared/stores";
 
-    let activeProject = getActiveProject();
     let projects = getFromJson<{
         id: string;
         name: string;
@@ -30,7 +29,7 @@
         active: boolean;
     }[]>("projects").map((val, _) => {
         val.id = val.name;
-        val.active = val.name === activeProject;
+        val.active = val.name === get(activeProject);
         return val;
     });
 
@@ -43,11 +42,6 @@
         } catch (e: unknown) {
             console.error(e);
         }
-    }
-
-    function activateProject(name: string) {
-        setActiveProject(name);
-        location.reload();
     }
 
     /* --- Modal logic --- */
@@ -125,7 +119,7 @@
                     </Button>
                 {:else}
                     <Button
-                        on:click={() => activateProject(row.id)}
+                        on:click={() => activeProject.set(row.id)}
                         icon={ChooseItem}>
                         Activate
                     </Button>
