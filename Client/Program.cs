@@ -95,7 +95,9 @@ static async void CreateElectronWindow()
 {
     BrowserWindow window = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
     {
-        AutoHideMenuBar = true
+        AutoHideMenuBar = true,
+        Width = 1200,
+        Height = 800
     });
     
     window.OnClosed += () => Electron.App.Quit();
