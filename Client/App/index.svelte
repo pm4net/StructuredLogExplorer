@@ -1,5 +1,6 @@
 <script lang="ts">
     import Layout from "./shared/layout.svelte";
+    import { FolderAdd, TrashCan, ChooseItem } from "carbon-icons-svelte";
     import {
         Button,
         DataTable,
@@ -11,7 +12,7 @@
         ToolbarContent,
         ToolbarSearch
     } from "carbon-components-svelte";
-    import { FolderAdd, TrashCan, ChooseItem } from "carbon-icons-svelte";
+
     import { get } from "svelte/store";
     import isValidFilename from "valid-filename";
 
@@ -20,6 +21,9 @@
     import { getFromJson } from "./shared/config";
     import { activeProject } from "./shared/stores";
 
+    let pagination = {pageSize: 10, page: 1}
+
+    // The list of available projects, retrieved from a hidden input with JSON data
     let projects = getFromJson<{
         id: string;
         name: string;
@@ -28,49 +32,39 @@
         noOfObjects: number;
         active: boolean;
     }[]>("projects").map((val, _) => {
-        val.id = val.name;
-        val.active = val.name === get(activeProject);
+        val.id = val.name; // Each row has to have an ID
+        val.active = val.name === get(activeProject); // Set active state based on value in local storage
         return val;
     });
 
-    let pagination = {pageSize: 10, page: 1}
-
-    async function deleteProject(name: string) {
-        try {
-            await projectClient.delete(name);
-            location.reload();
-        } catch (e: unknown) {
-            console.error(e);
-        }
-    }
-
-    /* --- Modal logic --- */
-
+    // The state of the modal to create a new project
     let createModal = {
         open: false,
         project: { value: "", invalid: false },
-        logDirectory: { value: "", invalid: false }
+        logDirectory: { value: "", invalid: false },
+        errorNotification: {
+            show: false,
+            message: ""
+        }
     }
 
-    let errorNotification = {
-        show: false,
-        message: ""
+    // Update activated route to disable button, update previously active row to enable button, and save in local storage
+    function activateProject(name: string) {
+        let prevActiveIdx = projects.findIndex(p => p.name === get(activeProject));
+        if (prevActiveIdx !== -1) {
+            projects[prevActiveIdx].active = false;
+        }
+        
+        let newActiveIdx = projects.findIndex(p => p.name === name);
+        projects[newActiveIdx].active = true;
+
+        activeProject.set(name);
     }
 
-    function validateProjectName() {
-        createModal.project.invalid =
-            createModal.project.value === "" ||
-            !isValidFilename(createModal.project.value) ||
-            projects.some(p => p.name == createModal.project.value);
-    }
-
-    function validateLogDirectory() {
-        createModal.logDirectory.invalid = createModal.logDirectory.value === "";
-    }
-
+    /// Create a new project with the values entered in the modal
     async function createProject() {
-        errorNotification.show = false;
-        errorNotification.message = "";
+        createModal.errorNotification.show = false;
+        createModal.errorNotification.message = "";
 
         try {
             validateProjectName();
@@ -79,12 +73,45 @@
             if (!createModal.project.invalid && !createModal.logDirectory.invalid) {
                 await projectClient.create(createModal.project.value, createModal.logDirectory.value);
                 createModal.open = false;
-                location.reload();
+
+                // Add new project to the list
+                projects = [...projects, {
+                    id: createModal.project.value,
+                    name: createModal.project.value,
+                    logDirectory: createModal.logDirectory.value,
+                    active: false,
+                    noOfEvents: 0,
+                    noOfObjects: 0
+                 }];
             }
         } catch (e: unknown) {
-            errorNotification.show = true;
-            errorNotification.message = getErrorMessage(e);
+            createModal.errorNotification.show = true;
+            createModal.errorNotification.message = getErrorMessage(e);
         }
+    }
+
+    // Delete a project from disk
+    async function deleteProject(name: string) {
+        try {
+            await projectClient.delete(name);
+            projects = projects.filter(p => p.name !== name);
+        } catch (e: unknown) {
+            // TODO: Show modal with error message
+            console.error(e);
+        }
+    }
+
+    // Validate whether the entered file name looks like a correct filename (without extension), and that it doesn't already exist
+    function validateProjectName() {
+        createModal.project.invalid =
+            createModal.project.value === "" ||
+            !isValidFilename(createModal.project.value) ||
+            projects.some(p => p.name == createModal.project.value);
+    }
+
+    // Validate that the log directory is not empty
+    function validateLogDirectory() {
+        createModal.logDirectory.invalid = createModal.logDirectory.value === "";
     }
 </script>
 
@@ -119,7 +146,7 @@
                     </Button>
                 {:else}
                     <Button
-                        on:click={() => activeProject.set(row.id)}
+                        on:click={() => activateProject(row.id)}
                         icon={ChooseItem}>
                         Activate
                     </Button>
@@ -158,13 +185,13 @@
         on:submit
     >
 
-        {#if errorNotification.show}
+        {#if createModal.errorNotification.show}
             <InlineNotification
-                subtitle={errorNotification.message}
+                subtitle={createModal.errorNotification.message}
                 lowContrast
-                on:close={() => errorNotification.show = false}
+                on:close={() => createModal.errorNotification.show = false}
             >
-                <strong slot="title">Error: </strong>
+                <strong slot="title">Error:</strong>
             </InlineNotification>
         {/if}
 
