@@ -83,7 +83,6 @@
 
             if (!createModal.project.invalid && !createModal.logDirectory.invalid) {
                 await projectClient.create(createModal.project.value, createModal.logDirectory.value);
-                closeAndResetCreateModal();
 
                 // Add new project to the list
                 projects = [...projects, {
@@ -93,7 +92,9 @@
                     active: false,
                     noOfEvents: 0,
                     noOfObjects: 0
-                 }];
+                }];
+                
+                closeAndResetCreateModal();
             }
         } catch (e: unknown) {
             createModal.errorNotification.show = true;
@@ -106,6 +107,10 @@
         try {
             await projectClient.delete(name);
             projects = projects.filter(p => p.name !== name);
+
+            if (get(activeProject) === name) {
+                activeProject.set(null);
+            }
         } catch (e: unknown) {
             // TODO: Show modal with error message
             console.error(e);
