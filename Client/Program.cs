@@ -19,10 +19,16 @@ builder.Services.AddMvcCore().AddApiExplorer();
 builder.Services.AddSwaggerDocument();
 
 // Add custom services
-builder.Services.AddSingleton<IProjectService>(x => {
+builder.Services.AddSingleton<IProjectService>(_ => {
     var userDir = builder.Configuration["DataDirectory"];
     var defaultDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "pm4net");
     return new ProjectService(!string.IsNullOrWhiteSpace(userDir) ? userDir : defaultDir);
+});
+
+builder.Services.AddSingleton<ILogFileService>(sp =>
+{
+    var projectService = sp.GetService<IProjectService>();
+    return new LogFileService(projectService!);
 });
 
 var app = builder.Build();

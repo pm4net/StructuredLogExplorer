@@ -6,6 +6,39 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/File/logFileInfos": {
+      "get": {
+        "tags": [
+          "File"
+        ],
+        "operationId": "File_GetLogFileInfos",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogFileInfo"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Project/create": {
       "get": {
         "tags": [
@@ -51,6 +84,37 @@
           "200": {
             "description": ""
           }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LogFileInfo": {
+      "type": "object",
+      "required": [
+        "name",
+        "noOfImportedEvents",
+        "noOfImportedObjects"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "noOfImportedEvents": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "noOfImportedObjects": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "lastImported": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastChanged": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     }

@@ -23,10 +23,10 @@ public class IndexModel : PageModel
     private IEnumerable<ProjectInfo> GetProjectInfo()
     {
         var projects = _projectService.GetAvailableProjects();
-        var projectInfos = projects.Select(x =>
+        var projectInfos = projects.Select(name =>
         {
-            var db = _projectService.GetProjectDatabase(x, readOnly: true);
-            var info = ProjectInfoHelper.GetProjectInformation(x, db);
+            var db = _projectService.GetProjectDatabase(name, readOnly: true);
+            var info = ProjectInfoHelper.GetProjectInformation(db);
             db.Dispose();
             return info;
         });
