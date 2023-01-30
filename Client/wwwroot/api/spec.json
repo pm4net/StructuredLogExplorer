@@ -92,12 +92,13 @@
     "LogFileInfo": {
       "type": "object",
       "required": [
-        "name",
+        "id",
         "noOfImportedEvents",
-        "noOfImportedObjects"
+        "noOfImportedObjects",
+        "fileSize"
       ],
       "properties": {
-        "name": {
+        "id": {
           "type": "string"
         },
         "noOfImportedEvents": {
@@ -107,6 +108,9 @@
         "noOfImportedObjects": {
           "type": "integer",
           "format": "int32"
+        },
+        "fileSize": {
+          "type": "string"
         },
         "lastImported": {
           "type": "string",

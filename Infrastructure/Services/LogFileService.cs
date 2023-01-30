@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HumanBytes;
 using Infrastructure.Constants;
 using Infrastructure.Helpers;
 using Infrastructure.Interfaces;
@@ -41,6 +42,7 @@ namespace Infrastructure.Services
                 if (logFile != null)
                 {
                     fileInfo.LastChanged = logFile.LastWriteTime;
+                    fileInfo.FileSize = logFile.Length.Bytes().ToString();
                 }
             }
 
@@ -50,7 +52,8 @@ namespace Infrastructure.Services
                 ?.Select(x => new LogFileInfo
                 {
                     Name = x.Name,
-                    LastChanged = x.LastWriteTime
+                    LastChanged = x.LastWriteTime,
+                    FileSize = x.Length.Bytes().ToString()
                 });
 
             if (notYetAdded is not null)

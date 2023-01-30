@@ -8,6 +8,8 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
+import { DateTime, Duration } from "luxon";
+
 export interface IFileClient {
 
     getLogFileInfos(projectName: string | null | undefined): Promise<LogFileInfo[]>;
@@ -152,11 +154,12 @@ export class ProjectClient implements IProjectClient {
 }
 
 export class LogFileInfo implements ILogFileInfo {
-    name!: string;
+    id!: string;
     noOfImportedEvents!: number;
     noOfImportedObjects!: number;
-    lastImported?: Date | undefined;
-    lastChanged?: Date | undefined;
+    fileSize!: string;
+    lastImported?: DateTime | undefined;
+    lastChanged?: DateTime | undefined;
 
     constructor(data?: ILogFileInfo) {
         if (data) {
@@ -169,11 +172,12 @@ export class LogFileInfo implements ILogFileInfo {
 
     init(_data?: any) {
         if (_data) {
-            this.name = _data["name"];
+            this.id = _data["id"];
             this.noOfImportedEvents = _data["noOfImportedEvents"];
             this.noOfImportedObjects = _data["noOfImportedObjects"];
-            this.lastImported = _data["lastImported"] ? new Date(_data["lastImported"].toString()) : <any>undefined;
-            this.lastChanged = _data["lastChanged"] ? new Date(_data["lastChanged"].toString()) : <any>undefined;
+            this.fileSize = _data["fileSize"];
+            this.lastImported = _data["lastImported"] ? DateTime.fromISO(_data["lastImported"].toString()) : <any>undefined;
+            this.lastChanged = _data["lastChanged"] ? DateTime.fromISO(_data["lastChanged"].toString()) : <any>undefined;
         }
     }
 
@@ -186,21 +190,23 @@ export class LogFileInfo implements ILogFileInfo {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
+        data["id"] = this.id;
         data["noOfImportedEvents"] = this.noOfImportedEvents;
         data["noOfImportedObjects"] = this.noOfImportedObjects;
-        data["lastImported"] = this.lastImported ? this.lastImported.toISOString() : <any>undefined;
-        data["lastChanged"] = this.lastChanged ? this.lastChanged.toISOString() : <any>undefined;
+        data["fileSize"] = this.fileSize;
+        data["lastImported"] = this.lastImported ? this.lastImported.toString() : <any>undefined;
+        data["lastChanged"] = this.lastChanged ? this.lastChanged.toString() : <any>undefined;
         return data;
     }
 }
 
 export interface ILogFileInfo {
-    name: string;
+    id: string;
     noOfImportedEvents: number;
     noOfImportedObjects: number;
-    lastImported?: Date | undefined;
-    lastChanged?: Date | undefined;
+    fileSize: string;
+    lastImported?: DateTime | undefined;
+    lastChanged?: DateTime | undefined;
 }
 
 export class SwaggerException extends Error {
