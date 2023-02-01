@@ -19,7 +19,7 @@ namespace Infrastructure.Models
         public int NoOfImportedObjects { get; set; }
 
         [BsonIgnore]
-        public string FileSize { get; set; } = string.Empty;
+        public long FileSize { get; set; }
 
         public DateTime? LastImported { get; set; }
 

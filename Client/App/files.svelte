@@ -1,5 +1,6 @@
 <script lang="ts">
     import { DateTime } from "luxon";
+    import prettyBytes from 'pretty-bytes';
 
     import Layout from "./shared/layout.svelte";
     import { Button, DataTable, DataTableSkeleton, InlineNotification, Pagination, Toolbar, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
@@ -28,7 +29,7 @@
             <DataTableSkeleton />
         {:then files}
             <DataTable 
-                sortable 
+                sortable
                 title="Log files" 
                 description="Overview of the log files in the project's log directory and their sync status."
                 headers={[
@@ -53,6 +54,8 @@
                 <svelte:fragment slot="cell" let:row let:cell>
                     {#if cell.key === "overflow"}
                         <Button disabled>Import</Button>
+                    {:else if cell.key === "fileSize"}
+                        {prettyBytes(cell.value)}
                     {:else if cell.key === "lastImported" || cell.key === "lastChanged"}
                         {formatDateTime(cell.value)}
                     {:else}

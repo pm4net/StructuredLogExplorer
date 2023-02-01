@@ -157,7 +157,7 @@ export class LogFileInfo implements ILogFileInfo {
     id!: string;
     noOfImportedEvents!: number;
     noOfImportedObjects!: number;
-    fileSize!: string;
+    fileSize!: number;
     lastImported?: DateTime | undefined;
     lastChanged?: DateTime | undefined;
 
@@ -204,7 +204,7 @@ export interface ILogFileInfo {
     id: string;
     noOfImportedEvents: number;
     noOfImportedObjects: number;
-    fileSize: string;
+    fileSize: number;
     lastImported?: DateTime | undefined;
     lastChanged?: DateTime | undefined;
 }

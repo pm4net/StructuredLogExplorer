@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using HumanBytes;
 using Infrastructure.Constants;
 using Infrastructure.Helpers;
 using Infrastructure.Interfaces;
@@ -31,7 +30,7 @@ namespace Infrastructure.Services
 
             var logDir = new DirectoryInfo(projectInfo.LogDirectory);
             List<FileInfo>? logFiles = logDir
-                .EnumerateFiles(string.Empty, SearchOption.TopDirectoryOnly)
+                .EnumerateFiles(string.Empty, SearchOption.AllDirectories)
                 .Where(f => f.Extension is ".db" or ".jsonocel" or ".xmlocel")
                 .ToList();
 
@@ -42,7 +41,7 @@ namespace Infrastructure.Services
                 if (logFile != null)
                 {
                     fileInfo.LastChanged = logFile.LastWriteTime;
-                    fileInfo.FileSize = logFile.Length.Bytes().ToString();
+                    fileInfo.FileSize = logFile.Length;
                 }
             }
 
@@ -53,7 +52,7 @@ namespace Infrastructure.Services
                 {
                     Name = x.Name,
                     LastChanged = x.LastWriteTime,
-                    FileSize = x.Length.Bytes().ToString()
+                    FileSize = x.Length
                 });
 
             if (notYetAdded is not null)
@@ -61,7 +60,7 @@ namespace Infrastructure.Services
                 dbLogFiles.AddRange(notYetAdded);
             }
 
-            return dbLogFiles;
+            return dbLogFiles.OrderByDescending(x => x.LastChanged);
         }
 
         public void ImportAllLogs(string projectName)

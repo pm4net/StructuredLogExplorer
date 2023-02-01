@@ -26,6 +26,7 @@
         "carbon-icons-svelte": "^11.4.0",
         "carbon-preprocess-svelte": "^0.9.1",
         "luxon": "^3.2.1",
+        "pretty-bytes": "^6.0.0",
         "rollup": "^3.10.0",
         "rollup-plugin-css-only": "^4.3.0",
         "rollup-plugin-svelte": "^7.1.0",

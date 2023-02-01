@@ -110,7 +110,8 @@
           "format": "int32"
         },
         "fileSize": {
-          "type": "string"
+          "type": "integer",
+          "format": "int64"
         },
         "lastImported": {
           "type": "string",
