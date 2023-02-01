@@ -3,12 +3,12 @@
     import prettyBytes from 'pretty-bytes';
 
     import Layout from "./shared/layout.svelte";
-    import { Button, DataTable, DataTableSkeleton, InlineNotification, Pagination, Toolbar, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
+    import { Button, DataTable, DataTableSkeleton, InlineNotification, Pagination, Row, Toolbar, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
 
     import { activeProject } from "./shared/stores";
     import { filesClient } from "./shared/api-clients";
 
-    let pagination = {pageSize: 10, page: 1}
+    let pagination = { pageSize: 10, page: 1, filteredRowIds: <number[]>[] }
 
     // Load log files of active project from API
     let files = filesClient.getLogFileInfos($activeProject);
@@ -47,7 +47,16 @@
 
                 <Toolbar>
                     <ToolbarContent>
-                        <ToolbarSearch persistent shouldFilterRows />
+                        <ToolbarSearch 
+                            persistent 
+                            bind:filteredRowIds={pagination.filteredRowIds}
+                            shouldFilterRows={(row, value) => {
+                                if (typeof value === "string") {
+                                    return row["id"].toLowerCase().includes(value.toLowerCase()); 
+                                }
+                                return false;
+                            }}
+                        />
                     </ToolbarContent>
                 </Toolbar>
 
@@ -67,7 +76,7 @@
             <Pagination
                 bind:pageSize={pagination.pageSize}
                 bind:page={pagination.page}
-                totalItems={files.length}
+                totalItems={pagination.filteredRowIds.length}
                 pageSizeInputDisabled
             />
         {:catch error}

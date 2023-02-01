@@ -21,7 +21,7 @@
     import { getFromJson } from "./shared/config";
     import { activeProject } from "./shared/stores";
 
-    let pagination = {pageSize: 10, page: 1}
+    let pagination = { pageSize: 10, page: 1, filteredRowIds: <number[]>[] }
 
     // The list of available projects, retrieved from a hidden input with JSON data
     let projects = getFromJson<{
@@ -147,7 +147,7 @@
 
         <Toolbar>
             <ToolbarContent>
-                <ToolbarSearch persistent shouldFilterRows />
+                <ToolbarSearch persistent shouldFilterRows bind:filteredRowIds={pagination.filteredRowIds} />
                 <Button icon={FolderAdd} on:click={() => createModal.open = true}>Create</Button>
             </ToolbarContent>
         </Toolbar>
@@ -182,7 +182,7 @@
     <Pagination
         bind:pageSize={pagination.pageSize}
         bind:page={pagination.page}
-        totalItems={projects.length}
+        totalItems={pagination.filteredRowIds.length}
         pageSizeInputDisabled
     />
 
