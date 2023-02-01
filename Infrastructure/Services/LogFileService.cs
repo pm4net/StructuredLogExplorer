@@ -70,6 +70,8 @@ namespace Infrastructure.Services
             var logFiles = GetLogFileInfos(projectName);
             foreach (var logFile in logFiles)
             {
+                dict.Add(logFile.Name, logFile);
+
                 // File doesn't exist anymore
                 if (!File.Exists(Path.Combine(projectInfo.LogDirectory, logFile.Name)))
                     continue;
@@ -79,7 +81,7 @@ namespace Infrastructure.Services
                     continue;
 
                 var info = ImportLog(projectName, logFile.Name);
-                dict.Add(logFile.Name, info);
+                dict[logFile.Name] = info;
             }
 
             return dict;

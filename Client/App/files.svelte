@@ -25,18 +25,17 @@
     }
 
     // Import all log files
-    async function importAll() {
+    async function importAll(fileNames: string[]) {
         try {
-            // TODO: This doesn't work, as files is still a promise.
-            importingFiles.concat((await files).map(f => f.id));
-            importingFiles = importingFiles;
+            importingFiles = importingFiles.concat(fileNames);
 
-            let res = await filesClient.importAll($activeProject);
+            // Replace all entries in the file list with a new Promise that contains the returned results
+            let infos = await filesClient.importAll($activeProject);
+            if (infos) {
+                files = Promise.resolve(Object.values(infos));
+            }
 
             importingFiles = [];
-            importingFiles = importingFiles;
-
-            return res;
         } catch (e: unknown) {
             // TODO: Show modal with error message
             console.error(e);
@@ -49,12 +48,17 @@
             importingFiles.push(name);
             importingFiles = importingFiles;
 
-            let res = await filesClient.importLog($activeProject, name);
+            // Get the current list of files by awaiting the promise, and then create a new Promise with the updated result
+            let filesBeforeImport = await files;
+            let logFileInfo = await filesClient.importLog($activeProject, name);
+            if (logFileInfo) {
+                let idx = filesBeforeImport.findIndex(f => f.id === name);
+                filesBeforeImport[idx] = logFileInfo;
+                files = Promise.resolve(filesBeforeImport);
+            }
 
             importingFiles.splice(importingFiles.indexOf(name), 1);
             importingFiles = importingFiles;
-
-            return res;
         } catch (e: unknown) {
             // TODO: Show modal with error message
             console.error(e);
@@ -97,7 +101,7 @@
                                 return false;
                             }}
                         />
-                        <Button icon={Renew} on:click={importAll}>Import or refresh all</Button>
+                        <Button icon={Renew} on:click={() => importAll(files.map(f => f.id))}>Import or refresh all</Button>
                     </ToolbarContent>
                 </Toolbar>
 
