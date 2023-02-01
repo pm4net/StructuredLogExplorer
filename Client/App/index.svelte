@@ -1,6 +1,6 @@
 <script lang="ts">
     import Layout from "./shared/layout.svelte";
-    import { FolderAdd, TrashCan, ChooseItem } from "carbon-icons-svelte";
+    import { FolderAdd, TrashCan, ChooseItem, ResetAlt } from "carbon-icons-svelte";
     import {
         Button,
         DataTable,
@@ -39,7 +39,7 @@
 
     // Remove active project if it isn't in list of projects anymore (e.g. file got deleted)
     if (projects.find(p => p.name === get(activeProject)) === undefined) {
-        activeProject.set(null);
+        activateProject(null);
     }
 
     // The state of the modal to create a new project
@@ -65,14 +65,16 @@
     }
 
     // Update activated route to disable button, update previously active row to enable button, and save in local storage
-    function activateProject(name: string) {
+    function activateProject(name: string | null) {
         let prevActiveIdx = projects.findIndex(p => p.name === get(activeProject));
         if (prevActiveIdx !== -1) {
             projects[prevActiveIdx].active = false;
         }
         
-        let newActiveIdx = projects.findIndex(p => p.name === name);
-        projects[newActiveIdx].active = true;
+        if (typeof name === "string") {
+            let newActiveIdx = projects.findIndex(p => p.name === name);
+            projects[newActiveIdx].active = true;
+        }
 
         activeProject.set(name);
     }
@@ -114,7 +116,7 @@
             projects = projects.filter(p => p.name !== name);
 
             if (get(activeProject) === name) {
-                activeProject.set(null);
+                activateProject(null);
             }
         } catch (e: unknown) {
             // TODO: Show modal with error message
@@ -165,14 +167,15 @@
             {#if cell.key === "overflow"}
                 {#if row.active}
                     <Button
-                        disabled
-                        icon={ChooseItem}>
-                        Activate
+                        kind="secondary"
+                        icon={ResetAlt}
+                        on:click={() => activateProject(null)}>
+                        Deactivate
                     </Button>
                 {:else}
                     <Button
-                        on:click={() => activateProject(row.id)}
-                        icon={ChooseItem}>
+                        icon={ChooseItem}
+                        on:click={() => activateProject(row.id)}>
                         Activate
                     </Button>
                 {/if}
