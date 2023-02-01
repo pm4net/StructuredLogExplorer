@@ -14,9 +14,9 @@ export interface IFileClient {
 
     getLogFileInfos(projectName: string | null | undefined): Promise<LogFileInfo[]>;
 
-    importAll(projectName: string | null | undefined): Promise<void>;
+    importAll(projectName: string | null | undefined): Promise<{ [key: string]: LogFileInfo; }>;
 
-    importLog(projectName: string | null | undefined, fileName: string | null | undefined): Promise<void>;
+    importLog(projectName: string | null | undefined, fileName: string | null | undefined): Promise<LogFileInfo | null>;
 }
 
 export class FileClient implements IFileClient {
@@ -72,7 +72,7 @@ export class FileClient implements IFileClient {
         return Promise.resolve<LogFileInfo[]>(null as any);
     }
 
-    importAll(projectName: string | null | undefined): Promise<void> {
+    importAll(projectName: string | null | undefined): Promise<{ [key: string]: LogFileInfo; }> {
         let url_ = this.baseUrl + "/api/File/importAll?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
@@ -81,6 +81,7 @@ export class FileClient implements IFileClient {
         let options_: RequestInit = {
             method: "POST",
             headers: {
+                "Accept": "application/json"
             }
         };
 
@@ -89,22 +90,34 @@ export class FileClient implements IFileClient {
         });
     }
 
-    protected processImportAll(response: Response): Promise<void> {
+    protected processImportAll(response: Response): Promise<{ [key: string]: LogFileInfo; }> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (resultData200) {
+                result200 = {} as any;
+                for (let key in resultData200) {
+                    if (resultData200.hasOwnProperty(key))
+                        (<any>result200)![key] = resultData200[key] ? LogFileInfo.fromJS(resultData200[key]) : new LogFileInfo();
+                }
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<{ [key: string]: LogFileInfo; }>(null as any);
     }
 
-    importLog(projectName: string | null | undefined, fileName: string | null | undefined): Promise<void> {
+    importLog(projectName: string | null | undefined, fileName: string | null | undefined): Promise<LogFileInfo | null> {
         let url_ = this.baseUrl + "/api/File/importLog?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
@@ -115,6 +128,7 @@ export class FileClient implements IFileClient {
         let options_: RequestInit = {
             method: "POST",
             headers: {
+                "Accept": "application/json"
             }
         };
 
@@ -123,19 +137,22 @@ export class FileClient implements IFileClient {
         });
     }
 
-    protected processImportLog(response: Response): Promise<void> {
+    protected processImportLog(response: Response): Promise<LogFileInfo | null> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
-            return;
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? LogFileInfo.fromJS(resultData200) : <any>null;
+            return result200;
             });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<LogFileInfo | null>(null as any);
     }
 }
 

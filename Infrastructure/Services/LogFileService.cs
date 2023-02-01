@@ -30,11 +30,7 @@ namespace Infrastructure.Services
             if (dbLogFiles is null)
                 return new List<LogFileInfo>();
 
-            var logDir = new DirectoryInfo(projectInfo.LogDirectory);
-            List<FileInfo>? logFiles = logDir
-                .EnumerateFiles(string.Empty, SearchOption.TopDirectoryOnly)
-                .Where(f => f.Extension is OcelFileExtensions.LiteDb or OcelFileExtensions.Json or OcelFileExtensions.Xml)
-                .ToList();
+            var logFiles = GetFileInfos(projectInfo?.LogDirectory ?? string.Empty);
 
             // First get information about last updated date of file (if it still exists) 
             foreach (var fileInfo in dbLogFiles)
@@ -48,7 +44,7 @@ namespace Infrastructure.Services
             }
 
             // Fill list with new files that haven't been added yet
-            IEnumerable<LogFileInfo>? notYetAdded = logFiles
+            var notYetAdded = logFiles
                 ?.Where(f => dbLogFiles.All(x => x.Name != f.Name))
                 ?.Select(x => new LogFileInfo
                 {
@@ -65,18 +61,39 @@ namespace Infrastructure.Services
             return dbLogFiles.OrderByDescending(x => x.LastChanged);
         }
 
-        public void ImportAllLogs(string projectName)
+        public IDictionary<string, LogFileInfo?> ImportAllLogs(string projectName)
         {
-            throw new NotImplementedException();
+            var db = _projectService.GetProjectDatabase(projectName, readOnly: true);
+            var projectInfo = ProjectInfoHelper.GetProjectInformation(db);
+            var dict = new Dictionary<string, LogFileInfo?>();
+
+            var logFiles = GetLogFileInfos(projectName);
+            foreach (var logFile in logFiles)
+            {
+                // File doesn't exist anymore
+                if (!File.Exists(Path.Combine(projectInfo.LogDirectory, logFile.Name)))
+                    continue;
+
+                // Newest version of file was already imported
+                if (logFile.LastImported is not null && logFile.LastChanged is not null && logFile.LastChanged < logFile.LastImported)
+                    continue;
+
+                var info = ImportLog(projectName, logFile.Name);
+                dict.Add(logFile.Name, info);
+            }
+
+            return dict;
         }
 
-        public void ImportLog(string projectName, string fileName)
+        public LogFileInfo? ImportLog(string projectName, string fileName)
         {
             var db = _projectService.GetProjectDatabase(projectName, readOnly: false);
             var logDir = ProjectInfoHelper.GetProjectInformation(db).LogDirectory;
             var filePath = Path.Combine(logDir, fileName);
+            var fileInfo = new FileInfo(filePath);
+            var importTime = DateTime.Now;
 
-            if (File.Exists(filePath))
+            if (fileInfo.Exists)
             {
                 var dbLogFileColl = db.GetCollection<LogFileInfo>(Identifiers.LogFilesInfo);
                 var dbLogFile = dbLogFileColl?.FindOne(x => x.Name == fileName);
@@ -115,10 +132,17 @@ namespace Infrastructure.Services
 
                 if (dbLogFile != null)
                 {
-                    dbLogFile.NoOfImportedEvents += eventsAfter - eventsBefore;
-                    dbLogFile.NoOfImportedObjects += objectsAfter - objectsBefore;
-                    dbLogFile.LastImported = DateTime.Now;
+                    if (dbLogFile.NoOfImportedEvents < eventsAfter)
+                    {
+                        dbLogFile.NoOfImportedEvents += eventsAfter - eventsBefore;
+                    }
 
+                    if (dbLogFile.NoOfImportedObjects < objectsAfter)
+                    {
+                        dbLogFile.NoOfImportedObjects += objectsAfter - objectsBefore;
+                    }
+
+                    dbLogFile.LastImported = DateTime.Now;
                     dbLogFileColl?.Update(dbLogFile);
                 }
                 else
@@ -128,14 +152,36 @@ namespace Infrastructure.Services
                         Name = fileName,
                         NoOfImportedEvents = eventsAfter,
                         NoOfImportedObjects = objectsAfter,
-                        LastImported = DateTime.Now
+                        LastImported = importTime
                     };
 
                     dbLogFileColl?.Insert(newDbLogFile);
                 }
 
-                _projectService.CloseProject(projectName); // To commit changes to the actual DB file
+                // TODO: Instead of closing connections for others, should implement a locking mechanism so that other threads have to wait until it is released.
+                //_projectService.CloseProject(projectName); // To commit changes to the actual DB file
+
+                return new LogFileInfo
+                {
+                    Name = fileName,
+                    FileSize = fileInfo.Length,
+                    LastChanged = fileInfo.LastWriteTime,
+                    LastImported = importTime,
+                    NoOfImportedEvents = eventsAfter,
+                    NoOfImportedObjects = objectsAfter
+                };
             }
+
+            return null;
+        }
+
+        private static IList<FileInfo> GetFileInfos(string directory)
+        {
+            var logDir = new DirectoryInfo(directory);
+            return logDir
+                .EnumerateFiles(string.Empty, SearchOption.TopDirectoryOnly)
+                .Where(f => f.Extension is OcelFileExtensions.LiteDb or OcelFileExtensions.Json or OcelFileExtensions.Xml)
+                .ToList();
         }
     }
 }

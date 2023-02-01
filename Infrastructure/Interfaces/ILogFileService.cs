@@ -11,8 +11,8 @@ namespace Infrastructure.Interfaces
     {
         public IEnumerable<LogFileInfo> GetLogFileInfos(string projectName);
 
-        public void ImportAllLogs(string projectName);
+        public IDictionary<string, LogFileInfo?> ImportAllLogs(string projectName);
 
-        public void ImportLog(string projectName, string fileName);
+        public LogFileInfo? ImportLog(string projectName, string fileName);
     }
 }

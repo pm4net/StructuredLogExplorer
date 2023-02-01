@@ -133,7 +133,11 @@
 
 <Layout>
     
-    <DataTable sortable title="Projects" description="Each project points to a specific directory with log files."
+    <DataTable 
+        sortable
+        sortKey="name"
+        title="Projects" 
+        description="Each project points to a specific directory with log files."
         headers={[
             { key: "name", value: "Name" },
             { key: "logDirectory", value: "Log Directory" },

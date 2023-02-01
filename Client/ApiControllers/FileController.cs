@@ -24,16 +24,16 @@ namespace StructuredLogExplorer.ApiControllers
 
         [HttpPost]
         [Route("importAll")]
-        public void ImportAll(string projectName)
+        public IDictionary<string, LogFileInfo?> ImportAll(string projectName)
         {
-
+            return _logFileService.ImportAllLogs(projectName);
         }
 
         [HttpPost]
         [Route("importLog")]
-        public void ImportLog(string projectName, string fileName)
+        public LogFileInfo? ImportLog(string projectName, string fileName)
         {
-            _logFileService.ImportLog(projectName, fileName);
+            return _logFileService.ImportLog(projectName, fileName);
         }
     }
 }
