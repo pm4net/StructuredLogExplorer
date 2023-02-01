@@ -51,7 +51,7 @@ namespace Infrastructure.Services
                 return db;
             }
 
-            db = new LiteDatabase(fileName);
+            db = new LiteDatabase($"Filename={fileName};Connection=shared;");
             _dbConnections.Add(projectName, db);
             return db;
         }

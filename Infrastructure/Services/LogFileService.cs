@@ -158,9 +158,6 @@ namespace Infrastructure.Services
                     dbLogFileColl?.Insert(newDbLogFile);
                 }
 
-                // TODO: Instead of closing connections for others, should implement a locking mechanism so that other threads have to wait until it is released.
-                //_projectService.CloseProject(projectName); // To commit changes to the actual DB file
-
                 return new LogFileInfo
                 {
                     Name = fileName,

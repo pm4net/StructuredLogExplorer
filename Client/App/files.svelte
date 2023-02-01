@@ -35,6 +35,8 @@
 
             importingFiles = [];
             importingFiles = importingFiles;
+
+            return res;
         } catch (e: unknown) {
             // TODO: Show modal with error message
             console.error(e);
@@ -51,6 +53,8 @@
 
             importingFiles.splice(importingFiles.indexOf(name), 1);
             importingFiles = importingFiles;
+
+            return res;
         } catch (e: unknown) {
             // TODO: Show modal with error message
             console.error(e);
