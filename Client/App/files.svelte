@@ -3,6 +3,7 @@
     import prettyBytes from 'pretty-bytes';
 
     import Layout from "./shared/layout.svelte";
+    import { Upload, Renew } from "carbon-icons-svelte";
     import { Button, DataTable, DataTableSkeleton, InlineNotification, Pagination, Row, Toolbar, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
 
     import { activeProject } from "./shared/stores";
@@ -20,6 +21,26 @@
         }
 
         return "";
+    }
+
+    // Import all log files
+    async function importAll() {
+        try {
+
+        } catch (e: unknown) {
+            // TODO: Show modal with error message
+            console.error(e);
+        }
+    }
+
+    // Import a specific log file
+    async function importLog(name: string) {
+        try {
+            await filesClient.importLog($activeProject, name);
+        } catch (e: unknown) {
+            // TODO: Show modal with error message
+            console.error(e);
+        }
     }
 </script>
 
@@ -57,12 +78,19 @@
                                 return false;
                             }}
                         />
+                        <Button icon={Renew} on:click={importAll}>Import or refresh all</Button>
                     </ToolbarContent>
                 </Toolbar>
 
                 <svelte:fragment slot="cell" let:row let:cell>
                     {#if cell.key === "overflow"}
-                        <Button disabled>Import</Button>
+                        {#if row["lastImported"] === undefined}
+                            <Button icon={Upload} on:click={() => importLog(row.id)}>Import</Button>
+                        {:else if row["lastChanged"] > row["lastImported"]}
+                            <Button icon={Renew} on:click={() => importLog(row.id)}>Refresh</Button>
+                        {:else}
+                            All up-to date!
+                        {/if}
                     {:else if cell.key === "fileSize"}
                         {prettyBytes(cell.value)}
                     {:else if cell.key === "lastImported" || cell.key === "lastChanged"}

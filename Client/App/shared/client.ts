@@ -13,6 +13,10 @@ import { DateTime, Duration } from "luxon";
 export interface IFileClient {
 
     getLogFileInfos(projectName: string | null | undefined): Promise<LogFileInfo[]>;
+
+    importAll(projectName: string | null | undefined): Promise<void>;
+
+    importLog(projectName: string | null | undefined, fileName: string | null | undefined): Promise<void>;
 }
 
 export class FileClient implements IFileClient {
@@ -66,6 +70,72 @@ export class FileClient implements IFileClient {
             });
         }
         return Promise.resolve<LogFileInfo[]>(null as any);
+    }
+
+    importAll(projectName: string | null | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/File/importAll?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processImportAll(_response);
+        });
+    }
+
+    protected processImportAll(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    importLog(projectName: string | null | undefined, fileName: string | null | undefined): Promise<void> {
+        let url_ = this.baseUrl + "/api/File/importLog?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        if (fileName !== undefined && fileName !== null)
+            url_ += "fileName=" + encodeURIComponent("" + fileName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processImportLog(_response);
+        });
+    }
+
+    protected processImportLog(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 

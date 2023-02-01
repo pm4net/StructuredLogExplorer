@@ -39,6 +39,54 @@
         }
       }
     },
+    "/api/File/importAll": {
+      "post": {
+        "tags": [
+          "File"
+        ],
+        "operationId": "File_ImportAll",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/File/importLog": {
+      "post": {
+        "tags": [
+          "File"
+        ],
+        "operationId": "File_ImportLog",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "type": "string",
+            "name": "fileName",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/Project/create": {
       "get": {
         "tags": [

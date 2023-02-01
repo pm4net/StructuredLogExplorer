@@ -21,5 +21,19 @@ namespace StructuredLogExplorer.ApiControllers
         {
             return _logFileService.GetLogFileInfos(projectName);
         }
+
+        [HttpPost]
+        [Route("importAll")]
+        public void ImportAll(string projectName)
+        {
+
+        }
+
+        [HttpPost]
+        [Route("importLog")]
+        public void ImportLog(string projectName, string fileName)
+        {
+            _logFileService.ImportLog(projectName, fileName);
+        }
     }
 }
