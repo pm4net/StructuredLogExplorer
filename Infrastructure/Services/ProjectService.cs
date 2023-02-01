@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Infrastructure.Constants;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using LiteDB;
@@ -50,7 +51,7 @@ namespace Infrastructure.Services
                 return db;
             }
 
-            db = new LiteDatabase(fileName);
+            db = new LiteDatabase($"Filename={fileName};Connection=shared;");
             _dbConnections.Add(projectName, db);
             return db;
         }
@@ -65,8 +66,8 @@ namespace Infrastructure.Services
                 throw new ArgumentException("Directory does not exist", nameof(logDirectory));
 
             using var db = new LiteDatabase(fileName);
-            var infoColl = db.GetCollection<ProjectInfo>(nameof(ProjectInfo));
-            infoColl?.Insert(new ProjectInfo(logDirectory));
+            var infoColl = db.GetCollection<ProjectInfo>(Identifiers.ProjectInfo);
+            infoColl?.Insert(new ProjectInfo(projectName, logDirectory));
             db.Dispose();
         }
 

@@ -21,7 +21,7 @@
     import { getFromJson } from "./shared/config";
     import { activeProject } from "./shared/stores";
 
-    let pagination = {pageSize: 10, page: 1}
+    let pagination = { pageSize: 10, page: 1, filteredRowIds: <number[]>[] }
 
     // The list of available projects, retrieved from a hidden input with JSON data
     let projects = getFromJson<{
@@ -36,6 +36,11 @@
         val.active = val.name === get(activeProject); // Set active state based on value in local storage
         return val;
     });
+
+    // Remove active project if it isn't in list of projects anymore (e.g. file got deleted)
+    if (projects.find(p => p.name === get(activeProject)) === undefined) {
+        activeProject.set(null);
+    }
 
     // The state of the modal to create a new project
     let createModal = {
@@ -133,7 +138,11 @@
 
 <Layout>
     
-    <DataTable sortable title="Projects" description="Each project points to a specific directory with log files."
+    <DataTable 
+        sortable
+        sortKey="name"
+        title="Projects" 
+        description="Each project points to a specific directory with log files."
         headers={[
             { key: "name", value: "Name" },
             { key: "logDirectory", value: "Log Directory" },
@@ -147,7 +156,7 @@
 
         <Toolbar>
             <ToolbarContent>
-                <ToolbarSearch persistent shouldFilterRows />
+                <ToolbarSearch persistent shouldFilterRows bind:filteredRowIds={pagination.filteredRowIds} />
                 <Button icon={FolderAdd} on:click={() => createModal.open = true}>Create</Button>
             </ToolbarContent>
         </Toolbar>
@@ -182,7 +191,7 @@
     <Pagination
         bind:pageSize={pagination.pageSize}
         bind:page={pagination.page}
-        totalItems={projects.length}
+        totalItems={pagination.filteredRowIds.length}
         pageSizeInputDisabled
     />
 

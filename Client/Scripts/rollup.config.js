@@ -60,6 +60,7 @@ export default (param, globals) => {
                     if (code === "css-unused-selector") {
                         return;
                     }
+
                     handler(warning);
                 },
             }),

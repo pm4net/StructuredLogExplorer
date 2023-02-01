@@ -6,6 +6,108 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/File/logFileInfos": {
+      "get": {
+        "tags": [
+          "File"
+        ],
+        "operationId": "File_GetLogFileInfos",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogFileInfo"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/File/importAll": {
+      "post": {
+        "tags": [
+          "File"
+        ],
+        "operationId": "File_ImportAll",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/LogFileInfo"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/File/importLog": {
+      "post": {
+        "tags": [
+          "File"
+        ],
+        "operationId": "File_ImportLog",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "type": "string",
+            "name": "fileName",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/LogFileInfo"
+            }
+          }
+        }
+      }
+    },
     "/api/Project/create": {
       "get": {
         "tags": [
@@ -51,6 +153,42 @@
           "200": {
             "description": ""
           }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LogFileInfo": {
+      "type": "object",
+      "required": [
+        "id",
+        "noOfImportedEvents",
+        "noOfImportedObjects",
+        "fileSize"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "noOfImportedEvents": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "noOfImportedObjects": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "fileSize": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "lastImported": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastChanged": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     }

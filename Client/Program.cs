@@ -18,11 +18,17 @@ builder.Services.AddHttpClient().AddOptions();
 builder.Services.AddMvcCore().AddApiExplorer();
 builder.Services.AddSwaggerDocument();
 
-// Add custom services
-builder.Services.AddSingleton<IProjectService>(x => {
+// Add custom services (scoped instead of singletons to avoid mutex issues when using shared LiteDb connections (https://github.com/mbdavid/LiteDB/issues/1546#issuecomment-1321174469))
+builder.Services.AddScoped<IProjectService>(_ => {
     var userDir = builder.Configuration["DataDirectory"];
     var defaultDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "pm4net");
     return new ProjectService(!string.IsNullOrWhiteSpace(userDir) ? userDir : defaultDir);
+});
+
+builder.Services.AddScoped<ILogFileService>(sp =>
+{
+    var projectService = sp.GetService<IProjectService>();
+    return new LogFileService(projectService!);
 });
 
 var app = builder.Build();

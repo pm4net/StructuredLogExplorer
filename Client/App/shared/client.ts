@@ -8,6 +8,154 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
+import { DateTime, Duration } from "luxon";
+
+export interface IFileClient {
+
+    getLogFileInfos(projectName: string | null | undefined): Promise<LogFileInfo[]>;
+
+    importAll(projectName: string | null | undefined): Promise<{ [key: string]: LogFileInfo; }>;
+
+    importLog(projectName: string | null | undefined, fileName: string | null | undefined): Promise<LogFileInfo | null>;
+}
+
+export class FileClient implements IFileClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getLogFileInfos(projectName: string | null | undefined): Promise<LogFileInfo[]> {
+        let url_ = this.baseUrl + "/api/File/logFileInfos?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetLogFileInfos(_response);
+        });
+    }
+
+    protected processGetLogFileInfos(response: Response): Promise<LogFileInfo[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(LogFileInfo.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LogFileInfo[]>(null as any);
+    }
+
+    importAll(projectName: string | null | undefined): Promise<{ [key: string]: LogFileInfo; }> {
+        let url_ = this.baseUrl + "/api/File/importAll?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processImportAll(_response);
+        });
+    }
+
+    protected processImportAll(response: Response): Promise<{ [key: string]: LogFileInfo; }> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (resultData200) {
+                result200 = {} as any;
+                for (let key in resultData200) {
+                    if (resultData200.hasOwnProperty(key))
+                        (<any>result200)![key] = resultData200[key] ? LogFileInfo.fromJS(resultData200[key]) : new LogFileInfo();
+                }
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<{ [key: string]: LogFileInfo; }>(null as any);
+    }
+
+    importLog(projectName: string | null | undefined, fileName: string | null | undefined): Promise<LogFileInfo | null> {
+        let url_ = this.baseUrl + "/api/File/importLog?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        if (fileName !== undefined && fileName !== null)
+            url_ += "fileName=" + encodeURIComponent("" + fileName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "POST",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processImportLog(_response);
+        });
+    }
+
+    protected processImportLog(response: Response): Promise<LogFileInfo | null> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = resultData200 ? LogFileInfo.fromJS(resultData200) : <any>null;
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LogFileInfo | null>(null as any);
+    }
+}
+
 export interface IProjectClient {
 
     create(name: string | null | undefined, logDir: string | null | undefined): Promise<void>;
@@ -90,6 +238,62 @@ export class ProjectClient implements IProjectClient {
         }
         return Promise.resolve<void>(null as any);
     }
+}
+
+export class LogFileInfo implements ILogFileInfo {
+    id!: string;
+    noOfImportedEvents!: number;
+    noOfImportedObjects!: number;
+    fileSize!: number;
+    lastImported?: DateTime | undefined;
+    lastChanged?: DateTime | undefined;
+
+    constructor(data?: ILogFileInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.noOfImportedEvents = _data["noOfImportedEvents"];
+            this.noOfImportedObjects = _data["noOfImportedObjects"];
+            this.fileSize = _data["fileSize"];
+            this.lastImported = _data["lastImported"] ? DateTime.fromISO(_data["lastImported"].toString()) : <any>undefined;
+            this.lastChanged = _data["lastChanged"] ? DateTime.fromISO(_data["lastChanged"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): LogFileInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new LogFileInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["noOfImportedEvents"] = this.noOfImportedEvents;
+        data["noOfImportedObjects"] = this.noOfImportedObjects;
+        data["fileSize"] = this.fileSize;
+        data["lastImported"] = this.lastImported ? this.lastImported.toString() : <any>undefined;
+        data["lastChanged"] = this.lastChanged ? this.lastChanged.toString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ILogFileInfo {
+    id: string;
+    noOfImportedEvents: number;
+    noOfImportedObjects: number;
+    fileSize: number;
+    lastImported?: DateTime | undefined;
+    lastChanged?: DateTime | undefined;
 }
 
 export class SwaggerException extends Error {
