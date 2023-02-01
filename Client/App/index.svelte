@@ -37,6 +37,11 @@
         return val;
     });
 
+    // Remove active project if it isn't in list of projects anymore (e.g. file got deleted)
+    if (projects.find(p => p.name === get(activeProject)) === undefined) {
+        activeProject.set(null);
+    }
+
     // The state of the modal to create a new project
     let createModal = {
         open: false,
