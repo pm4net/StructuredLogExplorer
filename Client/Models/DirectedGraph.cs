@@ -83,7 +83,7 @@ namespace StructuredLogExplorer.Models
             if (node.IsEndNode)
             {
                 var en = (pm4net.Types.Dfg.Node.EndNode) node;
-                return new StartNode { Type = en.Type };
+                return new EndNode { Type = en.Type };
             }
 
             var eventNode = (pm4net.Types.Dfg.Node.EventNode) node;
