@@ -6,11 +6,18 @@ using Infrastructure.Services;
 using Microsoft.AspNetCore.Diagnostics;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
+using System.Globalization;
+using ElectronNET.API;
+using ElectronNET.API.Entities;
+using Microsoft.AspNetCore.Localization;
 using StructuredLogExplorer;
 
 var builder = WebApplication.CreateBuilder(args);
 
 JsonConvert.DefaultSettings = () => new JsonSerializerSettings{ContractResolver = new CamelCasePropertyNamesContractResolver()};
+
+// Configure web host
+builder.WebHost.UseElectron(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -78,4 +85,20 @@ app.MapFallback(context =>
     return Task.CompletedTask;
 });
 
+if (HybridSupport.IsElectronActive) {
+    CreateElectronWindow();
+}
+
 app.Run();
+
+static async void CreateElectronWindow()
+{
+    BrowserWindow window = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
+    {
+        AutoHideMenuBar = true,
+        Width = 1200,
+        Height = 800
+    });
+    
+    window.OnClosed += () => Electron.App.Quit();
+}
