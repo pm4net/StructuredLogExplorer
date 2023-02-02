@@ -1,0 +1,92 @@
+name: "Build and Release"
+
+on:
+  push:
+    tags:
+    - 'v*'
+
+env:
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
+
+jobs:
+  release:
+    name: 'Release'
+    runs-on: 'ubuntu-latest'
+    steps:
+    - name: 'Checkout'
+      uses: actions/checkout@v2
+
+    - name: 'Restore packages'
+      run: dotnet restore ${{ env.PROJECT_PATH }}
+
+    - name: 'Build project'
+      run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release --no-restore
+
+    - name: 'Get Version'
+      id: version
+      uses: battila7/get-version-action@v2
+
+    - name: 'Install Electron.NET CLI'
+      run: dotnet tool install ElectronNET.CLI -g
+
+    - name: 'Build for Windows'
+      run: electronize build /target win
+
+    - name: 'Build for Linux'
+      run: electronize build /target linux
+
+    - name: 'Build for OSX'
+      run: electronize build /target osx
+
+    - name: 'Build for OSX ARM64'
+      run: electronize build /target osx-arm64
+
+    - name: Zip Windows executable
+      run: zip -j ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/Windows.zip ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/win/ocel-cli.exe
+
+    - name: Zip Linux executable
+      run: zip -j ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/Linux.zip ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/linux/ocel-cli
+
+    - name: Zip OSX executable
+      run: zip -j ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/OSX.zip ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/osx/ocel-cli
+
+    - name: 'Create release'
+      uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        draft: false
+        prerelease: false
+        release_name: ${{ steps.version.outputs.version-without-v }}
+        tag_name: ${{ github.ref }}
+
+    - name: 'Upload Windows artifact'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/Windows.zip
+        asset_name: Windows.zip
+        asset_content_type: application/zip
+
+    - name: 'Upload Linux artifact'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/Linux.zip
+        asset_name: Linux.zip
+        asset_content_type: application/zip
+
+    - name: 'Upload OSX artifact'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/OSX.zip
+        asset_name: OSX.zip
+        asset_content_type: application/zip
