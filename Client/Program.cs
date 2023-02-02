@@ -20,6 +20,7 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings{ContractResolver 
 builder.WebHost.UseElectron(args);
 
 // Add services to the container.
+builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddRazorPages();
 builder.Services.AddHttpClient().AddOptions();
 builder.Services.AddMvcCore().AddApiExplorer();

@@ -108,6 +108,67 @@
         }
       }
     },
+    "/api/Map/discoverOcDfg": {
+      "get": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_DiscoverObjectCentricDirectlyFollowsGraph",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "type": "integer",
+            "name": "minEvents",
+            "in": "query",
+            "format": "int32",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "minOccurrences",
+            "in": "query",
+            "format": "int32",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "minSuccessions",
+            "in": "query",
+            "format": "int32",
+            "x-nullable": false
+          },
+          {
+            "type": "array",
+            "name": "includedTypes",
+            "in": "query",
+            "collectionFormat": "multi",
+            "x-nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/DirectedGraphOfNodeAndEdge"
+            }
+          }
+        }
+      }
+    },
     "/api/Project/create": {
       "get": {
         "tags": [
@@ -189,6 +250,186 @@
         "lastChanged": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "DirectedGraphOfNodeAndEdge": {
+      "type": "object",
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Node"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ValueTupleOfNodeAndNodeAndEdge"
+          }
+        }
+      }
+    },
+    "Node": {
+      "type": "object",
+      "discriminator": "discriminator",
+      "x-abstract": true,
+      "required": [
+        "discriminator"
+      ],
+      "properties": {
+        "discriminator": {
+          "type": "string"
+        }
+      }
+    },
+    "StartNode": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Node"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "EndNode": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Node"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "EventNode": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Node"
+        },
+        {
+          "type": "object",
+          "required": [
+            "name",
+            "level",
+            "namespace",
+            "statistics"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "level": {
+              "$ref": "#/definitions/LogLevel"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "statistics": {
+              "$ref": "#/definitions/NodeStatistics"
+            }
+          }
+        }
+      ]
+    },
+    "LogLevel": {
+      "type": "integer",
+      "description": "",
+      "x-enumNames": [
+        "Verbose",
+        "Debug",
+        "Information",
+        "Warning",
+        "Error",
+        "Fatal",
+        "Unknown"
+      ],
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "NodeStatistics": {
+      "type": "object",
+      "required": [
+        "frequency"
+      ],
+      "properties": {
+        "frequency": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "ValueTupleOfNodeAndNodeAndEdge": {
+      "type": "object",
+      "required": [
+        "item1",
+        "item2",
+        "item3"
+      ],
+      "properties": {
+        "item1": {
+          "$ref": "#/definitions/Node"
+        },
+        "item2": {
+          "$ref": "#/definitions/Node"
+        },
+        "item3": {
+          "$ref": "#/definitions/Edge"
+        }
+      }
+    },
+    "Edge": {
+      "type": "object",
+      "required": [
+        "type",
+        "statistics"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "statistics": {
+          "$ref": "#/definitions/EdgeStatistics"
+        }
+      }
+    },
+    "EdgeStatistics": {
+      "type": "object",
+      "required": [
+        "frequency"
+      ],
+      "properties": {
+        "frequency": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     }

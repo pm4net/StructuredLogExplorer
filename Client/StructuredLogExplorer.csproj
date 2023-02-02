@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="LiteDB" Version="5.0.15" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.18.2" />
     <PackageReference Include="NSwag.MSBuild" Version="13.18.2">
@@ -81,6 +82,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\pm4net\pm4net\pm4net.fsproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
