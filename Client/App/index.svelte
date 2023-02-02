@@ -17,7 +17,7 @@
     import isValidFilename from "valid-filename";
 
     import { getErrorMessage } from "./shared/helpers";
-    import { projectClient } from "./shared/api-clients";
+    import { projectClient } from "./shared/pm4net-client-config";
     import { getFromJson } from "./shared/config";
     import { activeProject } from "./shared/stores";
 

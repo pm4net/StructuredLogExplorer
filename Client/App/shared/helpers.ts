@@ -1,4 +1,4 @@
-import { SwaggerException } from "./client";
+import { SwaggerException } from "./pm4net-client";
 
 export function getErrorMessage(e: unknown) : string {
     if (e instanceof SwaggerException) {

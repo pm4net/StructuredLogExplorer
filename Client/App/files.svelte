@@ -7,7 +7,7 @@
     import { Button, DataTable, DataTableSkeleton, InlineLoading, InlineNotification, Pagination, Row, Toolbar, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
 
     import { activeProject } from "./shared/stores";
-    import { filesClient } from "./shared/api-clients";
+    import { filesClient } from "./shared/pm4net-client-config";
 
     let pagination = { pageSize: 10, page: 1, filteredRowIds: <number[]>[] }
 

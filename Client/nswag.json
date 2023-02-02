@@ -121,7 +121,7 @@
       "enumNameGeneratorType": null,
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": "App/shared/client.ts",
+      "output": "App/shared/pm4net-client.ts",
       "newLineBehavior": "Auto"
     }
   }
