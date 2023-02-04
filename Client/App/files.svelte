@@ -4,16 +4,23 @@
 
     import Layout from "./shared/layout.svelte";
     import { Upload, Renew } from "carbon-icons-svelte";
-    import { Button, DataTable, DataTableSkeleton, InlineLoading, InlineNotification, Pagination, Row, Toolbar, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
+    import { Button, DataTable, DataTableSkeleton, InlineLoading, InlineNotification, Pagination, Row, ToastNotification, Toolbar, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
 
     import { activeProject } from "./shared/stores";
     import { filesClient } from "./shared/pm4net-client-config";
+    import { getErrorMessage } from "./shared/helpers";
 
     let pagination = { pageSize: 10, page: 1, filteredRowIds: <number[]>[] }
 
     // Load log files of active project from API
     let files = filesClient.getLogFileInfos($activeProject);
     let importingFiles = <string[]>[]
+
+    // The state of the error notification that is shown when an API error occurs
+    let errorNotification = {
+        show: false,
+        message: ""
+    }
 
     // Format a Luxon DateTime in a human-friendly way
     function formatDateTime(dt: any) {
@@ -34,11 +41,11 @@
             if (infos) {
                 files = Promise.resolve(Object.values(infos));
             }
-
-            importingFiles = [];
         } catch (e: unknown) {
-            // TODO: Show modal with error message
-            console.error(e);
+            errorNotification.show = true;
+            errorNotification.message = getErrorMessage(e);
+        } finally {
+            importingFiles = [];
         }
     }
 
@@ -56,12 +63,12 @@
                 filesBeforeImport[idx] = logFileInfo;
                 files = Promise.resolve(filesBeforeImport);
             }
-
+        } catch (e: unknown) {
+            errorNotification.show = true;
+            errorNotification.message = getErrorMessage(e);
+        } finally {
             importingFiles.splice(importingFiles.indexOf(name), 1);
             importingFiles = importingFiles;
-        } catch (e: unknown) {
-            // TODO: Show modal with error message
-            console.error(e);
         }
     }
 </script>
@@ -71,6 +78,18 @@
         {#await files}
             <DataTableSkeleton />
         {:then files}
+
+            {#if errorNotification.show}
+                <ToastNotification
+                    title="An error occurred"
+                    subtitle={errorNotification.message}
+                    kind="error"
+                    fullWidth
+                    lowContrast
+                    on:close={() => errorNotification.message = ""}
+                />
+            {/if}
+
             <DataTable
                 sortable
                 sortKey="lastChanged"

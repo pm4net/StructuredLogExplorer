@@ -1,26 +1,70 @@
 <script lang="ts">
     import Layout from "./shared/layout.svelte";
     
-    import { activeProject } from "./shared/stores";
+    import { activeProject, type MapSettings, type ProjectMapSettings } from "./shared/stores";
+    import { mapSettings } from "./shared/stores";
+    
     import { mapClient } from "./shared/pm4net-client-config";
     import { EndNode, EventNode, StartNode } from "./shared/pm4net-client";
+    import type { Writable } from "svelte/store";
+    import { getErrorMessage } from "./shared/helpers";
+    import { ToastNotification } from "carbon-components-svelte";
 
-    let ocDfg = getOcDfg(0, 0, 0, ["CorrelationId"]);
+    // The state of the error notification that is shown when an API error occurs
+    let errorNotification = {
+        show: false,
+        message: ""
+    }
 
-    async function getOcDfg(minEvents: number, minOccurrences: number, minSuccessions: number, includedTypes: string[]) {
+    // A promise that refreshes every time the map settings change
+    let ocDfgPromise = getOcDfg($mapSettings);
+
+    // Load the the OC-DFG from the API, using the settings from local storage.
+    async function getOcDfg(settings: ProjectMapSettings) {
         try {
-            return await mapClient.discoverObjectCentricDirectlyFollowsGraph($activeProject, minEvents, minOccurrences, minSuccessions, includedTypes);
+            if ($activeProject) {
+                if (!settings[$activeProject]) {
+                    settings[$activeProject] = {
+                        objectTypes: [],
+                        dfg: {
+                            minEvents: 0,
+                            minOccurrences: 0,
+                            minSuccessions: 0
+                        }
+                    };
+                    mapSettings.set(settings);
+                }
+
+                return await mapClient.discoverObjectCentricDirectlyFollowsGraph(
+                    $activeProject, 
+                    settings[$activeProject].dfg.minEvents, 
+                    settings[$activeProject].dfg.minOccurrences, 
+                    settings[$activeProject].dfg.minSuccessions, 
+                    settings[$activeProject].objectTypes); 
+            }
         } catch (e: unknown) {
-            // TODO: Show modal with error message
-            console.error(e);
+            errorNotification.show = true;
+            errorNotification.message = getErrorMessage(e);
         }
     }
 </script>
 
 <Layout>
-    {#await ocDfg}
+    {#await ocDfgPromise}
         <p>Loading...</p>
     {:then ocDfg}
+
+        {#if errorNotification.show}
+            <ToastNotification
+                title="An error occurred"
+                subtitle={errorNotification.message}
+                kind="error"
+                fullWidth
+                lowContrast
+                on:close={() => errorNotification.message = ""}
+            />
+        {/if}
+
         {#if ocDfg}
             {#each ocDfg.nodes as node}
                 {#if node instanceof StartNode}
