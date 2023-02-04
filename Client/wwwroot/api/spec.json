@@ -169,6 +169,36 @@
         }
       }
     },
+    "/api/Map/namespaceTree": {
+      "get": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_GetNamespaceTree",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ListTreeOfString"
+            }
+          }
+        }
+      }
+    },
     "/api/Project/create": {
       "get": {
         "tags": [
@@ -432,6 +462,9 @@
           "format": "int32"
         }
       }
+    },
+    "ListTreeOfString": {
+      "type": "object"
     }
   }
 }

@@ -159,6 +159,8 @@ export class FileClient implements IFileClient {
 export interface IMapClient {
 
     discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<DirectedGraphOfNodeAndEdge>;
+
+    getNamespaceTree(projectName: string | null | undefined): Promise<ListTreeOfString>;
 }
 
 export class MapClient implements IMapClient {
@@ -219,6 +221,42 @@ export class MapClient implements IMapClient {
             });
         }
         return Promise.resolve<DirectedGraphOfNodeAndEdge>(null as any);
+    }
+
+    getNamespaceTree(projectName: string | null | undefined): Promise<ListTreeOfString> {
+        let url_ = this.baseUrl + "/api/Map/namespaceTree?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetNamespaceTree(_response);
+        });
+    }
+
+    protected processGetNamespaceTree(response: Response): Promise<ListTreeOfString> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListTreeOfString.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ListTreeOfString>(null as any);
     }
 }
 
@@ -756,6 +794,36 @@ export class EdgeStatistics implements IEdgeStatistics {
 
 export interface IEdgeStatistics {
     frequency: number;
+}
+
+export class ListTreeOfString implements IListTreeOfString {
+
+    constructor(data?: IListTreeOfString) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): ListTreeOfString {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListTreeOfString();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
+}
+
+export interface IListTreeOfString {
 }
 
 export class SwaggerException extends Error {

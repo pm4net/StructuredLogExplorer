@@ -25,6 +25,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddHttpClient().AddOptions();
 builder.Services.AddMvcCore().AddApiExplorer();
 builder.Services.AddSwaggerDocument();
+builder.Services.AddOutputCache();
 
 // Add custom services (scoped instead of singletons to avoid mutex issues when using shared LiteDb connections (https://github.com/mbdavid/LiteDB/issues/1546#issuecomment-1321174469))
 builder.Services.AddScoped<IProjectService>(_ => {
@@ -67,6 +68,7 @@ app.UseExceptionHandler(options =>
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseOutputCache();
 app.UseOpenApi();
 app.UseSwaggerUi3(settings =>
 {
