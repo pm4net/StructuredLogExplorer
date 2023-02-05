@@ -4,7 +4,8 @@
     import { mapClient } from "./shared/pm4net-client-config";
     import { EndNode, EventNode, StartNode } from "./shared/pm4net-client";
     import { getErrorMessage } from "./shared/helpers";
-    import { Column, Grid, Loading, Row, ToastNotification } from "carbon-components-svelte";
+    import { Button, Column, Grid, Loading, Row, ToastNotification } from "carbon-components-svelte";
+    import { Renew } from "carbon-icons-svelte";
     import Filters from "./components/filters.svelte";
 
     // The state of the error notification that is shown when an API error occurs
@@ -13,7 +14,7 @@
         message: ""
     }
 
-    let logInfo = mapClient.getLogInfo($activeProject);
+    let logInfoPromise = mapClient.getLogInfo($activeProject);
     let ocDfgPromise = getOcDfg($mapSettings);
 
     // Load the the OC-DFG from the API, using the settings from local storage.
@@ -22,7 +23,7 @@
             if ($activeProject) {
                 if (!settings[$activeProject]) {
                     settings[$activeProject] = {
-                        objectTypes: (await logInfo).objectTypes,
+                        objectTypes: (await logInfoPromise).objectTypes,
                         dfg: {
                             minEvents: 0,
                             minOccurrences: 0,
@@ -47,30 +48,37 @@
 </script>
 
 <Layout>
-    {#await ocDfgPromise}
+    {#await logInfoPromise}
         <Loading description="Loading..." />
-    {:then ocDfg}
-        {#await logInfo then logInfo}
-            {#if errorNotification.show}
-                <ToastNotification
-                    title="An error occurred"
-                    subtitle={errorNotification.message}
-                    kind="error"
-                    fullWidth
-                    lowContrast
-                    on:close={() => errorNotification.message = ""}
-                />
-            {/if}
+    {:then logInfo} 
+        {#if errorNotification.show}
+            <ToastNotification
+                title="An error occurred"
+                subtitle={errorNotification.message}
+                kind="error"
+                fullWidth
+                lowContrast
+                on:close={() => errorNotification.message = ""}
+            />
+        {/if}
 
-            <Grid fullWidth noGutter narrow>
-                <Row>
-                    <!-- https://carbondesignsystem.com/guidelines/2x-grid/overview/#breakpoints -->
-                    <Column lg={4}>
-                        <Filters 
-                            availableObjectTypes={logInfo.objectTypes}
-                        />
-                    </Column>
-                    <Column lg={12}>
+        <Grid fullWidth noGutter narrow>
+            <Row>
+                <!-- https://carbondesignsystem.com/guidelines/2x-grid/overview/#breakpoints -->
+                <Column lg={4}>
+                    <Filters  availableObjectTypes={logInfo.objectTypes} />
+                    <Button icon={Renew} on:click={() => {
+                            ocDfgPromise = getOcDfg($mapSettings);
+                            errorNotification.show = false;
+                            errorNotification.message = "";
+                        }}>
+                        Update
+                    </Button>
+                </Column>
+                <Column lg={12}>
+                    {#await ocDfgPromise}
+                        <Loading description="Loading..." />
+                    {:then ocDfg}
                         {#if ocDfg}
                             {#each ocDfg.nodes as node}
                                 {#if node instanceof StartNode}
@@ -82,9 +90,9 @@
                                 {/if}
                             {/each}
                         {/if}
-                    </Column>
-                </Row>
-            </Grid>
-        {/await}
+                    {/await}
+                </Column>
+            </Row>
+        </Grid>
     {/await}
 </Layout>
