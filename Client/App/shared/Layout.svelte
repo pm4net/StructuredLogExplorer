@@ -21,6 +21,8 @@
         Theme
     } from "carbon-components-svelte";
 
+    import { onMount } from "svelte";
+
     import urls from "./urls";
     import { get as getVal } from "./config";
     import { activeProject } from "./stores";
@@ -43,6 +45,13 @@
         theme = value;
         isMenuOpen = false;
     }
+
+    let url : string;
+    onMount(() => {
+        url = window.location.pathname;
+    });
+
+    $: gridFullSize = url?.toLowerCase()?.startsWith(urls.mapUrl);
 </script>
 
 <Theme bind:theme persist persistKey="carbon-theme" />
@@ -51,6 +60,7 @@
     <svelte:fragment slot="skip-to-content">
         <SkipToContent />
     </svelte:fragment>
+    
     <HeaderNav>
         {#each links as link}
             <HeaderNavItem href="{link.href}" text="{link.text}" isSelected="{link.isSelected}" />
@@ -79,9 +89,8 @@
     </SideNav>
 </Header>
 
-
 <Content class="content">
-    <Grid>
+    <Grid fullWidth={gridFullSize} noGutter={gridFullSize}>
         <Row>
             <Column>
                 <slot></slot>

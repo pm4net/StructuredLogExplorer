@@ -42,6 +42,15 @@ namespace StructuredLogExplorer.ApiControllers
         }
 
         [HttpGet]
+        [Route("getLogInfo")]
+        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
+        public LogInfo GetLogInfo(string projectName)
+        {
+            var log = GetProjectLog(projectName);
+            return new LogInfo { ObjectTypes = log.ObjectTypes };
+        }
+
+        [HttpGet]
         [Route("discoverOcDfg")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
         public DirectedGraph<Node, Edge> DiscoverObjectCentricDirectlyFollowsGraph(

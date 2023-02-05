@@ -108,6 +108,36 @@
         }
       }
     },
+    "/api/Map/getLogInfo": {
+      "get": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_GetLogInfo",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/LogInfo"
+            }
+          }
+        }
+      }
+    },
     "/api/Map/discoverOcDfg": {
       "get": {
         "tags": [
@@ -280,6 +310,20 @@
         "lastChanged": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "LogInfo": {
+      "type": "object",
+      "required": [
+        "objectTypes"
+      ],
+      "properties": {
+        "objectTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
