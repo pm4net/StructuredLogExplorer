@@ -7,6 +7,7 @@
     import { Button, Column, Grid, Loading, Row, ToastNotification } from "carbon-components-svelte";
     import { Renew } from "carbon-icons-svelte";
     import Filters from "./components/filters.svelte";
+    import Dfg from "./components/dfg.svelte";
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
@@ -79,17 +80,7 @@
                     {#await ocDfgPromise}
                         <Loading description="Loading..." />
                     {:then ocDfg}
-                        {#if ocDfg}
-                            {#each ocDfg.nodes as node}
-                                {#if node instanceof StartNode}
-                                    <p>{"StartNode " + node.type}</p>
-                                {:else if node instanceof EndNode}
-                                    <p>{"EndNode " + node.type}</p>
-                                {:else if node instanceof EventNode}
-                                    <p>{"EventNode " + node.name}</p>
-                                {/if}
-                            {/each}
-                        {/if}
+                        <Dfg dfg={ocDfg}></Dfg>
                     {/await}
                 </Column>
             </Row>
