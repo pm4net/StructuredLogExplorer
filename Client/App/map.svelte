@@ -65,17 +65,17 @@
         <Grid fullWidth noGutter narrow>
             <Row>
                 <!-- https://carbondesignsystem.com/guidelines/2x-grid/overview/#breakpoints -->
-                <Column lg={4}>
+                <Column md={3} lg={4}>
                     <Filters  availableObjectTypes={logInfo.objectTypes} />
                     <Button icon={Renew} on:click={() => {
-                            ocDfgPromise = getOcDfg($mapSettings);
-                            errorNotification.show = false;
-                            errorNotification.message = "";
-                        }}>
+                        ocDfgPromise = getOcDfg($mapSettings);
+                        errorNotification.show = false;
+                        errorNotification.message = "";
+                    }}>
                         Update
                     </Button>
                 </Column>
-                <Column lg={12}>
+                <Column md={5} lg={12}>
                     {#await ocDfgPromise}
                         <Loading description="Loading..." />
                     {:then ocDfg}

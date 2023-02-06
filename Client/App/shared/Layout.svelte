@@ -89,14 +89,18 @@
     </SideNav>
 </Header>
 
-<Content class="content">
-    <Grid fullWidth={gridFullSize} noGutter={gridFullSize}>
-        <Row>
-            <Column>
-                <slot></slot>
-            </Column>
-        </Row>
-    </Grid>
+<Content class="content {gridFullSize ? 'noPadding' : ''}">
+    {#if gridFullSize}
+        <slot></slot>
+    {:else}
+        <Grid>
+            <Row>
+                <Column>
+                    <slot></slot>
+                </Column>
+            </Row>
+        </Grid>
+    {/if}
 </Content>
 
 <style lang="scss">
@@ -105,5 +109,18 @@
 }
 :global(.activeThemeLink) {
     background-color: gray;
+}
+
+:global(.noPadding) {
+    padding: 0;
+    :global(.bx--row) {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    /**:global(.bx--col-md-3) {
+        overflow: auto;
+        height: calc(100vh - 48px);
+        padding-right: 0;
+    }**/
 }
 </style>
