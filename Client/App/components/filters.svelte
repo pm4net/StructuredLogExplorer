@@ -39,16 +39,16 @@
             </RadioButtonGroup>
         </FormGroup>
     </AccordionItem>
-    <AccordionItem>
-        <svelte:fragment slot="title"><strong>Object types</strong></svelte:fragment>
-        {#each availableObjectTypes as objType}
-            <Checkbox bind:group={objectTypes} labelText={objType} value={objType} />
-        {/each}
-    </AccordionItem>
-    <AccordionItem>
+    <AccordionItem open>
         <svelte:fragment slot="title"><strong>Frequency</strong></svelte:fragment>
         <NumberInput label="Min. events in trace" min={0} bind:value={minEvents} />
         <NumberInput label="Min. occurrences" min={0} bind:value={minOccurrences} />
         <NumberInput label="Min. successions" min={0} bind:value={minSuccessions} />
+    </AccordionItem>
+    <AccordionItem open>
+        <svelte:fragment slot="title"><strong>Object types</strong></svelte:fragment>
+        {#each availableObjectTypes as objType}
+            <Checkbox bind:group={objectTypes} labelText={objType} value={objType} />
+        {/each}
     </AccordionItem>
 </Accordion>
