@@ -1,6 +1,6 @@
 <script lang="ts">
     import Layout from "./shared/layout.svelte";
-    import { activeProject, type ProjectMapSettings, mapSettings, DisplayType, DisplayMethod } from "./shared/stores";
+    import { activeProject, type ProjectMapSettings, mapSettings, DisplayType, DisplayMethod, EdgeType } from "./shared/stores";
     import { mapClient } from "./shared/pm4net-client-config";
     import { getErrorMessage } from "./shared/helpers";
     import { Column, Grid, InlineNotification, Loading, Row, ToastNotification } from "carbon-components-svelte";
@@ -23,6 +23,7 @@
             if (!$mapSettings[$activeProject]) {
                 $mapSettings[$activeProject] = {
                     displayType: DisplayType.OcDfg,
+                    edgeType: EdgeType.Frequency,
                     displayMethod: DisplayMethod.Dot,
                     objectTypes: (await logInfoPromise).objectTypes,
                     dfg: {

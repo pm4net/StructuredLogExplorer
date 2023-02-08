@@ -1,9 +1,11 @@
 <script lang="ts">
     import { Accordion, AccordionItem, Button, Checkbox, FormGroup, NumberInput, RadioButton, RadioButtonGroup } from "carbon-components-svelte";
-    import { activeProject, DisplayMethod, DisplayType, mapSettings } from "../shared/stores";
+    import { Renew } from "carbon-icons-svelte";
+    import { activeProject, DisplayMethod, DisplayType, EdgeType, mapSettings } from "../shared/stores";
 
     export let availableObjectTypes = <string[]>[];
     let displayType = $mapSettings[$activeProject ?? ""]?.displayType;
+    let edgeType = $mapSettings[$activeProject ?? ""]?.edgeType;
     let displayMethod = $mapSettings[$activeProject ?? ""]?.displayMethod;
     let objectTypes = $mapSettings[$activeProject ?? ""]?.objectTypes ?? [];
     let minEvents = $mapSettings[$activeProject ?? ""].dfg.minEvents;
@@ -14,6 +16,7 @@
         // Update the local store settings whenever any of the referenced values change
         let settings = $mapSettings;
         settings[$activeProject ?? ""].displayType = displayType;
+        settings[$activeProject ?? ""].edgeType = edgeType;
         settings[$activeProject ?? ""].displayMethod = displayMethod;
         settings[$activeProject ?? ""].objectTypes = objectTypes;
         settings[$activeProject ?? ""].dfg.minEvents = minEvents;
@@ -30,6 +33,12 @@
             <RadioButtonGroup orientation="vertical" legendText="Display type" bind:selected={displayType}>
                 <RadioButton labelText="Object-Centric Directly Follows Graph" value={DisplayType.OcDfg} />
                 <RadioButton labelText="Object-Centric Petri Net" value={DisplayType.OcPn} disabled />
+            </RadioButtonGroup>
+        </FormGroup>
+        <FormGroup>
+            <RadioButtonGroup orientation="vertical" legendText="Edge type" bind:selected={edgeType}>
+                <RadioButton labelText="Frequency" value={EdgeType.Frequency} />
+                <RadioButton labelText="Performance" value={EdgeType.Performance} disabled />
             </RadioButtonGroup>
         </FormGroup>
         <FormGroup noMargin>
@@ -52,3 +61,9 @@
         {/each}
     </AccordionItem>
 </Accordion>
+
+<style lang="scss">
+    :global(.bx--accordion__content) {
+        padding-right: 0;
+    }
+</style>

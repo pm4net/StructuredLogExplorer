@@ -6,6 +6,7 @@ export const mapSettings = persisted<ProjectMapSettings>("mapSettings", {});
 export type ProjectMapSettings = { [id: string] : MapSettings }
 export type MapSettings = {
     displayType: DisplayType,
+    edgeType: EdgeType,
     displayMethod: DisplayMethod,
     objectTypes: string[],
     dfg: {
@@ -18,6 +19,11 @@ export type MapSettings = {
 export enum DisplayType {
     OcDfg = "ocdfg",
     OcPn = "ocpn"
+}
+
+export enum EdgeType {
+    Frequency = "frequency",
+    Performance = "performance"
 }
 
 export enum DisplayMethod {
