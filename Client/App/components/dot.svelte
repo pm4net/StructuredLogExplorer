@@ -1,12 +1,16 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import * as d3 from "d3";
-
+    import { Graphviz } from "@hpcc-js/wasm";
+    
     export let dot : string;
 
-    onMount(() => {
-        d3.select("#graph").graphviz().renderDot(dot);
+    let svg : string;
+    onMount(async () => {
+        const graphviz = await Graphviz.load();
+        svg = graphviz.dot(dot);
     });
 </script>
 
-<div id="#graph"></div>
+{@html svg}
+
+<div id="#graph" style="text-align: center;"></div>
