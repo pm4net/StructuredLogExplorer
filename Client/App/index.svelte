@@ -8,6 +8,7 @@
         Modal,
         Pagination,
         TextInput,
+        ToastNotification,
         Toolbar,
         ToolbarContent,
         ToolbarSearch
@@ -51,6 +52,12 @@
             show: false,
             message: ""
         }
+    }
+
+    // The state of the error notification that is shown when an API error occurs
+    let errorNotification = {
+        show: false,
+        message: ""
     }
 
     // Close the modal and reset all fields
@@ -119,8 +126,8 @@
                 activateProject(null);
             }
         } catch (e: unknown) {
-            // TODO: Show modal with error message
-            console.error(e);
+            errorNotification.show = true;
+            errorNotification.message = getErrorMessage(e);
         }
     }
 
@@ -139,6 +146,17 @@
 </script>
 
 <Layout>
+
+    {#if errorNotification.show}
+        <ToastNotification
+            title="An error occurred"
+            subtitle={errorNotification.message}
+            kind="error"
+            fullWidth
+            lowContrast
+            on:close={() => errorNotification.message = ""}
+        />
+    {/if}
     
     <DataTable 
         sortable

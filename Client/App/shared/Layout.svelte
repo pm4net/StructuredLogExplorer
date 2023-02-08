@@ -21,6 +21,8 @@
         Theme
     } from "carbon-components-svelte";
 
+    import { onMount } from "svelte";
+
     import urls from "./urls";
     import { get as getVal } from "./config";
     import { activeProject } from "./stores";
@@ -43,6 +45,13 @@
         theme = value;
         isMenuOpen = false;
     }
+
+    let url : string;
+    onMount(() => {
+        url = window.location.pathname;
+    });
+
+    $: gridFullSize = url?.toLowerCase()?.startsWith(urls.mapUrl);
 </script>
 
 <Theme bind:theme persist persistKey="carbon-theme" />
@@ -51,6 +60,7 @@
     <svelte:fragment slot="skip-to-content">
         <SkipToContent />
     </svelte:fragment>
+    
     <HeaderNav>
         {#each links as link}
             <HeaderNavItem href="{link.href}" text="{link.text}" isSelected="{link.isSelected}" />
@@ -79,15 +89,18 @@
     </SideNav>
 </Header>
 
-
-<Content class="content">
-    <Grid>
-        <Row>
-            <Column>
-                <slot></slot>
-            </Column>
-        </Row>
-    </Grid>
+<Content class="content {gridFullSize ? 'noPadding' : ''}">
+    {#if gridFullSize}
+        <slot></slot>
+    {:else}
+        <Grid>
+            <Row>
+                <Column>
+                    <slot></slot>
+                </Column>
+            </Row>
+        </Grid>
+    {/if}
 </Content>
 
 <style lang="scss">
@@ -96,5 +109,18 @@
 }
 :global(.activeThemeLink) {
     background-color: gray;
+}
+
+:global(.noPadding) {
+    padding: 0;
+    :global(.bx--row) {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    /**:global(.bx--col-md-3) {
+        overflow: auto;
+        height: calc(100vh - 48px);
+        padding-right: 0;
+    }**/
 }
 </style>
