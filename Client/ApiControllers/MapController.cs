@@ -65,6 +65,23 @@ namespace StructuredLogExplorer.ApiControllers
         }
 
         [HttpGet]
+        [Route("discoverOcDfgAndDot")]
+        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
+        public string DiscoverOcDfgAndGenerateDot(
+            string projectName,
+            bool groupByNamespace,
+            int minEvents,
+            int minOccurrences,
+            int minSuccessions,
+            [FromQuery] IEnumerable<string> includedTypes)
+        {
+            var log = GetProjectLog(projectName);
+            var ocDfg = OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log);
+            var dot = pm4net.Visualization.Graphviz.OcDfg2Dot(ocDfg, groupByNamespace);
+            return dot;
+        }
+
+        [HttpGet]
         [Route("namespaceTree")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
         public ListTree<string> GetNamespaceTree(string projectName)

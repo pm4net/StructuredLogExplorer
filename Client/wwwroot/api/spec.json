@@ -199,6 +199,73 @@
         }
       }
     },
+    "/api/Map/discoverOcDfgAndDot": {
+      "get": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_DiscoverOcDfgAndGenerateDot",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "type": "boolean",
+            "name": "groupByNamespace",
+            "in": "query",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "minEvents",
+            "in": "query",
+            "format": "int32",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "minOccurrences",
+            "in": "query",
+            "format": "int32",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "minSuccessions",
+            "in": "query",
+            "format": "int32",
+            "x-nullable": false
+          },
+          {
+            "type": "array",
+            "name": "includedTypes",
+            "in": "query",
+            "collectionFormat": "multi",
+            "x-nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "/api/Map/namespaceTree": {
       "get": {
         "tags": [

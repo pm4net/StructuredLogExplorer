@@ -1,13 +1,12 @@
 <script lang="ts">
     import Layout from "./shared/layout.svelte";
-    import { activeProject, type ProjectMapSettings, mapSettings } from "./shared/stores";
+    import { activeProject, type ProjectMapSettings, mapSettings, DisplayType, DisplayMethod } from "./shared/stores";
     import { mapClient } from "./shared/pm4net-client-config";
-    import { EndNode, EventNode, StartNode } from "./shared/pm4net-client";
     import { getErrorMessage } from "./shared/helpers";
-    import { Button, Column, Grid, Loading, Row, ToastNotification } from "carbon-components-svelte";
-    import { Renew } from "carbon-icons-svelte";
+    import { Column, Grid, InlineNotification, Loading, Row, ToastNotification } from "carbon-components-svelte";
     import Filters from "./components/filters.svelte";
     import Dfg from "./components/dfg.svelte";
+    import Dot from "./components/dot.svelte";
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
@@ -15,32 +14,52 @@
         message: ""
     }
 
+    // Retrieve some basic information about the event log
     let logInfoPromise = mapClient.getLogInfo($activeProject);
-    let ocDfgPromise = getOcDfg($mapSettings);
 
-    // Load the the OC-DFG from the API, using the settings from local storage.
-    async function getOcDfg(settings: ProjectMapSettings) {
-        try {
-            if ($activeProject) {
-                if (!settings[$activeProject]) {
-                    settings[$activeProject] = {
-                        objectTypes: (await logInfoPromise).objectTypes,
-                        dfg: {
-                            minEvents: 0,
-                            minOccurrences: 0,
-                            minSuccessions: 0
-                        }
-                    };
-                    mapSettings.set(settings);
-                }
-
-                return await mapClient.discoverObjectCentricDirectlyFollowsGraph(
-                    $activeProject, 
-                    settings[$activeProject].dfg.minEvents, 
-                    settings[$activeProject].dfg.minOccurrences, 
-                    settings[$activeProject].dfg.minSuccessions, 
-                    settings[$activeProject].objectTypes); 
+    // Initialize the map settings for the currently active project if it isn't already.
+    async function setMapSettingsToDefaultIfNotExists() {
+        if ($activeProject) {
+            if (!$mapSettings[$activeProject]) {
+                $mapSettings[$activeProject] = {
+                    displayType: DisplayType.OcDfg,
+                    displayMethod: DisplayMethod.Dot,
+                    objectTypes: (await logInfoPromise).objectTypes,
+                    dfg: {
+                        minEvents: 0,
+                        minOccurrences: 0,
+                        minSuccessions: 0
+                    }
+                };
             }
+        }
+    }
+
+    // Load the OC-DFG from the API, using the settings from local storage.
+    async function getOcDfg() {
+        try {
+            return await mapClient.discoverObjectCentricDirectlyFollowsGraph(
+                $activeProject, 
+                $mapSettings[$activeProject ?? ""]?.dfg.minEvents, 
+                $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences, 
+                $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions, 
+                $mapSettings[$activeProject ?? ""]?.objectTypes);
+        } catch (e: unknown) {
+            errorNotification.show = true;
+            errorNotification.message = getErrorMessage(e);
+        }
+    }
+
+    // Load the DOT definition of the OC-DFG from the API, using the settings from local storage.
+    async function getOcDfgDot() {
+        try {
+            return await mapClient.discoverOcDfgAndGenerateDot(
+                $activeProject,
+                true, // TODO
+                $mapSettings[$activeProject ?? ""]?.dfg.minEvents, 
+                $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences, 
+                $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions, 
+                $mapSettings[$activeProject ?? ""]?.objectTypes);
         } catch (e: unknown) {
             errorNotification.show = true;
             errorNotification.message = getErrorMessage(e);
@@ -49,41 +68,58 @@
 </script>
 
 <Layout>
-    {#await logInfoPromise}
-        <Loading description="Loading..." />
-    {:then logInfo} 
-        {#if errorNotification.show}
-            <ToastNotification
-                title="An error occurred"
-                subtitle={errorNotification.message}
-                kind="error"
-                fullWidth
-                lowContrast
-                on:close={() => errorNotification.message = ""}
-            />
-        {/if}
+    {#if $activeProject}
+        {#await logInfoPromise}
+            <Loading description="Loading..." />
+        {:then logInfo} 
+            {#await setMapSettingsToDefaultIfNotExists() then _}
+                {#if errorNotification.show}
+                    <ToastNotification
+                        title="An error occurred"
+                        subtitle={errorNotification.message}
+                        kind="error"
+                        fullWidth
+                        lowContrast
+                        on:close={() => errorNotification.message = ""}
+                    />
+                {/if}
 
-        <Grid fullWidth noGutter narrow>
-            <Row>
-                <!-- https://carbondesignsystem.com/guidelines/2x-grid/overview/#breakpoints -->
-                <Column md={3} lg={4}>
-                    <Filters  availableObjectTypes={logInfo.objectTypes} />
-                    <Button icon={Renew} on:click={() => {
-                        ocDfgPromise = getOcDfg($mapSettings);
-                        errorNotification.show = false;
-                        errorNotification.message = "";
-                    }}>
-                        Update
-                    </Button>
-                </Column>
-                <Column md={5} lg={12}>
-                    {#await ocDfgPromise}
-                        <Loading description="Loading..." />
-                    {:then ocDfg}
-                        <Dfg dfg={ocDfg}></Dfg>
-                    {/await}
-                </Column>
-            </Row>
-        </Grid>
-    {/await}
+                <Grid fullWidth noGutter narrow>
+                    <Row>
+                        <!-- https://carbondesignsystem.com/guidelines/2x-grid/overview/#breakpoints -->
+                        <Column md={3} lg={4}>
+                            <Filters availableObjectTypes={logInfo.objectTypes} />
+                        </Column>
+                        <Column md={5} lg={12}>
+                            {#key $mapSettings[$activeProject ?? ""]}
+                                {#if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcDfg}
+                                    {#if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Dot}
+                                        {#await getOcDfgDot()}
+                                            <Loading description="Loading..." />
+                                        {:then dot}
+                                            <Dot dot={dot ?? ""}></Dot>
+                                        {/await}
+                                    {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Custom}
+                                        {#await getOcDfg()}
+                                            <Loading description="Loading..." />
+                                        {:then ocDfg}
+                                            <Dfg dfg={ocDfg}></Dfg>
+                                        {/await}
+                                    {/if}
+                                {:else if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcPn}
+                                    <InlineNotification lowContrast hideCloseButton title="Currently not supported" />
+                                {/if}
+                            {/key}
+                        </Column>
+                    </Row>
+                </Grid>
+            {/await}
+        {/await}
+    {:else}
+        <InlineNotification
+            title="Please activate a project before visiting this page."
+            subtitle="Your process map will then be shown here."
+            lowContrast
+            hideCloseButton />
+    {/if}
 </Layout>
