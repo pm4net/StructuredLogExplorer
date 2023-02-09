@@ -77,7 +77,7 @@ namespace StructuredLogExplorer.ApiControllers
         {
             var log = GetProjectLog(projectName);
             var ocDfg = OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log);
-            var dot = pm4net.Visualization.Graphviz.OcDfg2Dot(ocDfg, groupByNamespace);
+            var dot = pm4net.Visualization.Ocel.Graphviz.OcDfg2Dot(ocDfg, groupByNamespace);
             return dot;
         }
 
