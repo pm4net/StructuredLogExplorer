@@ -8,6 +8,7 @@ export type MapSettings = {
     displayType: DisplayType,
     edgeType: EdgeType,
     displayMethod: DisplayMethod,
+    groupByNamespace: boolean,
     objectTypes: string[],
     dfg: {
         minEvents: number,
