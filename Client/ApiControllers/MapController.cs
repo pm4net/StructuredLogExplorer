@@ -2,11 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.FSharp.Collections;
+using Newtonsoft.Json;
 using pm4net.Algorithms.Discovery.Ocel;
 using OCEL.CSharp;
 using pm4net.Types.Trees;
 using pm4net.Utilities;
+using pm4net.Visualization.Layout;
 using StructuredLogExplorer.Models;
+using Node = StructuredLogExplorer.Models.Node;
 
 namespace StructuredLogExplorer.ApiControllers
 {
@@ -79,6 +82,23 @@ namespace StructuredLogExplorer.ApiControllers
             var ocDfg = OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log);
             var dot = pm4net.Visualization.Ocel.Graphviz.OcDfg2Dot(ocDfg, groupByNamespace);
             return dot;
+        }
+
+        [HttpGet]
+        [Route("discoverOcDfgAndApplyStableGraphLayout")]
+        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
+        public string DiscoverOcDfgAndApplyStableGraphLayout(
+            string projectName,
+            bool groupByNamespace,
+            int minEvents,
+            int minOccurrences,
+            int minSuccessions,
+            [FromQuery] IEnumerable<string> includedTypes)
+        {
+            var log = GetProjectLog(projectName);
+            var ocDfg = OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log);
+            var graphLayout = StableGraphLayout.ComputeGlobalOrder(log);
+            return JsonConvert.SerializeObject(graphLayout);
         }
 
         [HttpGet]

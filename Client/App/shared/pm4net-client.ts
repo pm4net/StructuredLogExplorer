@@ -164,6 +164,8 @@ export interface IMapClient {
 
     discoverOcDfgAndGenerateDot(projectName: string | null | undefined, groupByNamespace: boolean | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<string>;
 
+    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, groupByNamespace: boolean | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<string>;
+
     getNamespaceTree(projectName: string | null | undefined): Promise<ListTreeOfString>;
 }
 
@@ -300,6 +302,61 @@ export class MapClient implements IMapClient {
     }
 
     protected processDiscoverOcDfgAndGenerateDot(response: Response): Promise<string> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<string>(null as any);
+    }
+
+    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, groupByNamespace: boolean | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<string> {
+        let url_ = this.baseUrl + "/api/Map/discoverOcDfgAndApplyStableGraphLayout?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        if (groupByNamespace === null)
+            throw new Error("The parameter 'groupByNamespace' cannot be null.");
+        else if (groupByNamespace !== undefined)
+            url_ += "groupByNamespace=" + encodeURIComponent("" + groupByNamespace) + "&";
+        if (minEvents === null)
+            throw new Error("The parameter 'minEvents' cannot be null.");
+        else if (minEvents !== undefined)
+            url_ += "minEvents=" + encodeURIComponent("" + minEvents) + "&";
+        if (minOccurrences === null)
+            throw new Error("The parameter 'minOccurrences' cannot be null.");
+        else if (minOccurrences !== undefined)
+            url_ += "minOccurrences=" + encodeURIComponent("" + minOccurrences) + "&";
+        if (minSuccessions === null)
+            throw new Error("The parameter 'minSuccessions' cannot be null.");
+        else if (minSuccessions !== undefined)
+            url_ += "minSuccessions=" + encodeURIComponent("" + minSuccessions) + "&";
+        if (includedTypes !== undefined && includedTypes !== null)
+            includedTypes && includedTypes.forEach(item => { url_ += "includedTypes=" + encodeURIComponent("" + item) + "&"; });
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDiscoverOcDfgAndApplyStableGraphLayout(_response);
+        });
+    }
+
+    protected processDiscoverOcDfgAndApplyStableGraphLayout(response: Response): Promise<string> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {

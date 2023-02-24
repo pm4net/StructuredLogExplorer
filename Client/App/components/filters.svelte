@@ -46,7 +46,7 @@
         <FormGroup>
             <RadioButtonGroup orientation="vertical" legendText="Display method" bind:selected={displayMethod}>
                 <RadioButton labelText="DOT" value={DisplayMethod.Dot} />
-                <RadioButton labelText="Custom" value={DisplayMethod.Custom} disabled />
+                <RadioButton labelText="Custom" value={DisplayMethod.Custom} />
             </RadioButtonGroup>
         </FormGroup>
         <FormGroup noMargin>
