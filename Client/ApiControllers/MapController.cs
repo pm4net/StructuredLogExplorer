@@ -1,13 +1,12 @@
 ﻿using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.FSharp.Collections;
-using Newtonsoft.Json;
 using pm4net.Algorithms.Discovery.Ocel;
 using OCEL.CSharp;
 using pm4net.Types.Trees;
 using pm4net.Utilities;
 using pm4net.Algorithms.Layout;
+using pm4net.Types.GraphLayout;
 using StructuredLogExplorer.Models;
 using Node = StructuredLogExplorer.Models.Node;
 
@@ -68,6 +67,23 @@ namespace StructuredLogExplorer.ApiControllers
         }
 
         [HttpGet]
+        [Route("discoverOcDfgAndApplyStableGraphLayout")]
+        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
+        public DirectedGraph<Node, Edge> DiscoverOcDfgAndApplyStableGraphLayout(
+            string projectName,
+            bool groupByNamespace,
+            int minEvents,
+            int minOccurrences,
+            int minSuccessions,
+            [FromQuery] IEnumerable<string> includedTypes)
+        {
+            var log = GetProjectLog(projectName);
+            var ocDfg = OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log);
+            var globalOrder = StableGraphLayout.ComputeGlobalOrder(log, ocDfg);
+            return ocDfg.FromFSharpGraph().EnrichWithGlobalOrder(globalOrder);
+        }
+
+        [HttpGet]
         [Route("discoverOcDfgAndDot")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
         public string DiscoverOcDfgAndGenerateDot(
@@ -82,23 +98,6 @@ namespace StructuredLogExplorer.ApiControllers
             var ocDfg = OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log);
             var dot = pm4net.Visualization.Ocel.Graphviz.OcDfg2Dot(ocDfg, groupByNamespace);
             return dot;
-        }
-
-        [HttpGet]
-        [Route("discoverOcDfgAndApplyStableGraphLayout")]
-        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
-        public string DiscoverOcDfgAndApplyStableGraphLayout(
-            string projectName,
-            bool groupByNamespace,
-            int minEvents,
-            int minOccurrences,
-            int minSuccessions,
-            [FromQuery] IEnumerable<string> includedTypes)
-        {
-            var log = GetProjectLog(projectName);
-            var ocDfg = OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log);
-            var graphLayout = StableGraphLayout.ComputeGlobalOrder(log, ocDfg);
-            return JsonConvert.SerializeObject(graphLayout);
         }
 
         [HttpGet]

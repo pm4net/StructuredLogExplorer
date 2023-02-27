@@ -199,12 +199,12 @@
         }
       }
     },
-    "/api/Map/discoverOcDfgAndDot": {
+    "/api/Map/discoverOcDfgAndApplyStableGraphLayout": {
       "get": {
         "tags": [
           "Map"
         ],
-        "operationId": "Map_DiscoverOcDfgAndGenerateDot",
+        "operationId": "Map_DiscoverOcDfgAndApplyStableGraphLayout",
         "produces": [
           "text/plain",
           "application/json",
@@ -260,18 +260,18 @@
             "x-nullable": false,
             "description": "",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/DirectedGraphOfNodeAndEdge"
             }
           }
         }
       }
     },
-    "/api/Map/discoverOcDfgAndApplyStableGraphLayout": {
+    "/api/Map/discoverOcDfgAndDot": {
       "get": {
         "tags": [
           "Map"
         ],
-        "operationId": "Map_DiscoverOcDfgAndApplyStableGraphLayout",
+        "operationId": "Map_DiscoverOcDfgAndGenerateDot",
         "produces": [
           "text/plain",
           "application/json",
@@ -490,8 +490,29 @@
         "discriminator"
       ],
       "properties": {
+        "coordinate": {
+          "$ref": "#/definitions/Coordinate"
+        },
         "discriminator": {
           "type": "string"
+        }
+      }
+    },
+    "Coordinate": {
+      "type": "object",
+      "description": "A point in a coordinate system",
+      "required": [
+        "x",
+        "y"
+      ],
+      "properties": {
+        "x": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "y": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -618,7 +639,8 @@
       "type": "object",
       "required": [
         "type",
-        "statistics"
+        "statistics",
+        "waypoints"
       ],
       "properties": {
         "type": {
@@ -626,6 +648,12 @@
         },
         "statistics": {
           "$ref": "#/definitions/EdgeStatistics"
+        },
+        "waypoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Coordinate"
+          }
         }
       }
     },
