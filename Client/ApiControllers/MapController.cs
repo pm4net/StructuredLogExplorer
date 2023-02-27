@@ -1,12 +1,14 @@
 ﻿using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.FSharp.Collections;
 using pm4net.Algorithms.Discovery.Ocel;
 using OCEL.CSharp;
 using pm4net.Types.Trees;
 using pm4net.Utilities;
+using pm4net.Algorithms.Layout;
+using pm4net.Types.GraphLayout;
 using StructuredLogExplorer.Models;
+using Node = StructuredLogExplorer.Models.Node;
 
 namespace StructuredLogExplorer.ApiControllers
 {
@@ -62,6 +64,23 @@ namespace StructuredLogExplorer.ApiControllers
         {
             var log = GetProjectLog(projectName);
             return OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log).FromFSharpGraph();
+        }
+
+        [HttpGet]
+        [Route("discoverOcDfgAndApplyStableGraphLayout")]
+        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
+        public DirectedGraph<Node, Edge> DiscoverOcDfgAndApplyStableGraphLayout(
+            string projectName,
+            bool groupByNamespace,
+            int minEvents,
+            int minOccurrences,
+            int minSuccessions,
+            [FromQuery] IEnumerable<string> includedTypes)
+        {
+            var log = GetProjectLog(projectName);
+            var ocDfg = OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log);
+            var globalOrder = StableGraphLayout.ComputeGlobalOrder(log, ocDfg);
+            return ocDfg.FromFSharpGraph().EnrichWithGlobalOrder(globalOrder);
         }
 
         [HttpGet]

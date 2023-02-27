@@ -199,6 +199,73 @@
         }
       }
     },
+    "/api/Map/discoverOcDfgAndApplyStableGraphLayout": {
+      "get": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_DiscoverOcDfgAndApplyStableGraphLayout",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "type": "boolean",
+            "name": "groupByNamespace",
+            "in": "query",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "minEvents",
+            "in": "query",
+            "format": "int32",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "minOccurrences",
+            "in": "query",
+            "format": "int32",
+            "x-nullable": false
+          },
+          {
+            "type": "integer",
+            "name": "minSuccessions",
+            "in": "query",
+            "format": "int32",
+            "x-nullable": false
+          },
+          {
+            "type": "array",
+            "name": "includedTypes",
+            "in": "query",
+            "collectionFormat": "multi",
+            "x-nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/DirectedGraphOfNodeAndEdge"
+            }
+          }
+        }
+      }
+    },
     "/api/Map/discoverOcDfgAndDot": {
       "get": {
         "tags": [
@@ -423,8 +490,29 @@
         "discriminator"
       ],
       "properties": {
+        "coordinate": {
+          "$ref": "#/definitions/Coordinate"
+        },
         "discriminator": {
           "type": "string"
+        }
+      }
+    },
+    "Coordinate": {
+      "type": "object",
+      "description": "A point in a coordinate system",
+      "required": [
+        "x",
+        "y"
+      ],
+      "properties": {
+        "x": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "y": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -551,7 +639,8 @@
       "type": "object",
       "required": [
         "type",
-        "statistics"
+        "statistics",
+        "waypoints"
       ],
       "properties": {
         "type": {
@@ -559,6 +648,12 @@
         },
         "statistics": {
           "$ref": "#/definitions/EdgeStatistics"
+        },
+        "waypoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Coordinate"
+          }
         }
       }
     },

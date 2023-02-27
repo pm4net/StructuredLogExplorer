@@ -12,7 +12,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StructuredLogExplorer", "Cl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{4E776788-E830-48F4-8620-965952D626CC}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "pm4net", "..\pm4net\pm4net\pm4net.fsproj", "{09E2EFCD-8815-4CC9-BA4A-BDA9CD51F762}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "pm4net", "..\pm4net\pm4net\pm4net.fsproj", "{D82AEC27-F963-4476-A318-5E3F4DE57D99}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,10 +28,10 @@ Global
 		{4E776788-E830-48F4-8620-965952D626CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E776788-E830-48F4-8620-965952D626CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E776788-E830-48F4-8620-965952D626CC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{09E2EFCD-8815-4CC9-BA4A-BDA9CD51F762}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{09E2EFCD-8815-4CC9-BA4A-BDA9CD51F762}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{09E2EFCD-8815-4CC9-BA4A-BDA9CD51F762}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{09E2EFCD-8815-4CC9-BA4A-BDA9CD51F762}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D82AEC27-F963-4476-A318-5E3F4DE57D99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D82AEC27-F963-4476-A318-5E3F4DE57D99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D82AEC27-F963-4476-A318-5E3F4DE57D99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D82AEC27-F963-4476-A318-5E3F4DE57D99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

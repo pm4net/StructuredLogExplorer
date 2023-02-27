@@ -162,6 +162,8 @@ export interface IMapClient {
 
     discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<DirectedGraphOfNodeAndEdge>;
 
+    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, groupByNamespace: boolean | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<DirectedGraphOfNodeAndEdge>;
+
     discoverOcDfgAndGenerateDot(projectName: string | null | undefined, groupByNamespace: boolean | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<string>;
 
     getNamespaceTree(projectName: string | null | undefined): Promise<ListTreeOfString>;
@@ -246,6 +248,60 @@ export class MapClient implements IMapClient {
     }
 
     protected processDiscoverObjectCentricDirectlyFollowsGraph(response: Response): Promise<DirectedGraphOfNodeAndEdge> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DirectedGraphOfNodeAndEdge.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<DirectedGraphOfNodeAndEdge>(null as any);
+    }
+
+    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, groupByNamespace: boolean | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<DirectedGraphOfNodeAndEdge> {
+        let url_ = this.baseUrl + "/api/Map/discoverOcDfgAndApplyStableGraphLayout?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        if (groupByNamespace === null)
+            throw new Error("The parameter 'groupByNamespace' cannot be null.");
+        else if (groupByNamespace !== undefined)
+            url_ += "groupByNamespace=" + encodeURIComponent("" + groupByNamespace) + "&";
+        if (minEvents === null)
+            throw new Error("The parameter 'minEvents' cannot be null.");
+        else if (minEvents !== undefined)
+            url_ += "minEvents=" + encodeURIComponent("" + minEvents) + "&";
+        if (minOccurrences === null)
+            throw new Error("The parameter 'minOccurrences' cannot be null.");
+        else if (minOccurrences !== undefined)
+            url_ += "minOccurrences=" + encodeURIComponent("" + minOccurrences) + "&";
+        if (minSuccessions === null)
+            throw new Error("The parameter 'minSuccessions' cannot be null.");
+        else if (minSuccessions !== undefined)
+            url_ += "minSuccessions=" + encodeURIComponent("" + minSuccessions) + "&";
+        if (includedTypes !== undefined && includedTypes !== null)
+            includedTypes && includedTypes.forEach(item => { url_ += "includedTypes=" + encodeURIComponent("" + item) + "&"; });
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDiscoverOcDfgAndApplyStableGraphLayout(_response);
+        });
+    }
+
+    protected processDiscoverOcDfgAndApplyStableGraphLayout(response: Response): Promise<DirectedGraphOfNodeAndEdge> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -603,6 +659,7 @@ export interface IDirectedGraphOfNodeAndEdge {
 }
 
 export abstract class Node implements INode {
+    coordinate?: Coordinate | undefined;
 
     protected _discriminator: string;
 
@@ -617,6 +674,9 @@ export abstract class Node implements INode {
     }
 
     init(_data?: any) {
+        if (_data) {
+            this.coordinate = _data["coordinate"] ? Coordinate.fromJS(_data["coordinate"]) : <any>undefined;
+        }
     }
 
     static fromJS(data: any): Node {
@@ -642,11 +702,55 @@ export abstract class Node implements INode {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["discriminator"] = this._discriminator;
+        data["coordinate"] = this.coordinate ? this.coordinate.toJSON() : <any>undefined;
         return data;
     }
 }
 
 export interface INode {
+    coordinate?: Coordinate | undefined;
+}
+
+/** A point in a coordinate system */
+export class Coordinate implements ICoordinate {
+    x!: number;
+    y!: number;
+
+    constructor(data?: ICoordinate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.x = _data["x"];
+            this.y = _data["y"];
+        }
+    }
+
+    static fromJS(data: any): Coordinate {
+        data = typeof data === 'object' ? data : {};
+        let result = new Coordinate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["x"] = this.x;
+        data["y"] = this.y;
+        return data;
+    }
+}
+
+/** A point in a coordinate system */
+export interface ICoordinate {
+    x: number;
+    y: number;
 }
 
 export class StartNode extends Node implements IStartNode {
@@ -862,6 +966,7 @@ export interface IValueTupleOfNodeAndNodeAndEdge {
 export class Edge implements IEdge {
     type!: string;
     statistics!: EdgeStatistics;
+    waypoints!: Coordinate[];
 
     constructor(data?: IEdge) {
         if (data) {
@@ -872,6 +977,7 @@ export class Edge implements IEdge {
         }
         if (!data) {
             this.statistics = new EdgeStatistics();
+            this.waypoints = [];
         }
     }
 
@@ -879,6 +985,11 @@ export class Edge implements IEdge {
         if (_data) {
             this.type = _data["type"];
             this.statistics = _data["statistics"] ? EdgeStatistics.fromJS(_data["statistics"]) : new EdgeStatistics();
+            if (Array.isArray(_data["waypoints"])) {
+                this.waypoints = [] as any;
+                for (let item of _data["waypoints"])
+                    this.waypoints!.push(Coordinate.fromJS(item));
+            }
         }
     }
 
@@ -893,6 +1004,11 @@ export class Edge implements IEdge {
         data = typeof data === 'object' ? data : {};
         data["type"] = this.type;
         data["statistics"] = this.statistics ? this.statistics.toJSON() : <any>undefined;
+        if (Array.isArray(this.waypoints)) {
+            data["waypoints"] = [];
+            for (let item of this.waypoints)
+                data["waypoints"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -900,6 +1016,7 @@ export class Edge implements IEdge {
 export interface IEdge {
     type: string;
     statistics: EdgeStatistics;
+    waypoints: Coordinate[];
 }
 
 export class EdgeStatistics implements IEdgeStatistics {

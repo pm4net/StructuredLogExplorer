@@ -1,6 +1,5 @@
 <script lang="ts">
     import { Accordion, AccordionItem, Button, Checkbox, FormGroup, NumberInput, RadioButton, RadioButtonGroup, Toggle } from "carbon-components-svelte";
-    import { Renew } from "carbon-icons-svelte";
     import { activeProject, DisplayMethod, DisplayType, EdgeType, mapSettings } from "../shared/stores";
 
     export let availableObjectTypes = <string[]>[];
@@ -46,7 +45,7 @@
         <FormGroup>
             <RadioButtonGroup orientation="vertical" legendText="Display method" bind:selected={displayMethod}>
                 <RadioButton labelText="DOT" value={DisplayMethod.Dot} />
-                <RadioButton labelText="Custom" value={DisplayMethod.Custom} disabled />
+                <RadioButton labelText="Cytoscape" value={DisplayMethod.Cytoscape} />
             </RadioButtonGroup>
         </FormGroup>
         <FormGroup noMargin>

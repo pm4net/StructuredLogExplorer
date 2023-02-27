@@ -40,8 +40,9 @@
     // Load the OC-DFG from the API, using the settings from local storage.
     async function getOcDfg() {
         try {
-            return await mapClient.discoverObjectCentricDirectlyFollowsGraph(
+            return await mapClient.discoverOcDfgAndApplyStableGraphLayout(
                 $activeProject, 
+                $mapSettings[$activeProject ?? ""]?.groupByNamespace,
                 $mapSettings[$activeProject ?? ""]?.dfg.minEvents, 
                 $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences, 
                 $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions, 
@@ -101,7 +102,7 @@
                                         {:then dot}
                                             <Dot dot={dot ?? ""}></Dot>
                                         {/await}
-                                    {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Custom}
+                                    {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Cytoscape}
                                         {#await getOcDfg()}
                                             <Loading description="Loading..." />
                                         {:then ocDfg}
