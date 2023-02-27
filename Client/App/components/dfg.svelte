@@ -12,12 +12,14 @@
             return "End: " + node.type;
         } else if (node instanceof EventNode) {
             return node.name;
+        } else {
+            return "";
         }
     }
 
     function createElementsFromDirectedGraph(graph: DirectedGraphOfNodeAndEdge) {
         let nodes = graph.nodes.map(node => {
-            let elem : cytoscape.ElementDefinition = {
+            let elem : cytoscape.NodeDefinition = {
                 data: { 
                     id: getNodeName(node)
                 },
@@ -30,13 +32,14 @@
         });
 
         let edges = graph.edges.map(edge => {
-            let elem : cytoscape.ElementDefinition = {
+            let elem : cytoscape.EdgeDefinition = {
                 data: {
                     id: getNodeName(edge.item1) + "-" + getNodeName(edge.item2),
                     source: getNodeName(edge.item1),
                     target: getNodeName(edge.item2)
                 }
-            }
+            };
+            
             return elem;
         });
 
@@ -64,14 +67,14 @@
                         'line-color': '#ccc',
                         'target-arrow-color': '#ccc',
                         'target-arrow-shape': 'triangle',
-                        'curve-style': 'bezier'
+                        'curve-style': 'unbundled-bezier'
                     }
                 }
             ],
             layout: {
                 name: "preset",
                 fit: true,
-                animate: true
+                animate: false
             }
         });
     });
