@@ -7,7 +7,7 @@ using pm4net.Algorithms.Discovery.Ocel;
 using OCEL.CSharp;
 using pm4net.Types.Trees;
 using pm4net.Utilities;
-using pm4net.Visualization.Layout;
+using pm4net.Algorithms.Layout;
 using StructuredLogExplorer.Models;
 using Node = StructuredLogExplorer.Models.Node;
 
@@ -97,7 +97,7 @@ namespace StructuredLogExplorer.ApiControllers
         {
             var log = GetProjectLog(projectName);
             var ocDfg = OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log);
-            var graphLayout = StableGraphLayout.ComputeGlobalOrder(log);
+            var graphLayout = StableGraphLayout.ComputeGlobalOrder(log, ocDfg);
             return JsonConvert.SerializeObject(graphLayout);
         }
 

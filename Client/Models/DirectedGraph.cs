@@ -1,7 +1,6 @@
 ﻿using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using NJsonSchema.Converters;
-using LogLevel = pm4net.Types.LogLevel;
 
 namespace StructuredLogExplorer.Models
 {
@@ -72,21 +71,21 @@ namespace StructuredLogExplorer.Models
 
     public static class DirectedGraphExtensions
     {
-        private static Node FromFSharpNode(this pm4net.Types.Dfg.Node node)
+        private static Node FromFSharpNode(this pm4net.Types.Graphs.Node node)
         {
             if (node.IsStartNode)
             {
-                var sn = (pm4net.Types.Dfg.Node.StartNode) node;
+                var sn = (pm4net.Types.Graphs.Node.StartNode) node;
                 return new StartNode { Type = sn.Type };
             }
 
             if (node.IsEndNode)
             {
-                var en = (pm4net.Types.Dfg.Node.EndNode) node;
+                var en = (pm4net.Types.Graphs.Node.EndNode) node;
                 return new EndNode { Type = en.Type };
             }
 
-            var eventNode = (pm4net.Types.Dfg.Node.EventNode) node;
+            var eventNode = (pm4net.Types.Graphs.Node.EventNode) node;
             return new EventNode
             {
                 Name = eventNode.Item.Name,
@@ -99,7 +98,7 @@ namespace StructuredLogExplorer.Models
             };
         }
 
-        private static Edge FromFSharpEdge(this pm4net.Types.Dfg.Edge edge)
+        private static Edge FromFSharpEdge(this pm4net.Types.Graphs.Edge edge)
         {
             return new Edge
             {
@@ -111,7 +110,7 @@ namespace StructuredLogExplorer.Models
             };
         }
 
-        public static DirectedGraph<Node, Edge> FromFSharpGraph(this pm4net.Types.Dfg.DirectedGraph<pm4net.Types.Dfg.Node, pm4net.Types.Dfg.Edge> graph)
+        public static DirectedGraph<Node, Edge> FromFSharpGraph(this pm4net.Types.Graphs.DirectedGraph<pm4net.Types.Graphs.Node, pm4net.Types.Graphs.Edge> graph)
         {
             return new DirectedGraph<Node, Edge>
             {
