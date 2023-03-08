@@ -1,10 +1,11 @@
 <script lang="ts">
     import { DateTime } from "luxon";
-    import prettyBytes from 'pretty-bytes';
+    import prettyBytes from "pretty-bytes";
+    import { saveAs } from "file-saver";
 
     import Layout from "./shared/layout.svelte";
-    import { Upload, Renew } from "carbon-icons-svelte";
-    import { Button, DataTable, DataTableSkeleton, InlineLoading, InlineNotification, Pagination, Row, ToastNotification, Toolbar, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
+    import { Upload, Renew, Export } from "carbon-icons-svelte";
+    import { Button, DataTable, DataTableSkeleton, InlineLoading, InlineNotification, Pagination, Row, ToastNotification, Toolbar, ToolbarContent, ToolbarMenu, ToolbarMenuItem, ToolbarSearch } from "carbon-components-svelte";
 
     import { activeProject } from "./shared/stores";
     import { filesClient } from "./shared/pm4net-client-config";
@@ -71,6 +72,21 @@
             importingFiles = importingFiles;
         }
     }
+
+    // Export the entire project to an OCEL file and save it
+    async function exportOcel(format: string) {
+        try {
+            let file = await filesClient.exportOcel($activeProject, format);
+            if (file) {
+                saveAs(file.data, file.fileName);
+            } else {
+                throw new Error("Returned file is undefined.");
+            }
+        } catch (e: unknown) {
+            errorNotification.show = true;
+            errorNotification.message = getErrorMessage(e);
+        }
+    }
 </script>
 
 <Layout>
@@ -120,6 +136,12 @@
                                 return false;
                             }}
                         />
+                        <ToolbarMenu icon={Export}>
+                            <ToolbarMenuItem on:click={() => exportOcel("json")}>Export to JSON</ToolbarMenuItem>
+                            <ToolbarMenuItem on:click={() => exportOcel("xml")}>Export to XML</ToolbarMenuItem>
+                            <ToolbarMenuItem on:click={() => exportOcel("litedb")}>Export to LiteDb</ToolbarMenuItem>
+                            <ToolbarMenuItem disabled>Export to XES</ToolbarMenuItem>
+                        </ToolbarMenu>
                         <Button icon={Renew} on:click={() => importAll(files.map(f => f.id))}>Import or refresh all</Button>
                     </ToolbarContent>
                 </Toolbar>

@@ -1,6 +1,6 @@
 <script lang="ts">
     import Layout from "./shared/layout.svelte";
-    import { activeProject, type ProjectMapSettings, mapSettings, DisplayType, DisplayMethod, EdgeType } from "./shared/stores";
+    import { activeProject, mapSettings, DisplayType, DisplayMethod, EdgeType } from "./shared/stores";
     import { mapClient } from "./shared/pm4net-client-config";
     import { getErrorMessage } from "./shared/helpers";
     import { Column, Grid, InlineNotification, Loading, Row, ToastNotification } from "carbon-components-svelte";
@@ -26,7 +26,7 @@
                     edgeType: EdgeType.Frequency,
                     displayMethod: DisplayMethod.Dot,
                     groupByNamespace: true,
-                    objectTypes: (await logInfoPromise).objectTypes,
+                    objectTypes: [], //(await logInfoPromise).objectTypes,
                     dfg: {
                         minEvents: 0,
                         minOccurrences: 0,

@@ -51,7 +51,7 @@
         url = window.location.pathname;
     });
 
-    $: gridFullSize = url?.toLowerCase()?.startsWith(urls.mapUrl);
+    $: gridFullSize = url?.toLowerCase()?.startsWith(urls.mapUrl) && $activeProject;
 </script>
 
 <Theme bind:theme persist persistKey="carbon-theme" />

@@ -108,6 +108,37 @@
         }
       }
     },
+    "/api/File/exportOcel": {
+      "get": {
+        "tags": [
+          "File"
+        ],
+        "operationId": "File_ExportOcel",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "type": "string",
+            "name": "format",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": true,
+            "description": "",
+            "schema": {
+              "type": "file"
+            }
+          }
+        }
+      }
+    },
     "/api/Map/getLogInfo": {
       "get": {
         "tags": [

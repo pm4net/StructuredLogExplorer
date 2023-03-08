@@ -49,7 +49,7 @@ namespace StructuredLogExplorer.ApiControllers
         public LogInfo GetLogInfo(string projectName)
         {
             var log = GetProjectLog(projectName);
-            return new LogInfo { ObjectTypes = log.ObjectTypes };
+            return new LogInfo { ObjectTypes = log.ObjectTypes.Order() };
         }
 
         [HttpGet]
