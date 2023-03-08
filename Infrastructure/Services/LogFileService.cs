@@ -108,15 +108,15 @@ namespace Infrastructure.Services
                 {
                     case OcelFileExtensions.Json:
                         var json = File.ReadAllText(filePath);
-                        var jsonLog = OcelJson.Deserialize(json);
-                        OcelLiteDB.Serialize(db, jsonLog);
+                        var jsonLog = OcelJson.Deserialize(json, true);
+                        OcelLiteDB.Serialize(db, jsonLog, true);
                         eventsAfter = jsonLog.Events.Count;
                         objectsAfter = jsonLog.Objects.Count;
                         break;
                     case OcelFileExtensions.Xml:
                         var xml = File.ReadAllText(filePath);
                         var xmlLog = OcelXml.Deserialize(xml);
-                        OcelLiteDB.Serialize(db, xmlLog);
+                        OcelLiteDB.Serialize(db, xmlLog, true);
                         eventsAfter = xmlLog.Events.Count;
                         objectsAfter = xmlLog.Objects.Count;
                         break;
@@ -124,7 +124,7 @@ namespace Infrastructure.Services
                         using (var logDb = new LiteDatabase($"Filename={filePath};ReadOnly=true"))
                         {
                             var log = OcelLiteDB.Deserialize(logDb);
-                            OcelLiteDB.Serialize(db, log);
+                            OcelLiteDB.Serialize(db, log, true);
                             eventsAfter = log.Events.Count;
                             objectsAfter = log.Objects.Count;
                             logDb.Dispose();

@@ -8,7 +8,9 @@
 
   <ItemGroup>
     <PackageReference Include="LiteDB" Version="5.0.15" />
-    <PackageReference Include="OCEL.CSharp" Version="1.2.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="OCEL" Version="1.2.11" />
+    <PackageReference Include="OCEL.CSharp" Version="1.2.11" />
   </ItemGroup>
 
 </Project>

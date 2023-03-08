@@ -10,14 +10,15 @@
   <ItemGroup>
     <PackageReference Include="LiteDB" Version="5.0.15" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.18.2" />
     <PackageReference Include="NSwag.MSBuild" Version="13.18.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
 	<PackageReference Include="ElectronNET.API" Version="13.5.1" />
-	<PackageReference Include="OCEL.CSharp" Version="1.2.10" />
+	<PackageReference Include="OCEL" Version="1.2.11" />
+	<PackageReference Include="OCEL.CSharp" Version="1.2.11" />
   </ItemGroup>
 	
   <Target Name="NSwag" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">
