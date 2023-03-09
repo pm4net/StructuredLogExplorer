@@ -46,6 +46,7 @@
             <RadioButtonGroup orientation="vertical" legendText="Display method" bind:selected={displayMethod}>
                 <RadioButton labelText="DOT" value={DisplayMethod.Dot} />
                 <RadioButton labelText="Cytoscape" value={DisplayMethod.Cytoscape} />
+                <RadioButton labelText="D3" value={DisplayMethod.D3} />
             </RadioButtonGroup>
         </FormGroup>
         <FormGroup noMargin>

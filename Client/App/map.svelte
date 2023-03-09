@@ -7,6 +7,7 @@
     import Filters from "./components/filters.svelte";
     import Cytoscape from "./components/maps/cytoscape.svelte"
     import Dot from "./components/maps/dot.svelte";
+    import D3 from "./components/maps/d3.svelte";
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
@@ -107,6 +108,12 @@
                                             <Loading description="Loading..." />
                                         {:then ocDfg}
                                             <Cytoscape dfg={ocDfg}></Cytoscape>
+                                        {/await}
+                                    {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.D3}
+                                        {#await getOcDfg()}
+                                            <Loading description="Loading..." />
+                                        {:then ocDfg} 
+                                            <D3 dfg={ocDfg}></D3>
                                         {/await}
                                     {/if}
                                 {:else if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcPn}
