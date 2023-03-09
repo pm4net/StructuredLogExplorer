@@ -5,6 +5,8 @@
 
     export let dfg : DirectedGraphOfNodeAndEdge = new DirectedGraphOfNodeAndEdge({ nodes: [], edges: [] });
 
+    const scaleFactor = 100;
+
     function getNodeName(node: Node) {
         if (node instanceof StartNode) {
             return "Start: " + node.type;
@@ -24,9 +26,10 @@
                     id: getNodeName(node)
                 },
                 position: { 
-                    x: node.coordinate ? node.coordinate.x * 100 : 0, 
-                    y: node.coordinate ? node.coordinate.y * 100 : 0
-                } 
+                    x: node.coordinate ? node.coordinate.x * scaleFactor : 0, 
+                    y: node.coordinate ? node.coordinate.y * scaleFactor : 0
+                },
+                
             };
             return elem;
         });
@@ -56,10 +59,19 @@
                     selector: 'node',
                     style: {
                         'background-color': '#666',
-                        'label': 'data(id)'
+                        'content': 'data(id)',
+                        'text-valign': 'center',
+                        'text-halign': 'center',
+                        'shape': 'rectangle'
                     }
                 },
-
+                {
+                    selector: ':parent',
+                    style: {
+                        'text-valign': 'top',
+                        'text-halign': 'center',
+                    }
+                },
                 {
                 selector: 'edge',
                     style: {
@@ -67,7 +79,7 @@
                         'line-color': '#ccc',
                         'target-arrow-color': '#ccc',
                         'target-arrow-shape': 'triangle',
-                        'curve-style': 'unbundled-bezier'
+                        'curve-style': 'unbundled-bezier',
                     }
                 }
             ],
