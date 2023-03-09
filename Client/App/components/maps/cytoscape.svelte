@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { DirectedGraphOfNodeAndEdge, EndNode, EventNode, Node, StartNode } from "../shared/pm4net-client";
+    import { DirectedGraphOfNodeAndEdge, EndNode, EventNode, Node, StartNode } from "../../shared/pm4net-client";
     import { onMount } from "svelte";
     import cytoscape from "cytoscape";
 
