@@ -1,5 +1,6 @@
 <script lang="ts">
     import * as d3 from "d3";
+    import ZoomSvg from "@svelte-parts/zoom/svg"
     import { normPos } from "../../helpers/svg-helpers";
     import { Coordinate, DirectedGraphOfNodeAndEdge } from "../../shared/pm4net-client";
     import Node from "./svg/node.svelte";
@@ -20,11 +21,17 @@
     };
 </script>
 
-<svg viewBox="{viewBox.minX} {viewBox.minY} {viewBox.maxX} {viewBox.maxY}">
-    {#each dfg.nodes as node}
-        <Node node={node}></Node>
-    {/each}
-</svg>
+<div class="graph">
+    <ZoomSvg viewBox="{viewBox.minX} {viewBox.minY} {viewBox.maxX} {viewBox.maxY}">
+        {#each dfg.nodes as node}
+            <Node node={node}></Node>
+        {/each}
+    </ZoomSvg>
+</div>
 
 <style lang="scss">
+    .graph {
+        width: 100%;
+        height: calc(100vh - 48px);
+    }
 </style>
