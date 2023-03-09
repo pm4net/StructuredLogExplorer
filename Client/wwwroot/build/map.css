@@ -3,4 +3,6 @@ li.svelte-1tbdbmc{margin:2rem 1rem 0;color:#525252}span.svelte-1tbdbmc{font-size
 .content{background-color:transparent}.activeThemeLink{background-color:gray}.noPadding{padding:0}.noPadding .bx--row{margin-left:0;margin-right:0}
 .bx--accordion__content{padding-right:0}
 #dfg.svelte-1w5ex40{width:100%;height:calc(100vh - 48px)}
-.label.svelte-1h24l5f{font-size:small;text-align:center}
+.node.svelte-yrmy6z{cursor:pointer}.label.svelte-yrmy6z{font-size:small;text-align:center}
+.edge.svelte-iaaxet{stroke:#000000;stroke-width:3;fill:none}
+.graph.svelte-1soks2q{width:100%;height:calc(100vh - 48px)}

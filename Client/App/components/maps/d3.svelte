@@ -4,6 +4,7 @@
     import { normPos } from "../../helpers/svg-helpers";
     import { Coordinate, DirectedGraphOfNodeAndEdge } from "../../shared/pm4net-client";
     import Node from "./svg/node.svelte";
+    import Edge from "./svg/edge.svelte";
 
     export let dfg : DirectedGraphOfNodeAndEdge = new DirectedGraphOfNodeAndEdge({ nodes: [], edges: [] });
 
@@ -25,6 +26,9 @@
     <ZoomSvg viewBox="{viewBox.minX} {viewBox.minY} {viewBox.maxX} {viewBox.maxY}">
         {#each dfg.nodes as node}
             <Node node={node}></Node>
+        {/each}
+        {#each dfg.edges as edge}
+            <Edge edge={edge}></Edge>
         {/each}
     </ZoomSvg>
 </div>
