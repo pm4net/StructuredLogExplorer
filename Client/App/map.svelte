@@ -5,8 +5,9 @@
     import { getErrorMessage } from "./shared/helpers";
     import { Column, Grid, InlineNotification, Loading, Row, ToastNotification } from "carbon-components-svelte";
     import Filters from "./components/filters.svelte";
-    import Dfg from "./components/dfg.svelte";
-    import Dot from "./components/dot.svelte";
+    import Cytoscape from "./components/maps/cytoscape.svelte"
+    import Dot from "./components/maps/dot.svelte";
+    import D3 from "./components/maps/d3.svelte";
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
@@ -106,7 +107,13 @@
                                         {#await getOcDfg()}
                                             <Loading description="Loading..." />
                                         {:then ocDfg}
-                                            <Dfg dfg={ocDfg}></Dfg>
+                                            <Cytoscape dfg={ocDfg}></Cytoscape>
+                                        {/await}
+                                    {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.D3}
+                                        {#await getOcDfg()}
+                                            <Loading description="Loading..." />
+                                        {:then ocDfg} 
+                                            <D3 dfg={ocDfg}></D3>
                                         {/await}
                                     {/if}
                                 {:else if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcPn}
