@@ -79,7 +79,8 @@ namespace StructuredLogExplorer.ApiControllers
         {
             var log = GetProjectLog(projectName);
             var ocDfg = OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log);
-            var globalOrder = StableGraphLayout.ComputeGlobalOrder(log, ocDfg);
+            var rg = StableGraphLayout.ComputeRankGraph(log);
+            var globalOrder = StableGraphLayout.ComputeGlobalOrder(rg.Item1, rg.Item2, rg.Item3, ocDfg);
             return ocDfg.FromFSharpGraph().EnrichWithGlobalOrder(globalOrder);
         }
 
