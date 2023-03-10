@@ -24,11 +24,17 @@
     }
 </script>
 
-<g class="node" on:click={() => console.log("clicked", node)} on:mouseover={() => mouseOver = true} on:mouseleave={() => mouseOver = false}>
-    <rect x={coords.x} y={coords.y} width={normPos(0.9)} height={normPos(0.5)} rx="5" ry="5" fill={color} stroke="black"></rect>
-    <foreignObject x={coords.x + normPos(0.01)} y={coords.y + normPos(0.01)} width={normPos(0.9 - 0.01)} height={normPos(0.5 - 0.01)}>
-        <p class="label">{text}</p>
-    </foreignObject>
+<g class="node" 
+    on:click={() => console.log("clicked", node)}
+    on:keyup={() => console.log("clicked", node)}
+    on:mouseover={() => mouseOver = true} 
+    on:focus={() => mouseOver = true}
+    on:mouseleave={() => mouseOver = false}
+    on:blur={() => mouseOver = false}>
+        <rect x={coords.x} y={coords.y} width={normPos(0.9)} height={normPos(0.5)} rx="5" ry="5" fill={color} stroke="black"></rect>
+        <foreignObject x={coords.x + normPos(0.01)} y={coords.y + normPos(0.01)} width={normPos(0.9 - 0.01)} height={normPos(0.5 - 0.01)}>
+            <p class="label">{text}</p>
+        </foreignObject>
 </g>
 
 <style lang="scss">

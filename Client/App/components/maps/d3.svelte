@@ -24,6 +24,20 @@
 
 <div class="graph">
     <ZoomSvg viewBox="{viewBox.minX} {viewBox.minY} {viewBox.maxX} {viewBox.maxY}">
+        <defs>
+            <marker
+                id="arrowhead"
+                viewBox="0 0 10 10"
+                refX="1"
+                refY="5"
+                markerUnits="strokeWidth"
+                markerWidth="3"
+                markerHeight="3"
+                orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#000" />
+            </marker>
+        </defs>
+
         {#each dfg.nodes as node}
             <Node node={node}></Node>
         {/each}
