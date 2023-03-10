@@ -10,5 +10,6 @@ namespace Infrastructure.Constants
     {
         public const string ProjectInfo = "projectInfo";
         public const string LogFilesInfo = "logFilesInfo";
+        public const string GlobalOrder = "globalOrder";
     }
 }

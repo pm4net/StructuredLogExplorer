@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using Infrastructure.Constants;
+﻿using Infrastructure.Constants;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using LiteDB;
+using OCEL.CSharp;
 
 namespace Infrastructure.Services
 {
@@ -15,11 +10,13 @@ namespace Infrastructure.Services
     {
         private readonly string _projectDir;
         private readonly IDictionary<string, ILiteDatabase> _dbConnections;
+        private readonly IDictionary<string, (DateTime, OcelLog)> _logs;
 
         public ProjectService(string projectDir)
         {
             _projectDir = projectDir;
             _dbConnections = new Dictionary<string, ILiteDatabase>();
+            _logs = new Dictionary<string, (DateTime, OcelLog)>();
 
             // Ensure that the project directory exists
             Directory.CreateDirectory(projectDir);
@@ -56,6 +53,22 @@ namespace Infrastructure.Services
             return db;
         }
 
+        public OcelLog GetProjectLog(string projectName)
+        {
+            var db = GetProjectDatabase(projectName, true);
+            var files = db.GetCollection<LogFileInfo>(Identifiers.LogFilesInfo)?.FindAll()?.ToList();
+
+            if (_logs.ContainsKey(projectName) && (!files?.Any(f => f.LastImported > _logs[projectName].Item1) ?? true))
+            {
+                return _logs[projectName].Item2;
+            }
+
+            var log = OcelLiteDB.Deserialize(db);
+            _logs.Add(projectName, (DateTime.Now, log));
+            db.Dispose();
+            return log;
+        }
+
         public void CreateProject(string projectName, string logDirectory)
         {
             var fileName = GetDbFileName(projectName);
@@ -76,6 +89,7 @@ namespace Infrastructure.Services
             _dbConnections.TryGetValue(projectName, out var db);
             db?.Dispose();
             _dbConnections.Remove(projectName);
+            _logs.Remove(projectName);
         }
 
         public void DeleteProject(string projectName)

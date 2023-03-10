@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LiteDB;
+using OCEL.CSharp;
 
 namespace Infrastructure.Interfaces
 {
@@ -22,6 +23,12 @@ namespace Infrastructure.Interfaces
         /// </summary>
         /// <exception cref="ArgumentException">If the project does not exist.</exception>
         public ILiteDatabase GetProjectDatabase(string projectName, bool readOnly);
+
+        /// <summary>
+        /// Get the up-to-date OCEL log for a given project.
+        /// </summary>
+        /// /// <exception cref="ArgumentException">If the project does not exist.</exception>
+        public OcelLog GetProjectLog(string projectName);
 
         /// <summary>
         /// Create a new project, if it doesn't already exist.
