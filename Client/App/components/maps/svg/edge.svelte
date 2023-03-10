@@ -8,8 +8,9 @@
         let downwards = edge.item1.coordinate!.y < edge.item2.coordinate!.y;
         let start = norm(edge.item1.coordinate);
         let end = norm(edge.item2.coordinate);
+        let waypoints = edge.item3.waypoints.sort((a, b) => downwards ? a.y - b.y : b.y - a.y);
         let path = "M " + (start.x + normPos(0.45)) + "," + (start.y + (downwards ? normPos(0.5) : 0));
-        edge.item3.waypoints.forEach(c => {
+        waypoints.forEach(c => {
             let cPos = norm(c);
             path += " L " + (cPos.x + normPos(0.45)) + "," + (cPos.y + normPos(0.25));
         });
