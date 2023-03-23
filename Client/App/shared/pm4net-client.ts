@@ -204,11 +204,11 @@ export interface IMapClient {
 
     getLogInfo(projectName: string | null | undefined): Promise<LogInfo>;
 
-    discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<DirectedGraphOfNodeAndEdge>;
+    discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeAndEdge>;
 
-    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, groupByNamespace: boolean | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<DirectedGraphOfNodeAndEdge>;
+    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayout>;
 
-    discoverOcDfgAndGenerateDot(projectName: string | null | undefined, groupByNamespace: boolean | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<string>;
+    discoverOcDfgAndGenerateDot(projectName: string | null | undefined, groupByNamespace: boolean | undefined, options: OcDfgOptions): Promise<string>;
 
     getNamespaceTree(projectName: string | null | undefined): Promise<ListTreeOfString>;
 }
@@ -259,29 +259,19 @@ export class MapClient implements IMapClient {
         return Promise.resolve<LogInfo>(null as any);
     }
 
-    discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<DirectedGraphOfNodeAndEdge> {
+    discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeAndEdge> {
         let url_ = this.baseUrl + "/api/Map/discoverOcDfg?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
-        if (minEvents === null)
-            throw new Error("The parameter 'minEvents' cannot be null.");
-        else if (minEvents !== undefined)
-            url_ += "minEvents=" + encodeURIComponent("" + minEvents) + "&";
-        if (minOccurrences === null)
-            throw new Error("The parameter 'minOccurrences' cannot be null.");
-        else if (minOccurrences !== undefined)
-            url_ += "minOccurrences=" + encodeURIComponent("" + minOccurrences) + "&";
-        if (minSuccessions === null)
-            throw new Error("The parameter 'minSuccessions' cannot be null.");
-        else if (minSuccessions !== undefined)
-            url_ += "minSuccessions=" + encodeURIComponent("" + minSuccessions) + "&";
-        if (includedTypes !== undefined && includedTypes !== null)
-            includedTypes && includedTypes.forEach(item => { url_ += "includedTypes=" + encodeURIComponent("" + item) + "&"; });
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(options);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -309,33 +299,19 @@ export class MapClient implements IMapClient {
         return Promise.resolve<DirectedGraphOfNodeAndEdge>(null as any);
     }
 
-    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, groupByNamespace: boolean | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<DirectedGraphOfNodeAndEdge> {
+    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayout> {
         let url_ = this.baseUrl + "/api/Map/discoverOcDfgAndApplyStableGraphLayout?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
-        if (groupByNamespace === null)
-            throw new Error("The parameter 'groupByNamespace' cannot be null.");
-        else if (groupByNamespace !== undefined)
-            url_ += "groupByNamespace=" + encodeURIComponent("" + groupByNamespace) + "&";
-        if (minEvents === null)
-            throw new Error("The parameter 'minEvents' cannot be null.");
-        else if (minEvents !== undefined)
-            url_ += "minEvents=" + encodeURIComponent("" + minEvents) + "&";
-        if (minOccurrences === null)
-            throw new Error("The parameter 'minOccurrences' cannot be null.");
-        else if (minOccurrences !== undefined)
-            url_ += "minOccurrences=" + encodeURIComponent("" + minOccurrences) + "&";
-        if (minSuccessions === null)
-            throw new Error("The parameter 'minSuccessions' cannot be null.");
-        else if (minSuccessions !== undefined)
-            url_ += "minSuccessions=" + encodeURIComponent("" + minSuccessions) + "&";
-        if (includedTypes !== undefined && includedTypes !== null)
-            includedTypes && includedTypes.forEach(item => { url_ += "includedTypes=" + encodeURIComponent("" + item) + "&"; });
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(options);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -345,14 +321,14 @@ export class MapClient implements IMapClient {
         });
     }
 
-    protected processDiscoverOcDfgAndApplyStableGraphLayout(response: Response): Promise<DirectedGraphOfNodeAndEdge> {
+    protected processDiscoverOcDfgAndApplyStableGraphLayout(response: Response): Promise<GraphLayout> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DirectedGraphOfNodeAndEdge.fromJS(resultData200);
+            result200 = GraphLayout.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -360,10 +336,10 @@ export class MapClient implements IMapClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<DirectedGraphOfNodeAndEdge>(null as any);
+        return Promise.resolve<GraphLayout>(null as any);
     }
 
-    discoverOcDfgAndGenerateDot(projectName: string | null | undefined, groupByNamespace: boolean | undefined, minEvents: number | undefined, minOccurrences: number | undefined, minSuccessions: number | undefined, includedTypes: string[] | null | undefined): Promise<string> {
+    discoverOcDfgAndGenerateDot(projectName: string | null | undefined, groupByNamespace: boolean | undefined, options: OcDfgOptions): Promise<string> {
         let url_ = this.baseUrl + "/api/Map/discoverOcDfgAndDot?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
@@ -371,25 +347,15 @@ export class MapClient implements IMapClient {
             throw new Error("The parameter 'groupByNamespace' cannot be null.");
         else if (groupByNamespace !== undefined)
             url_ += "groupByNamespace=" + encodeURIComponent("" + groupByNamespace) + "&";
-        if (minEvents === null)
-            throw new Error("The parameter 'minEvents' cannot be null.");
-        else if (minEvents !== undefined)
-            url_ += "minEvents=" + encodeURIComponent("" + minEvents) + "&";
-        if (minOccurrences === null)
-            throw new Error("The parameter 'minOccurrences' cannot be null.");
-        else if (minOccurrences !== undefined)
-            url_ += "minOccurrences=" + encodeURIComponent("" + minOccurrences) + "&";
-        if (minSuccessions === null)
-            throw new Error("The parameter 'minSuccessions' cannot be null.");
-        else if (minSuccessions !== undefined)
-            url_ += "minSuccessions=" + encodeURIComponent("" + minSuccessions) + "&";
-        if (includedTypes !== undefined && includedTypes !== null)
-            includedTypes && includedTypes.forEach(item => { url_ += "includedTypes=" + encodeURIComponent("" + item) + "&"; });
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(options);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };
@@ -1097,6 +1063,475 @@ export class EdgeStatistics implements IEdgeStatistics {
 
 export interface IEdgeStatistics {
     frequency: number;
+}
+
+export class OcDfgOptions implements IOcDfgOptions {
+    minimumEvents!: number;
+    minimumOccurrence!: number;
+    minimumSuccessions!: number;
+    includedTypes!: string[];
+
+    constructor(data?: IOcDfgOptions) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.includedTypes = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.minimumEvents = _data["minimumEvents"];
+            this.minimumOccurrence = _data["minimumOccurrence"];
+            this.minimumSuccessions = _data["minimumSuccessions"];
+            if (Array.isArray(_data["includedTypes"])) {
+                this.includedTypes = [] as any;
+                for (let item of _data["includedTypes"])
+                    this.includedTypes!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): OcDfgOptions {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcDfgOptions();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["minimumEvents"] = this.minimumEvents;
+        data["minimumOccurrence"] = this.minimumOccurrence;
+        data["minimumSuccessions"] = this.minimumSuccessions;
+        if (Array.isArray(this.includedTypes)) {
+            data["includedTypes"] = [];
+            for (let item of this.includedTypes)
+                data["includedTypes"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IOcDfgOptions {
+    minimumEvents: number;
+    minimumOccurrence: number;
+    minimumSuccessions: number;
+    includedTypes: string[];
+}
+
+/** A global order defines a collection of nodes and their position, as well as paths between nodes where non-straight edges are required. */
+export class GraphLayout implements IGraphLayout {
+    nodes?: Node2[] | undefined;
+    edges?: Connection[] | undefined;
+    edgePaths?: EdgePath[] | undefined;
+
+    constructor(data?: IGraphLayout) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["nodes"])) {
+                this.nodes = [] as any;
+                for (let item of _data["nodes"])
+                    this.nodes!.push(Node2.fromJS(item));
+            }
+            if (Array.isArray(_data["edges"])) {
+                this.edges = [] as any;
+                for (let item of _data["edges"])
+                    this.edges!.push(Connection.fromJS(item));
+            }
+            if (Array.isArray(_data["edgePaths"])) {
+                this.edgePaths = [] as any;
+                for (let item of _data["edgePaths"])
+                    this.edgePaths!.push(EdgePath.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GraphLayout {
+        data = typeof data === 'object' ? data : {};
+        let result = new GraphLayout();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.nodes)) {
+            data["nodes"] = [];
+            for (let item of this.nodes)
+                data["nodes"].push(item.toJSON());
+        }
+        if (Array.isArray(this.edges)) {
+            data["edges"] = [];
+            for (let item of this.edges)
+                data["edges"].push(item.toJSON());
+        }
+        if (Array.isArray(this.edgePaths)) {
+            data["edgePaths"] = [];
+            for (let item of this.edgePaths)
+                data["edgePaths"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** A global order defines a collection of nodes and their position, as well as paths between nodes where non-straight edges are required. */
+export interface IGraphLayout {
+    nodes?: Node2[] | undefined;
+    edges?: Connection[] | undefined;
+    edgePaths?: EdgePath[] | undefined;
+}
+
+/** A node within a directed graph that has an associated name and X,Y position (origin in top-left). */
+export class Node2 implements INode2 {
+    id?: string | undefined;
+    text?: string[] | undefined;
+    type?: string | undefined;
+    position?: Coordinate | undefined;
+    size?: Size | undefined;
+    rank!: number;
+
+    constructor(data?: INode2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            if (Array.isArray(_data["text"])) {
+                this.text = [] as any;
+                for (let item of _data["text"])
+                    this.text!.push(item);
+            }
+            this.type = _data["type"];
+            this.position = _data["position"] ? Coordinate.fromJS(_data["position"]) : <any>undefined;
+            this.size = _data["size"] ? Size.fromJS(_data["size"]) : <any>undefined;
+            this.rank = _data["rank"];
+        }
+    }
+
+    static fromJS(data: any): Node2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new Node2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        if (Array.isArray(this.text)) {
+            data["text"] = [];
+            for (let item of this.text)
+                data["text"].push(item);
+        }
+        data["type"] = this.type;
+        data["position"] = this.position ? this.position.toJSON() : <any>undefined;
+        data["size"] = this.size ? this.size.toJSON() : <any>undefined;
+        data["rank"] = this.rank;
+        return data;
+    }
+}
+
+/** A node within a directed graph that has an associated name and X,Y position (origin in top-left). */
+export interface INode2 {
+    id?: string | undefined;
+    text?: string[] | undefined;
+    type?: string | undefined;
+    position?: Coordinate | undefined;
+    size?: Size | undefined;
+    rank: number;
+}
+
+export class Size implements ISize {
+    width!: number;
+    height!: number;
+
+    constructor(data?: ISize) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.width = _data["width"];
+            this.height = _data["height"];
+        }
+    }
+
+    static fromJS(data: any): Size {
+        data = typeof data === 'object' ? data : {};
+        let result = new Size();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["width"] = this.width;
+        data["height"] = this.height;
+        return data;
+    }
+}
+
+export interface ISize {
+    width: number;
+    height: number;
+}
+
+export class Connection implements IConnection {
+    a?: string | undefined;
+    b?: string | undefined;
+    weight!: number;
+
+    constructor(data?: IConnection) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.a = _data["a"];
+            this.b = _data["b"];
+            this.weight = _data["weight"];
+        }
+    }
+
+    static fromJS(data: any): Connection {
+        data = typeof data === 'object' ? data : {};
+        let result = new Connection();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["a"] = this.a;
+        data["b"] = this.b;
+        data["weight"] = this.weight;
+        return data;
+    }
+}
+
+export interface IConnection {
+    a?: string | undefined;
+    b?: string | undefined;
+    weight: number;
+}
+
+/** A path between two nodes with several waypoints which the edge should go through. */
+export class EdgePath implements IEdgePath {
+    edge?: TupleOfStringAndString | undefined;
+    waypoints?: Coordinate[] | undefined;
+    downwards!: boolean;
+
+    constructor(data?: IEdgePath) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.edge = _data["edge"] ? TupleOfStringAndString.fromJS(_data["edge"]) : <any>undefined;
+            if (Array.isArray(_data["waypoints"])) {
+                this.waypoints = [] as any;
+                for (let item of _data["waypoints"])
+                    this.waypoints!.push(Coordinate.fromJS(item));
+            }
+            this.downwards = _data["downwards"];
+        }
+    }
+
+    static fromJS(data: any): EdgePath {
+        data = typeof data === 'object' ? data : {};
+        let result = new EdgePath();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["edge"] = this.edge ? this.edge.toJSON() : <any>undefined;
+        if (Array.isArray(this.waypoints)) {
+            data["waypoints"] = [];
+            for (let item of this.waypoints)
+                data["waypoints"].push(item.toJSON());
+        }
+        data["downwards"] = this.downwards;
+        return data;
+    }
+}
+
+/** A path between two nodes with several waypoints which the edge should go through. */
+export interface IEdgePath {
+    edge?: TupleOfStringAndString | undefined;
+    waypoints?: Coordinate[] | undefined;
+    downwards: boolean;
+}
+
+export class TupleOfStringAndString implements ITupleOfStringAndString {
+    item1!: string;
+    item2!: string;
+
+    constructor(data?: ITupleOfStringAndString) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.item1 = _data["item1"];
+            this.item2 = _data["item2"];
+        }
+    }
+
+    static fromJS(data: any): TupleOfStringAndString {
+        data = typeof data === 'object' ? data : {};
+        let result = new TupleOfStringAndString();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["item1"] = this.item1;
+        data["item2"] = this.item2;
+        return data;
+    }
+}
+
+export interface ITupleOfStringAndString {
+    item1: string;
+    item2: string;
+}
+
+export class OcDfgLayoutOptions implements IOcDfgLayoutOptions {
+    ocDfgOptions!: OcDfgOptions;
+    layoutOptions!: GraphLayoutOptions;
+
+    constructor(data?: IOcDfgLayoutOptions) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.ocDfgOptions = new OcDfgOptions();
+            this.layoutOptions = new GraphLayoutOptions();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ocDfgOptions = _data["ocDfgOptions"] ? OcDfgOptions.fromJS(_data["ocDfgOptions"]) : new OcDfgOptions();
+            this.layoutOptions = _data["layoutOptions"] ? GraphLayoutOptions.fromJS(_data["layoutOptions"]) : new GraphLayoutOptions();
+        }
+    }
+
+    static fromJS(data: any): OcDfgLayoutOptions {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcDfgLayoutOptions();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ocDfgOptions"] = this.ocDfgOptions ? this.ocDfgOptions.toJSON() : <any>undefined;
+        data["layoutOptions"] = this.layoutOptions ? this.layoutOptions.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IOcDfgLayoutOptions {
+    ocDfgOptions: OcDfgOptions;
+    layoutOptions: GraphLayoutOptions;
+}
+
+export class GraphLayoutOptions implements IGraphLayoutOptions {
+    mergeEdgesOfSameType!: boolean;
+    maxCharsPerLine!: number;
+    nodeSeparation!: number;
+    rankSeparation!: number;
+    edgeSeparation!: number;
+
+    constructor(data?: IGraphLayoutOptions) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.mergeEdgesOfSameType = _data["mergeEdgesOfSameType"];
+            this.maxCharsPerLine = _data["maxCharsPerLine"];
+            this.nodeSeparation = _data["nodeSeparation"];
+            this.rankSeparation = _data["rankSeparation"];
+            this.edgeSeparation = _data["edgeSeparation"];
+        }
+    }
+
+    static fromJS(data: any): GraphLayoutOptions {
+        data = typeof data === 'object' ? data : {};
+        let result = new GraphLayoutOptions();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["mergeEdgesOfSameType"] = this.mergeEdgesOfSameType;
+        data["maxCharsPerLine"] = this.maxCharsPerLine;
+        data["nodeSeparation"] = this.nodeSeparation;
+        data["rankSeparation"] = this.rankSeparation;
+        data["edgeSeparation"] = this.edgeSeparation;
+        return data;
+    }
+}
+
+export interface IGraphLayoutOptions {
+    mergeEdgesOfSameType: boolean;
+    maxCharsPerLine: number;
+    nodeSeparation: number;
+    rankSeparation: number;
+    edgeSeparation: number;
 }
 
 export class ListTreeOfString implements IListTreeOfString {

@@ -9,6 +9,7 @@ using pm4net.Algorithms.Layout;
 using pm4net.Types.GraphLayout;
 using StructuredLogExplorer.Models;
 using Node = StructuredLogExplorer.Models.Node;
+using StructuredLogExplorer.Models.ControllerOptions;
 
 namespace StructuredLogExplorer.ApiControllers
 {
@@ -52,51 +53,39 @@ namespace StructuredLogExplorer.ApiControllers
             return new LogInfo { ObjectTypes = log.ObjectTypes.Order() };
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("discoverOcDfg")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
-        public DirectedGraph<Node, Edge> DiscoverObjectCentricDirectlyFollowsGraph(
-            string projectName,
-            int minEvents,
-            int minOccurrences, 
-            int minSuccessions,
-            [FromQuery] IEnumerable<string> includedTypes)
+        public DirectedGraph<Node, Edge> DiscoverObjectCentricDirectlyFollowsGraph(string projectName, [FromBody] OcDfgOptions options)
         {
             var log = GetProjectLog(projectName);
-            return OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log).FromFSharpGraph();
+            return OcelDfg.Discover(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions, options.IncludedTypes, log).FromFSharpGraph();
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("discoverOcDfgAndApplyStableGraphLayout")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
-        public DirectedGraph<Node, Edge> DiscoverOcDfgAndApplyStableGraphLayout(
-            string projectName,
-            bool groupByNamespace,
-            int minEvents,
-            int minOccurrences,
-            int minSuccessions,
-            [FromQuery] IEnumerable<string> includedTypes)
+        public GraphLayout DiscoverOcDfgAndApplyStableGraphLayout(string projectName, [FromBody] OcDfgLayoutOptions options)
         {
+            // Discover object-centric directly follows graph
             var log = GetProjectLog(projectName);
-            var ocDfg = OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log);
-            var rg = StableGraphLayout.ComputeRankGraph(log);
-            var globalOrder = StableGraphLayout.ComputeGlobalOrder(rg.Item1, rg.Item2, rg.Item3, ocDfg);
-            return ocDfg.FromFSharpGraph().EnrichWithGlobalOrder(globalOrder);
+            var ocDfg = OcelDfg.Discover(options.OcDfgOptions.MinimumEvents, options.OcDfgOptions.MinimumOccurrence, options.OcDfgOptions.MinimumSuccessions, options.OcDfgOptions.IncludedTypes, log);
+
+            // Compute the final graph layout based on discovered model
+            var (rankGraph, skeleton, components) = StableGraphLayout.ComputeRankGraph(log);
+            var layout = StableGraphLayout.ComputeGlobalOrder(rankGraph, skeleton, components, ocDfg, 
+	            options.LayoutOptions.MergeEdgesOfSameType, options.LayoutOptions.MaxCharsPerLine, options.LayoutOptions.NodeSeparation, 
+	            options.LayoutOptions.RankSeparation, options.LayoutOptions.EdgeSeparation);
+            return layout;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("discoverOcDfgAndDot")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
-        public string DiscoverOcDfgAndGenerateDot(
-            string projectName,
-            bool groupByNamespace,
-            int minEvents,
-            int minOccurrences,
-            int minSuccessions,
-            [FromQuery] IEnumerable<string> includedTypes)
+        public string DiscoverOcDfgAndGenerateDot(string projectName, bool groupByNamespace, [FromBody] OcDfgOptions options)
         {
             var log = GetProjectLog(projectName);
-            var ocDfg = OcelDfg.Discover(minEvents, minOccurrences, minSuccessions, includedTypes, log);
+            var ocDfg = OcelDfg.Discover(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions, options.IncludedTypes, log);
             var dot = pm4net.Visualization.Ocel.Graphviz.OcDfg2Dot(ocDfg, groupByNamespace);
             return dot;
         }

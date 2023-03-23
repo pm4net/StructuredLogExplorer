@@ -170,11 +170,17 @@
       }
     },
     "/api/Map/discoverOcDfg": {
-      "get": {
+      "post": {
         "tags": [
           "Map"
         ],
         "operationId": "Map_DiscoverObjectCentricDirectlyFollowsGraph",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
         "produces": [
           "text/plain",
           "application/json",
@@ -188,35 +194,13 @@
             "x-nullable": true
           },
           {
-            "type": "integer",
-            "name": "minEvents",
-            "in": "query",
-            "format": "int32",
+            "name": "options",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OcDfgOptions"
+            },
             "x-nullable": false
-          },
-          {
-            "type": "integer",
-            "name": "minOccurrences",
-            "in": "query",
-            "format": "int32",
-            "x-nullable": false
-          },
-          {
-            "type": "integer",
-            "name": "minSuccessions",
-            "in": "query",
-            "format": "int32",
-            "x-nullable": false
-          },
-          {
-            "type": "array",
-            "name": "includedTypes",
-            "in": "query",
-            "collectionFormat": "multi",
-            "x-nullable": true,
-            "items": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -231,11 +215,17 @@
       }
     },
     "/api/Map/discoverOcDfgAndApplyStableGraphLayout": {
-      "get": {
+      "post": {
         "tags": [
           "Map"
         ],
         "operationId": "Map_DiscoverOcDfgAndApplyStableGraphLayout",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
         "produces": [
           "text/plain",
           "application/json",
@@ -249,41 +239,13 @@
             "x-nullable": true
           },
           {
-            "type": "boolean",
-            "name": "groupByNamespace",
-            "in": "query",
+            "name": "options",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OcDfgLayoutOptions"
+            },
             "x-nullable": false
-          },
-          {
-            "type": "integer",
-            "name": "minEvents",
-            "in": "query",
-            "format": "int32",
-            "x-nullable": false
-          },
-          {
-            "type": "integer",
-            "name": "minOccurrences",
-            "in": "query",
-            "format": "int32",
-            "x-nullable": false
-          },
-          {
-            "type": "integer",
-            "name": "minSuccessions",
-            "in": "query",
-            "format": "int32",
-            "x-nullable": false
-          },
-          {
-            "type": "array",
-            "name": "includedTypes",
-            "in": "query",
-            "collectionFormat": "multi",
-            "x-nullable": true,
-            "items": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -291,18 +253,24 @@
             "x-nullable": false,
             "description": "",
             "schema": {
-              "$ref": "#/definitions/DirectedGraphOfNodeAndEdge"
+              "$ref": "#/definitions/GraphLayout"
             }
           }
         }
       }
     },
     "/api/Map/discoverOcDfgAndDot": {
-      "get": {
+      "post": {
         "tags": [
           "Map"
         ],
         "operationId": "Map_DiscoverOcDfgAndGenerateDot",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
         "produces": [
           "text/plain",
           "application/json",
@@ -322,35 +290,13 @@
             "x-nullable": false
           },
           {
-            "type": "integer",
-            "name": "minEvents",
-            "in": "query",
-            "format": "int32",
+            "name": "options",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OcDfgOptions"
+            },
             "x-nullable": false
-          },
-          {
-            "type": "integer",
-            "name": "minOccurrences",
-            "in": "query",
-            "format": "int32",
-            "x-nullable": false
-          },
-          {
-            "type": "integer",
-            "name": "minSuccessions",
-            "in": "query",
-            "format": "int32",
-            "x-nullable": false
-          },
-          {
-            "type": "array",
-            "name": "includedTypes",
-            "in": "query",
-            "collectionFormat": "multi",
-            "x-nullable": true,
-            "items": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -538,12 +484,12 @@
       ],
       "properties": {
         "x": {
-          "type": "integer",
-          "format": "int32"
+          "type": "number",
+          "format": "float"
         },
         "y": {
-          "type": "integer",
-          "format": "int32"
+          "type": "number",
+          "format": "float"
         }
       }
     },
@@ -697,6 +643,207 @@
         "frequency": {
           "type": "integer",
           "format": "int32"
+        }
+      }
+    },
+    "OcDfgOptions": {
+      "type": "object",
+      "required": [
+        "minimumEvents",
+        "minimumOccurrence",
+        "minimumSuccessions",
+        "includedTypes"
+      ],
+      "properties": {
+        "minimumEvents": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "minimumOccurrence": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "minimumSuccessions": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "includedTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "GraphLayout": {
+      "type": "object",
+      "description": "A global order defines a collection of nodes and their position, as well as paths between nodes where non-straight edges are required.",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Node2"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Connection"
+          }
+        },
+        "edgePaths": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EdgePath"
+          }
+        }
+      }
+    },
+    "Node2": {
+      "type": "object",
+      "description": "A node within a directed graph that has an associated name and X,Y position (origin in top-left).",
+      "required": [
+        "rank"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "type": {
+          "type": "string"
+        },
+        "position": {
+          "$ref": "#/definitions/Coordinate"
+        },
+        "size": {
+          "$ref": "#/definitions/Size"
+        },
+        "rank": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "Size": {
+      "type": "object",
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "height": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "Connection": {
+      "type": "object",
+      "required": [
+        "weight"
+      ],
+      "properties": {
+        "a": {
+          "type": "string"
+        },
+        "b": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "EdgePath": {
+      "type": "object",
+      "description": "A path between two nodes with several waypoints which the edge should go through.",
+      "required": [
+        "downwards"
+      ],
+      "properties": {
+        "edge": {
+          "$ref": "#/definitions/TupleOfStringAndString"
+        },
+        "waypoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Coordinate"
+          }
+        },
+        "downwards": {
+          "type": "boolean"
+        }
+      }
+    },
+    "TupleOfStringAndString": {
+      "type": "object",
+      "required": [
+        "item1",
+        "item2"
+      ],
+      "properties": {
+        "item1": {
+          "type": "string"
+        },
+        "item2": {
+          "type": "string"
+        }
+      }
+    },
+    "OcDfgLayoutOptions": {
+      "type": "object",
+      "required": [
+        "ocDfgOptions",
+        "layoutOptions"
+      ],
+      "properties": {
+        "ocDfgOptions": {
+          "$ref": "#/definitions/OcDfgOptions"
+        },
+        "layoutOptions": {
+          "$ref": "#/definitions/GraphLayoutOptions"
+        }
+      }
+    },
+    "GraphLayoutOptions": {
+      "type": "object",
+      "required": [
+        "mergeEdgesOfSameType",
+        "maxCharsPerLine",
+        "nodeSeparation",
+        "rankSeparation",
+        "edgeSeparation"
+      ],
+      "properties": {
+        "mergeEdgesOfSameType": {
+          "type": "boolean"
+        },
+        "maxCharsPerLine": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "nodeSeparation": {
+          "type": "number",
+          "format": "float"
+        },
+        "rankSeparation": {
+          "type": "number",
+          "format": "float"
+        },
+        "edgeSeparation": {
+          "type": "number",
+          "format": "float"
         }
       }
     },

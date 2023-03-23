@@ -8,6 +8,7 @@
     import Cytoscape from "./components/maps/cytoscape.svelte"
     import Dot from "./components/maps/dot.svelte";
     import D3 from "./components/maps/d3.svelte";
+    import { GraphLayoutOptions, OcDfgLayoutOptions, OcDfgOptions } from "./shared/pm4net-client";
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
@@ -43,11 +44,22 @@
         try {
             return await mapClient.discoverOcDfgAndApplyStableGraphLayout(
                 $activeProject, 
-                $mapSettings[$activeProject ?? ""]?.groupByNamespace,
-                $mapSettings[$activeProject ?? ""]?.dfg.minEvents, 
-                $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences, 
-                $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions, 
-                $mapSettings[$activeProject ?? ""]?.objectTypes);
+                new OcDfgLayoutOptions({
+                    ocDfgOptions: new OcDfgOptions({
+                        minimumEvents: $mapSettings[$activeProject ?? ""]?.dfg.minEvents,
+                        minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
+                        minimumSuccessions: $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions,
+                        includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes
+                    }),
+                    layoutOptions: new GraphLayoutOptions({
+                        mergeEdgesOfSameType: true,
+                        maxCharsPerLine: 30,
+                        nodeSeparation: 1,
+                        rankSeparation: 2,
+                        edgeSeparation: 0.5
+                    })
+                })
+            );
         } catch (e: unknown) {
             errorNotification.show = true;
             errorNotification.message = getErrorMessage(e);
@@ -60,10 +72,13 @@
             return await mapClient.discoverOcDfgAndGenerateDot(
                 $activeProject,
                 $mapSettings[$activeProject ?? ""]?.groupByNamespace,
-                $mapSettings[$activeProject ?? ""]?.dfg.minEvents, 
-                $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences, 
-                $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions, 
-                $mapSettings[$activeProject ?? ""]?.objectTypes);
+                new OcDfgOptions({ 
+                    minimumEvents: $mapSettings[$activeProject ?? ""]?.dfg.minEvents,
+                    minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
+                    minimumSuccessions: $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions,
+                    includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes
+                })
+            );
         } catch (e: unknown) {
             errorNotification.show = true;
             errorNotification.message = getErrorMessage(e);
@@ -113,7 +128,7 @@
                                         {#await getOcDfg()}
                                             <Loading description="Loading..." />
                                         {:then ocDfg} 
-                                            <D3 dfg={ocDfg}></D3>
+                                            <!--<D3 dfg={ocDfg}></D3>-->
                                         {/await}
                                     {/if}
                                 {:else if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcPn}

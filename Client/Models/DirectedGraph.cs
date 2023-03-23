@@ -125,46 +125,5 @@ namespace StructuredLogExplorer.Models
                 Edges = graph.Edges.Select(e => (e.Item1.FromFSharpNode(), e.Item2.FromFSharpNode(), e.Item3.FromFSharpEdge()))
             };
         }
-
-        /// <summary>
-        /// Enrich a directed graph of nodes and edges with positional information from a global order.
-        /// </summary>
-        public static DirectedGraph<Node, Edge> EnrichWithGlobalOrder(this DirectedGraph<Node, Edge> graph, GlobalOrder globalOrder)
-        {
-            graph.Nodes = graph.Nodes.Select(node =>
-            {
-                node.Coordinate = globalOrder.Nodes.FirstOrDefault(gn => gn.Name == GetNodeName(node))?.Position;
-                return node;
-            });
-
-            graph.Edges = graph.Edges.Select(edge =>
-            {
-                var edgeNames = (GetNodeName(edge.Item1), GetNodeName(edge.Item2));
-                var edgePath = globalOrder.EdgePaths.FirstOrDefault(ep => 
-                    ep.Edge.Item1 == edgeNames.Item1 && ep.Edge.Item2 == edgeNames.Item2 ||
-                    ep.Edge.Item1 == edgeNames.Item2 && ep.Edge.Item2 == edgeNames.Item1);
-
-                edge.Item1.Coordinate = graph.Nodes.FirstOrDefault(n => GetNodeName(n) == edgeNames.Item1)?.Coordinate;
-                edge.Item2.Coordinate = graph.Nodes.FirstOrDefault(n => GetNodeName(n) == edgeNames.Item2)?.Coordinate;
-                if (edgePath is not null)
-                {
-                    edge.Item3.Waypoints = edgePath.Waypoints;
-                }
-                return edge;
-            });
-
-            return graph;
-
-            string GetNodeName(Node node)
-            {
-                return node switch
-                {
-                    EventNode eventNode => eventNode.Name,
-                    StartNode startNode => pm4net.Types.Constants.objectTypeStartNode + startNode.Type,
-                    EndNode endNode => pm4net.Types.Constants.objectTypeEndNode + endNode.Type,
-                    _ => throw new ArgumentOutOfRangeException(nameof(node))
-                };
-            }
-        }
     }
 }
