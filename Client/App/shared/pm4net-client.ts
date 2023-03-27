@@ -204,9 +204,9 @@ export interface IMapClient {
 
     getLogInfo(projectName: string | null | undefined): Promise<LogInfo>;
 
-    discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeAndEdge>;
+    discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo>;
 
-    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayout>;
+    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo>;
 
     discoverOcDfgAndGenerateDot(projectName: string | null | undefined, groupByNamespace: boolean | undefined, options: OcDfgOptions): Promise<string>;
 
@@ -259,7 +259,7 @@ export class MapClient implements IMapClient {
         return Promise.resolve<LogInfo>(null as any);
     }
 
-    discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeAndEdge> {
+    discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo> {
         let url_ = this.baseUrl + "/api/Map/discoverOcDfg?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
@@ -281,14 +281,14 @@ export class MapClient implements IMapClient {
         });
     }
 
-    protected processDiscoverObjectCentricDirectlyFollowsGraph(response: Response): Promise<DirectedGraphOfNodeAndEdge> {
+    protected processDiscoverObjectCentricDirectlyFollowsGraph(response: Response): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DirectedGraphOfNodeAndEdge.fromJS(resultData200);
+            result200 = DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -296,10 +296,10 @@ export class MapClient implements IMapClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<DirectedGraphOfNodeAndEdge>(null as any);
+        return Promise.resolve<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo>(null as any);
     }
 
-    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayout> {
+    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo> {
         let url_ = this.baseUrl + "/api/Map/discoverOcDfgAndApplyStableGraphLayout?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
@@ -321,14 +321,14 @@ export class MapClient implements IMapClient {
         });
     }
 
-    protected processDiscoverOcDfgAndApplyStableGraphLayout(response: Response): Promise<GraphLayout> {
+    protected processDiscoverOcDfgAndApplyStableGraphLayout(response: Response): Promise<GraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = GraphLayout.fromJS(resultData200);
+            result200 = GraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -336,7 +336,7 @@ export class MapClient implements IMapClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<GraphLayout>(null as any);
+        return Promise.resolve<GraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo>(null as any);
     }
 
     discoverOcDfgAndGenerateDot(projectName: string | null | undefined, groupByNamespace: boolean | undefined, options: OcDfgOptions): Promise<string> {
@@ -608,20 +608,16 @@ export interface ILogInfo {
     objectTypes: string[];
 }
 
-export class DirectedGraphOfNodeAndEdge implements IDirectedGraphOfNodeAndEdge {
-    nodes!: Node[];
-    edges!: ValueTupleOfNodeAndNodeAndEdge[];
+export class DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo implements IDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo {
+    nodes?: NodeOfNodeInfo[] | undefined;
+    edges?: TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo[] | undefined;
 
-    constructor(data?: IDirectedGraphOfNodeAndEdge) {
+    constructor(data?: IDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
                     (<any>this)[property] = (<any>data)[property];
             }
-        }
-        if (!data) {
-            this.nodes = [];
-            this.edges = [];
         }
     }
 
@@ -630,19 +626,19 @@ export class DirectedGraphOfNodeAndEdge implements IDirectedGraphOfNodeAndEdge {
             if (Array.isArray(_data["nodes"])) {
                 this.nodes = [] as any;
                 for (let item of _data["nodes"])
-                    this.nodes!.push(Node.fromJS(item));
+                    this.nodes!.push(NodeOfNodeInfo.fromJS(item));
             }
             if (Array.isArray(_data["edges"])) {
                 this.edges = [] as any;
                 for (let item of _data["edges"])
-                    this.edges!.push(ValueTupleOfNodeAndNodeAndEdge.fromJS(item));
+                    this.edges!.push(TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo.fromJS(item));
             }
         }
     }
 
-    static fromJS(data: any): DirectedGraphOfNodeAndEdge {
+    static fromJS(data: any): DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo {
         data = typeof data === 'object' ? data : {};
-        let result = new DirectedGraphOfNodeAndEdge();
+        let result = new DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo();
         result.init(data);
         return result;
     }
@@ -663,70 +659,14 @@ export class DirectedGraphOfNodeAndEdge implements IDirectedGraphOfNodeAndEdge {
     }
 }
 
-export interface IDirectedGraphOfNodeAndEdge {
-    nodes: Node[];
-    edges: ValueTupleOfNodeAndNodeAndEdge[];
+export interface IDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo {
+    nodes?: NodeOfNodeInfo[] | undefined;
+    edges?: TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo[] | undefined;
 }
 
-export abstract class Node implements INode {
-    coordinate?: Coordinate | undefined;
+export abstract class NodeOfNodeInfo implements INodeOfNodeInfo {
 
-    protected _discriminator: string;
-
-    constructor(data?: INode) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        this._discriminator = "Node";
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.coordinate = _data["coordinate"] ? Coordinate.fromJS(_data["coordinate"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): Node {
-        data = typeof data === 'object' ? data : {};
-        if (data["discriminator"] === "StartNode") {
-            let result = new StartNode();
-            result.init(data);
-            return result;
-        }
-        if (data["discriminator"] === "EndNode") {
-            let result = new EndNode();
-            result.init(data);
-            return result;
-        }
-        if (data["discriminator"] === "EventNode") {
-            let result = new EventNode();
-            result.init(data);
-            return result;
-        }
-        throw new Error("The abstract class 'Node' cannot be instantiated.");
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["discriminator"] = this._discriminator;
-        data["coordinate"] = this.coordinate ? this.coordinate.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface INode {
-    coordinate?: Coordinate | undefined;
-}
-
-/** A point in a coordinate system */
-export class Coordinate implements ICoordinate {
-    x!: number;
-    y!: number;
-
-    constructor(data?: ICoordinate) {
+    constructor(data?: INodeOfNodeInfo) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -736,202 +676,28 @@ export class Coordinate implements ICoordinate {
     }
 
     init(_data?: any) {
-        if (_data) {
-            this.x = _data["x"];
-            this.y = _data["y"];
-        }
     }
 
-    static fromJS(data: any): Coordinate {
+    static fromJS(data: any): NodeOfNodeInfo {
         data = typeof data === 'object' ? data : {};
-        let result = new Coordinate();
-        result.init(data);
-        return result;
+        throw new Error("The abstract class 'NodeOfNodeInfo' cannot be instantiated.");
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["x"] = this.x;
-        data["y"] = this.y;
         return data;
     }
 }
 
-/** A point in a coordinate system */
-export interface ICoordinate {
-    x: number;
-    y: number;
+export interface INodeOfNodeInfo {
 }
 
-export class StartNode extends Node implements IStartNode {
-    type!: string;
+export class TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo implements ITupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo {
+    item1!: NodeOfNodeInfo;
+    item2!: NodeOfNodeInfo;
+    item3!: EdgeOfEdgeInfo;
 
-    constructor(data?: IStartNode) {
-        super(data);
-        this._discriminator = "StartNode";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.type = _data["type"];
-        }
-    }
-
-    static override fromJS(data: any): StartNode {
-        data = typeof data === 'object' ? data : {};
-        let result = new StartNode();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["type"] = this.type;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IStartNode extends INode {
-    type: string;
-}
-
-export class EndNode extends Node implements IEndNode {
-    type!: string;
-
-    constructor(data?: IEndNode) {
-        super(data);
-        this._discriminator = "EndNode";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.type = _data["type"];
-        }
-    }
-
-    static override fromJS(data: any): EndNode {
-        data = typeof data === 'object' ? data : {};
-        let result = new EndNode();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["type"] = this.type;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IEndNode extends INode {
-    type: string;
-}
-
-export class EventNode extends Node implements IEventNode {
-    name!: string;
-    level!: LogLevel;
-    namespace!: string;
-    statistics!: NodeStatistics;
-
-    constructor(data?: IEventNode) {
-        super(data);
-        if (!data) {
-            this.statistics = new NodeStatistics();
-        }
-        this._discriminator = "EventNode";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.name = _data["name"];
-            this.level = _data["level"];
-            this.namespace = _data["namespace"];
-            this.statistics = _data["statistics"] ? NodeStatistics.fromJS(_data["statistics"]) : new NodeStatistics();
-        }
-    }
-
-    static override fromJS(data: any): EventNode {
-        data = typeof data === 'object' ? data : {};
-        let result = new EventNode();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["level"] = this.level;
-        data["namespace"] = this.namespace;
-        data["statistics"] = this.statistics ? this.statistics.toJSON() : <any>undefined;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IEventNode extends INode {
-    name: string;
-    level: LogLevel;
-    namespace: string;
-    statistics: NodeStatistics;
-}
-
-export enum LogLevel {
-    Verbose = 0,
-    Debug = 1,
-    Information = 2,
-    Warning = 3,
-    Error = 4,
-    Fatal = 5,
-    Unknown = 6,
-}
-
-export class NodeStatistics implements INodeStatistics {
-    frequency!: number;
-
-    constructor(data?: INodeStatistics) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.frequency = _data["frequency"];
-        }
-    }
-
-    static fromJS(data: any): NodeStatistics {
-        data = typeof data === 'object' ? data : {};
-        let result = new NodeStatistics();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["frequency"] = this.frequency;
-        return data;
-    }
-}
-
-export interface INodeStatistics {
-    frequency: number;
-}
-
-export class ValueTupleOfNodeAndNodeAndEdge implements IValueTupleOfNodeAndNodeAndEdge {
-    item1!: Node;
-    item2!: Node;
-    item3!: Edge;
-
-    constructor(data?: IValueTupleOfNodeAndNodeAndEdge) {
+    constructor(data?: ITupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -939,21 +705,21 @@ export class ValueTupleOfNodeAndNodeAndEdge implements IValueTupleOfNodeAndNodeA
             }
         }
         if (!data) {
-            this.item3 = new Edge();
+            this.item3 = new EdgeOfEdgeInfo();
         }
     }
 
     init(_data?: any) {
         if (_data) {
-            this.item1 = _data["item1"] ? Node.fromJS(_data["item1"]) : <any>undefined;
-            this.item2 = _data["item2"] ? Node.fromJS(_data["item2"]) : <any>undefined;
-            this.item3 = _data["item3"] ? Edge.fromJS(_data["item3"]) : new Edge();
+            this.item1 = _data["item1"] ? NodeOfNodeInfo.fromJS(_data["item1"]) : <any>undefined;
+            this.item2 = _data["item2"] ? NodeOfNodeInfo.fromJS(_data["item2"]) : <any>undefined;
+            this.item3 = _data["item3"] ? EdgeOfEdgeInfo.fromJS(_data["item3"]) : new EdgeOfEdgeInfo();
         }
     }
 
-    static fromJS(data: any): ValueTupleOfNodeAndNodeAndEdge {
+    static fromJS(data: any): TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo {
         data = typeof data === 'object' ? data : {};
-        let result = new ValueTupleOfNodeAndNodeAndEdge();
+        let result = new TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo();
         result.init(data);
         return result;
     }
@@ -967,72 +733,18 @@ export class ValueTupleOfNodeAndNodeAndEdge implements IValueTupleOfNodeAndNodeA
     }
 }
 
-export interface IValueTupleOfNodeAndNodeAndEdge {
-    item1: Node;
-    item2: Node;
-    item3: Edge;
+export interface ITupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo {
+    item1: NodeOfNodeInfo;
+    item2: NodeOfNodeInfo;
+    item3: EdgeOfEdgeInfo;
 }
 
-export class Edge implements IEdge {
-    type!: string;
-    statistics!: EdgeStatistics;
-    waypoints!: Coordinate[];
+export class EdgeOfEdgeInfo implements IEdgeOfEdgeInfo {
+    weight!: number;
+    type?: FSharpOptionOfString | undefined;
+    info?: FSharpOptionOfEdgeInfo | undefined;
 
-    constructor(data?: IEdge) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.statistics = new EdgeStatistics();
-            this.waypoints = [];
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.type = _data["type"];
-            this.statistics = _data["statistics"] ? EdgeStatistics.fromJS(_data["statistics"]) : new EdgeStatistics();
-            if (Array.isArray(_data["waypoints"])) {
-                this.waypoints = [] as any;
-                for (let item of _data["waypoints"])
-                    this.waypoints!.push(Coordinate.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): Edge {
-        data = typeof data === 'object' ? data : {};
-        let result = new Edge();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["type"] = this.type;
-        data["statistics"] = this.statistics ? this.statistics.toJSON() : <any>undefined;
-        if (Array.isArray(this.waypoints)) {
-            data["waypoints"] = [];
-            for (let item of this.waypoints)
-                data["waypoints"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IEdge {
-    type: string;
-    statistics: EdgeStatistics;
-    waypoints: Coordinate[];
-}
-
-export class EdgeStatistics implements IEdgeStatistics {
-    frequency!: number;
-
-    constructor(data?: IEdgeStatistics) {
+    constructor(data?: IEdgeOfEdgeInfo) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1043,26 +755,92 @@ export class EdgeStatistics implements IEdgeStatistics {
 
     init(_data?: any) {
         if (_data) {
-            this.frequency = _data["frequency"];
+            this.weight = _data["weight"];
+            this.type = _data["type"] ? FSharpOptionOfString.fromJS(_data["type"]) : <any>undefined;
+            this.info = _data["info"] ? FSharpOptionOfEdgeInfo.fromJS(_data["info"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): EdgeStatistics {
+    static fromJS(data: any): EdgeOfEdgeInfo {
         data = typeof data === 'object' ? data : {};
-        let result = new EdgeStatistics();
+        let result = new EdgeOfEdgeInfo();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["frequency"] = this.frequency;
+        data["weight"] = this.weight;
+        data["type"] = this.type ? this.type.toJSON() : <any>undefined;
+        data["info"] = this.info ? this.info.toJSON() : <any>undefined;
         return data;
     }
 }
 
-export interface IEdgeStatistics {
-    frequency: number;
+export interface IEdgeOfEdgeInfo {
+    weight: number;
+    type?: FSharpOptionOfString | undefined;
+    info?: FSharpOptionOfEdgeInfo | undefined;
+}
+
+export class FSharpOptionOfString implements IFSharpOptionOfString {
+
+    constructor(data?: IFSharpOptionOfString) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): FSharpOptionOfString {
+        data = typeof data === 'object' ? data : {};
+        let result = new FSharpOptionOfString();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
+}
+
+export interface IFSharpOptionOfString {
+}
+
+export class FSharpOptionOfEdgeInfo implements IFSharpOptionOfEdgeInfo {
+
+    constructor(data?: IFSharpOptionOfEdgeInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): FSharpOptionOfEdgeInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new FSharpOptionOfEdgeInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
+}
+
+export interface IFSharpOptionOfEdgeInfo {
 }
 
 export class OcDfgOptions implements IOcDfgOptions {
@@ -1124,13 +902,11 @@ export interface IOcDfgOptions {
     includedTypes: string[];
 }
 
-/** A global order defines a collection of nodes and their position, as well as paths between nodes where non-straight edges are required. */
-export class GraphLayout implements IGraphLayout {
-    nodes?: Node2[] | undefined;
-    edges?: Connection[] | undefined;
-    edgePaths?: EdgePath[] | undefined;
+export class GraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo implements IGraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo {
+    nodes?: NodeOfFSharpOptionOfNodeInfo[] | undefined;
+    edges?: EdgeOfEdgeInfo2[] | undefined;
 
-    constructor(data?: IGraphLayout) {
+    constructor(data?: IGraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1144,24 +920,19 @@ export class GraphLayout implements IGraphLayout {
             if (Array.isArray(_data["nodes"])) {
                 this.nodes = [] as any;
                 for (let item of _data["nodes"])
-                    this.nodes!.push(Node2.fromJS(item));
+                    this.nodes!.push(NodeOfFSharpOptionOfNodeInfo.fromJS(item));
             }
             if (Array.isArray(_data["edges"])) {
                 this.edges = [] as any;
                 for (let item of _data["edges"])
-                    this.edges!.push(Connection.fromJS(item));
-            }
-            if (Array.isArray(_data["edgePaths"])) {
-                this.edgePaths = [] as any;
-                for (let item of _data["edgePaths"])
-                    this.edgePaths!.push(EdgePath.fromJS(item));
+                    this.edges!.push(EdgeOfEdgeInfo2.fromJS(item));
             }
         }
     }
 
-    static fromJS(data: any): GraphLayout {
+    static fromJS(data: any): GraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo {
         data = typeof data === 'object' ? data : {};
-        let result = new GraphLayout();
+        let result = new GraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo();
         result.init(data);
         return result;
     }
@@ -1178,32 +949,25 @@ export class GraphLayout implements IGraphLayout {
             for (let item of this.edges)
                 data["edges"].push(item.toJSON());
         }
-        if (Array.isArray(this.edgePaths)) {
-            data["edgePaths"] = [];
-            for (let item of this.edgePaths)
-                data["edgePaths"].push(item.toJSON());
-        }
         return data;
     }
 }
 
-/** A global order defines a collection of nodes and their position, as well as paths between nodes where non-straight edges are required. */
-export interface IGraphLayout {
-    nodes?: Node2[] | undefined;
-    edges?: Connection[] | undefined;
-    edgePaths?: EdgePath[] | undefined;
+export interface IGraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo {
+    nodes?: NodeOfFSharpOptionOfNodeInfo[] | undefined;
+    edges?: EdgeOfEdgeInfo2[] | undefined;
 }
 
-/** A node within a directed graph that has an associated name and X,Y position (origin in top-left). */
-export class Node2 implements INode2 {
+export class NodeOfFSharpOptionOfNodeInfo implements INodeOfFSharpOptionOfNodeInfo {
     id?: string | undefined;
     text?: string[] | undefined;
-    type?: string | undefined;
+    nodeType?: NodeType | undefined;
     position?: Coordinate | undefined;
     size?: Size | undefined;
     rank!: number;
+    info?: FSharpOptionOfFSharpOptionOfNodeInfo | undefined;
 
-    constructor(data?: INode2) {
+    constructor(data?: INodeOfFSharpOptionOfNodeInfo) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1220,16 +984,17 @@ export class Node2 implements INode2 {
                 for (let item of _data["text"])
                     this.text!.push(item);
             }
-            this.type = _data["type"];
+            this.nodeType = _data["nodeType"] ? NodeType.fromJS(_data["nodeType"]) : <any>undefined;
             this.position = _data["position"] ? Coordinate.fromJS(_data["position"]) : <any>undefined;
             this.size = _data["size"] ? Size.fromJS(_data["size"]) : <any>undefined;
             this.rank = _data["rank"];
+            this.info = _data["info"] ? FSharpOptionOfFSharpOptionOfNodeInfo.fromJS(_data["info"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): Node2 {
+    static fromJS(data: any): NodeOfFSharpOptionOfNodeInfo {
         data = typeof data === 'object' ? data : {};
-        let result = new Node2();
+        let result = new NodeOfFSharpOptionOfNodeInfo();
         result.init(data);
         return result;
     }
@@ -1242,22 +1007,93 @@ export class Node2 implements INode2 {
             for (let item of this.text)
                 data["text"].push(item);
         }
-        data["type"] = this.type;
+        data["nodeType"] = this.nodeType ? this.nodeType.toJSON() : <any>undefined;
         data["position"] = this.position ? this.position.toJSON() : <any>undefined;
         data["size"] = this.size ? this.size.toJSON() : <any>undefined;
         data["rank"] = this.rank;
+        data["info"] = this.info ? this.info.toJSON() : <any>undefined;
         return data;
     }
 }
 
-/** A node within a directed graph that has an associated name and X,Y position (origin in top-left). */
-export interface INode2 {
+export interface INodeOfFSharpOptionOfNodeInfo {
     id?: string | undefined;
     text?: string[] | undefined;
-    type?: string | undefined;
+    nodeType?: NodeType | undefined;
     position?: Coordinate | undefined;
     size?: Size | undefined;
     rank: number;
+    info?: FSharpOptionOfFSharpOptionOfNodeInfo | undefined;
+}
+
+export class NodeType implements INodeType {
+
+    constructor(data?: INodeType) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): NodeType {
+        data = typeof data === 'object' ? data : {};
+        let result = new NodeType();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
+}
+
+export interface INodeType {
+}
+
+export class Coordinate implements ICoordinate {
+    x!: number;
+    y!: number;
+
+    constructor(data?: ICoordinate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.x = _data["x"];
+            this.y = _data["y"];
+        }
+    }
+
+    static fromJS(data: any): Coordinate {
+        data = typeof data === 'object' ? data : {};
+        let result = new Coordinate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["x"] = this.x;
+        data["y"] = this.y;
+        return data;
+    }
+}
+
+export interface ICoordinate {
+    x: number;
+    y: number;
 }
 
 export class Size implements ISize {
@@ -1300,12 +1136,9 @@ export interface ISize {
     height: number;
 }
 
-export class Connection implements IConnection {
-    a?: string | undefined;
-    b?: string | undefined;
-    weight!: number;
+export class FSharpOptionOfFSharpOptionOfNodeInfo implements IFSharpOptionOfFSharpOptionOfNodeInfo {
 
-    constructor(data?: IConnection) {
+    constructor(data?: IFSharpOptionOfFSharpOptionOfNodeInfo) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1315,42 +1148,33 @@ export class Connection implements IConnection {
     }
 
     init(_data?: any) {
-        if (_data) {
-            this.a = _data["a"];
-            this.b = _data["b"];
-            this.weight = _data["weight"];
-        }
     }
 
-    static fromJS(data: any): Connection {
+    static fromJS(data: any): FSharpOptionOfFSharpOptionOfNodeInfo {
         data = typeof data === 'object' ? data : {};
-        let result = new Connection();
+        let result = new FSharpOptionOfFSharpOptionOfNodeInfo();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["a"] = this.a;
-        data["b"] = this.b;
-        data["weight"] = this.weight;
         return data;
     }
 }
 
-export interface IConnection {
-    a?: string | undefined;
-    b?: string | undefined;
-    weight: number;
+export interface IFSharpOptionOfFSharpOptionOfNodeInfo {
 }
 
-/** A path between two nodes with several waypoints which the edge should go through. */
-export class EdgePath implements IEdgePath {
-    edge?: TupleOfStringAndString | undefined;
+export class EdgeOfEdgeInfo2 implements IEdgeOfEdgeInfo2 {
+    sourceId?: string | undefined;
+    targetId?: string | undefined;
     waypoints?: Coordinate[] | undefined;
     downwards!: boolean;
+    totalWeight!: number;
+    typeInfos?: EdgeTypeInfoOfEdgeInfo[] | undefined;
 
-    constructor(data?: IEdgePath) {
+    constructor(data?: IEdgeOfEdgeInfo2) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1361,48 +1185,65 @@ export class EdgePath implements IEdgePath {
 
     init(_data?: any) {
         if (_data) {
-            this.edge = _data["edge"] ? TupleOfStringAndString.fromJS(_data["edge"]) : <any>undefined;
+            this.sourceId = _data["sourceId"];
+            this.targetId = _data["targetId"];
             if (Array.isArray(_data["waypoints"])) {
                 this.waypoints = [] as any;
                 for (let item of _data["waypoints"])
                     this.waypoints!.push(Coordinate.fromJS(item));
             }
             this.downwards = _data["downwards"];
+            this.totalWeight = _data["totalWeight"];
+            if (Array.isArray(_data["typeInfos"])) {
+                this.typeInfos = [] as any;
+                for (let item of _data["typeInfos"])
+                    this.typeInfos!.push(EdgeTypeInfoOfEdgeInfo.fromJS(item));
+            }
         }
     }
 
-    static fromJS(data: any): EdgePath {
+    static fromJS(data: any): EdgeOfEdgeInfo2 {
         data = typeof data === 'object' ? data : {};
-        let result = new EdgePath();
+        let result = new EdgeOfEdgeInfo2();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["edge"] = this.edge ? this.edge.toJSON() : <any>undefined;
+        data["sourceId"] = this.sourceId;
+        data["targetId"] = this.targetId;
         if (Array.isArray(this.waypoints)) {
             data["waypoints"] = [];
             for (let item of this.waypoints)
                 data["waypoints"].push(item.toJSON());
         }
         data["downwards"] = this.downwards;
+        data["totalWeight"] = this.totalWeight;
+        if (Array.isArray(this.typeInfos)) {
+            data["typeInfos"] = [];
+            for (let item of this.typeInfos)
+                data["typeInfos"].push(item.toJSON());
+        }
         return data;
     }
 }
 
-/** A path between two nodes with several waypoints which the edge should go through. */
-export interface IEdgePath {
-    edge?: TupleOfStringAndString | undefined;
+export interface IEdgeOfEdgeInfo2 {
+    sourceId?: string | undefined;
+    targetId?: string | undefined;
     waypoints?: Coordinate[] | undefined;
     downwards: boolean;
+    totalWeight: number;
+    typeInfos?: EdgeTypeInfoOfEdgeInfo[] | undefined;
 }
 
-export class TupleOfStringAndString implements ITupleOfStringAndString {
-    item1!: string;
-    item2!: string;
+export class EdgeTypeInfoOfEdgeInfo implements IEdgeTypeInfoOfEdgeInfo {
+    weight!: number;
+    type?: FSharpOptionOfString | undefined;
+    info?: FSharpOptionOfEdgeInfo | undefined;
 
-    constructor(data?: ITupleOfStringAndString) {
+    constructor(data?: IEdgeTypeInfoOfEdgeInfo) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1413,29 +1254,32 @@ export class TupleOfStringAndString implements ITupleOfStringAndString {
 
     init(_data?: any) {
         if (_data) {
-            this.item1 = _data["item1"];
-            this.item2 = _data["item2"];
+            this.weight = _data["weight"];
+            this.type = _data["type"] ? FSharpOptionOfString.fromJS(_data["type"]) : <any>undefined;
+            this.info = _data["info"] ? FSharpOptionOfEdgeInfo.fromJS(_data["info"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): TupleOfStringAndString {
+    static fromJS(data: any): EdgeTypeInfoOfEdgeInfo {
         data = typeof data === 'object' ? data : {};
-        let result = new TupleOfStringAndString();
+        let result = new EdgeTypeInfoOfEdgeInfo();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["item1"] = this.item1;
-        data["item2"] = this.item2;
+        data["weight"] = this.weight;
+        data["type"] = this.type ? this.type.toJSON() : <any>undefined;
+        data["info"] = this.info ? this.info.toJSON() : <any>undefined;
         return data;
     }
 }
 
-export interface ITupleOfStringAndString {
-    item1: string;
-    item2: string;
+export interface IEdgeTypeInfoOfEdgeInfo {
+    weight: number;
+    type?: FSharpOptionOfString | undefined;
+    info?: FSharpOptionOfEdgeInfo | undefined;
 }
 
 export class OcDfgLayoutOptions implements IOcDfgLayoutOptions {

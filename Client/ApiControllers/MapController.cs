@@ -1,14 +1,14 @@
 ﻿using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.FSharp.Core;
 using pm4net.Algorithms.Discovery.Ocel;
 using OCEL.CSharp;
 using pm4net.Types.Trees;
 using pm4net.Utilities;
 using pm4net.Algorithms.Layout;
-using pm4net.Types.GraphLayout;
+using pm4net.Types;
 using StructuredLogExplorer.Models;
-using Node = StructuredLogExplorer.Models.Node;
 using StructuredLogExplorer.Models.ControllerOptions;
 
 namespace StructuredLogExplorer.ApiControllers
@@ -56,25 +56,26 @@ namespace StructuredLogExplorer.ApiControllers
         [HttpPost]
         [Route("discoverOcDfg")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
-        public DirectedGraph<Node, Edge> DiscoverObjectCentricDirectlyFollowsGraph(string projectName, [FromBody] OcDfgOptions options)
+        public GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>> DiscoverObjectCentricDirectlyFollowsGraph(string projectName, [FromBody] OcDfgOptions options)
         {
             var log = GetProjectLog(projectName);
-            return OcelDfg.Discover(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions, options.IncludedTypes, log).FromFSharpGraph();
+            return OcelDfg.Discover(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions, options.IncludedTypes, log);
         }
 
         [HttpPost]
         [Route("discoverOcDfgAndApplyStableGraphLayout")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
-        public GraphLayout DiscoverOcDfgAndApplyStableGraphLayout(string projectName, [FromBody] OcDfgLayoutOptions options)
+        public OutputTypes.GraphLayout<FSharpOption<NodeInfo>, EdgeInfo> DiscoverOcDfgAndApplyStableGraphLayout(string projectName, [FromBody] OcDfgLayoutOptions options)
         {
             // Discover object-centric directly follows graph
             var log = GetProjectLog(projectName);
             var ocDfg = OcelDfg.Discover(options.OcDfgOptions.MinimumEvents, options.OcDfgOptions.MinimumOccurrence, options.OcDfgOptions.MinimumSuccessions, options.OcDfgOptions.IncludedTypes, log);
 
             // Compute the final graph layout based on discovered model
-            var (rankGraph, skeleton, components) = StableGraphLayout.ComputeRankGraph(log);
-            var layout = StableGraphLayout.ComputeGlobalOrder(rankGraph, skeleton, components, ocDfg, 
-	            options.LayoutOptions.MergeEdgesOfSameType, options.LayoutOptions.MaxCharsPerLine, options.LayoutOptions.NodeSeparation, 
+            var globalRanking = StableGraphLayout.ComputeGlobalRanking(log);
+            var layout = StableGraphLayout.ComputeGraphLayout(globalRanking, ocDfg,
+	            options.LayoutOptions.MergeEdgesOfSameType, options.LayoutOptions.MaxCharsPerLine,
+	            options.LayoutOptions.NodeSeparation,
 	            options.LayoutOptions.RankSeparation, options.LayoutOptions.EdgeSeparation);
             return layout;
         }
@@ -98,7 +99,7 @@ namespace StructuredLogExplorer.ApiControllers
             // TODO: Port ListTree type to C# type that NSwag can convert
             var log = GetProjectLog(projectName);
             var namespaces = log.Events.Select(e => OcelHelpers.GetNamespace(e.Value.ToFSharpOcelEvent())).Distinct();
-            return OcelHelpers.NamespaceTree(new[] {'.'}, namespaces);
+            return OcelHelpers.NamespaceTree(new[] {'.'}, namespaces.Select(n => n.Value)); // TODO: Check if null first
         }
     }
 }

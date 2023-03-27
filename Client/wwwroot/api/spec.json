@@ -208,7 +208,7 @@
             "x-nullable": false,
             "description": "",
             "schema": {
-              "$ref": "#/definitions/DirectedGraphOfNodeAndEdge"
+              "$ref": "#/definitions/DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo"
             }
           }
         }
@@ -253,7 +253,7 @@
             "x-nullable": false,
             "description": "",
             "schema": {
-              "$ref": "#/definitions/GraphLayout"
+              "$ref": "#/definitions/GraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo"
             }
           }
         }
@@ -438,162 +438,28 @@
         }
       }
     },
-    "DirectedGraphOfNodeAndEdge": {
+    "DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo": {
       "type": "object",
-      "required": [
-        "nodes",
-        "edges"
-      ],
       "properties": {
         "nodes": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Node"
+            "$ref": "#/definitions/NodeOfNodeInfo"
           }
         },
         "edges": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ValueTupleOfNodeAndNodeAndEdge"
+            "$ref": "#/definitions/TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo"
           }
         }
       }
     },
-    "Node": {
+    "NodeOfNodeInfo": {
       "type": "object",
-      "discriminator": "discriminator",
-      "x-abstract": true,
-      "required": [
-        "discriminator"
-      ],
-      "properties": {
-        "coordinate": {
-          "$ref": "#/definitions/Coordinate"
-        },
-        "discriminator": {
-          "type": "string"
-        }
-      }
+      "x-abstract": true
     },
-    "Coordinate": {
-      "type": "object",
-      "description": "A point in a coordinate system",
-      "required": [
-        "x",
-        "y"
-      ],
-      "properties": {
-        "x": {
-          "type": "number",
-          "format": "float"
-        },
-        "y": {
-          "type": "number",
-          "format": "float"
-        }
-      }
-    },
-    "StartNode": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/Node"
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string"
-            }
-          }
-        }
-      ]
-    },
-    "EndNode": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/Node"
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string"
-            }
-          }
-        }
-      ]
-    },
-    "EventNode": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/Node"
-        },
-        {
-          "type": "object",
-          "required": [
-            "name",
-            "level",
-            "namespace",
-            "statistics"
-          ],
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "level": {
-              "$ref": "#/definitions/LogLevel"
-            },
-            "namespace": {
-              "type": "string"
-            },
-            "statistics": {
-              "$ref": "#/definitions/NodeStatistics"
-            }
-          }
-        }
-      ]
-    },
-    "LogLevel": {
-      "type": "integer",
-      "description": "",
-      "x-enumNames": [
-        "Verbose",
-        "Debug",
-        "Information",
-        "Warning",
-        "Error",
-        "Fatal",
-        "Unknown"
-      ],
-      "enum": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ]
-    },
-    "NodeStatistics": {
-      "type": "object",
-      "required": [
-        "frequency"
-      ],
-      "properties": {
-        "frequency": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
-    },
-    "ValueTupleOfNodeAndNodeAndEdge": {
+    "TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo": {
       "type": "object",
       "required": [
         "item1",
@@ -602,49 +468,39 @@
       ],
       "properties": {
         "item1": {
-          "$ref": "#/definitions/Node"
+          "$ref": "#/definitions/NodeOfNodeInfo"
         },
         "item2": {
-          "$ref": "#/definitions/Node"
+          "$ref": "#/definitions/NodeOfNodeInfo"
         },
         "item3": {
-          "$ref": "#/definitions/Edge"
+          "$ref": "#/definitions/EdgeOfEdgeInfo"
         }
       }
     },
-    "Edge": {
+    "EdgeOfEdgeInfo": {
       "type": "object",
       "required": [
-        "type",
-        "statistics",
-        "waypoints"
+        "weight"
       ],
       "properties": {
-        "type": {
-          "type": "string"
-        },
-        "statistics": {
-          "$ref": "#/definitions/EdgeStatistics"
-        },
-        "waypoints": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Coordinate"
-          }
-        }
-      }
-    },
-    "EdgeStatistics": {
-      "type": "object",
-      "required": [
-        "frequency"
-      ],
-      "properties": {
-        "frequency": {
+        "weight": {
           "type": "integer",
           "format": "int32"
+        },
+        "type": {
+          "$ref": "#/definitions/FSharpOptionOfString"
+        },
+        "info": {
+          "$ref": "#/definitions/FSharpOptionOfEdgeInfo"
         }
       }
+    },
+    "FSharpOptionOfString": {
+      "type": "object"
+    },
+    "FSharpOptionOfEdgeInfo": {
+      "type": "object"
     },
     "OcDfgOptions": {
       "type": "object",
@@ -675,33 +531,25 @@
         }
       }
     },
-    "GraphLayout": {
+    "GraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo": {
       "type": "object",
-      "description": "A global order defines a collection of nodes and their position, as well as paths between nodes where non-straight edges are required.",
       "properties": {
         "nodes": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Node2"
+            "$ref": "#/definitions/NodeOfFSharpOptionOfNodeInfo"
           }
         },
         "edges": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Connection"
-          }
-        },
-        "edgePaths": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/EdgePath"
+            "$ref": "#/definitions/EdgeOfEdgeInfo2"
           }
         }
       }
     },
-    "Node2": {
+    "NodeOfFSharpOptionOfNodeInfo": {
       "type": "object",
-      "description": "A node within a directed graph that has an associated name and X,Y position (origin in top-left).",
       "required": [
         "rank"
       ],
@@ -715,8 +563,8 @@
             "type": "string"
           }
         },
-        "type": {
-          "type": "string"
+        "nodeType": {
+          "$ref": "#/definitions/NodeType"
         },
         "position": {
           "$ref": "#/definitions/Coordinate"
@@ -727,6 +575,29 @@
         "rank": {
           "type": "integer",
           "format": "int32"
+        },
+        "info": {
+          "$ref": "#/definitions/FSharpOptionOfFSharpOptionOfNodeInfo"
+        }
+      }
+    },
+    "NodeType": {
+      "type": "object"
+    },
+    "Coordinate": {
+      "type": "object",
+      "required": [
+        "x",
+        "y"
+      ],
+      "properties": {
+        "x": {
+          "type": "number",
+          "format": "float"
+        },
+        "y": {
+          "type": "number",
+          "format": "float"
         }
       }
     },
@@ -747,33 +618,21 @@
         }
       }
     },
-    "Connection": {
-      "type": "object",
-      "required": [
-        "weight"
-      ],
-      "properties": {
-        "a": {
-          "type": "string"
-        },
-        "b": {
-          "type": "string"
-        },
-        "weight": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
+    "FSharpOptionOfFSharpOptionOfNodeInfo": {
+      "type": "object"
     },
-    "EdgePath": {
+    "EdgeOfEdgeInfo2": {
       "type": "object",
-      "description": "A path between two nodes with several waypoints which the edge should go through.",
       "required": [
-        "downwards"
+        "downwards",
+        "totalWeight"
       ],
       "properties": {
-        "edge": {
-          "$ref": "#/definitions/TupleOfStringAndString"
+        "sourceId": {
+          "type": "string"
+        },
+        "targetId": {
+          "type": "string"
         },
         "waypoints": {
           "type": "array",
@@ -783,21 +642,34 @@
         },
         "downwards": {
           "type": "boolean"
+        },
+        "totalWeight": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "typeInfos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EdgeTypeInfoOfEdgeInfo"
+          }
         }
       }
     },
-    "TupleOfStringAndString": {
+    "EdgeTypeInfoOfEdgeInfo": {
       "type": "object",
       "required": [
-        "item1",
-        "item2"
+        "weight"
       ],
       "properties": {
-        "item1": {
-          "type": "string"
+        "weight": {
+          "type": "integer",
+          "format": "int32"
         },
-        "item2": {
-          "type": "string"
+        "type": {
+          "$ref": "#/definitions/FSharpOptionOfString"
+        },
+        "info": {
+          "$ref": "#/definitions/FSharpOptionOfEdgeInfo"
         }
       }
     },
