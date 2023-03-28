@@ -3,22 +3,24 @@
     import { activeProject, DisplayMethod, DisplayType, EdgeType, mapSettings } from "../shared/stores";
 
     export let availableObjectTypes = <string[]>[];
+    
     let displayType = $mapSettings[$activeProject ?? ""]?.displayType;
     let edgeType = $mapSettings[$activeProject ?? ""]?.edgeType;
     let displayMethod = $mapSettings[$activeProject ?? ""]?.displayMethod;
     let groupByNamespace = $mapSettings[$activeProject ?? ""]?.groupByNamespace;
+    let mergeEdges = $mapSettings[$activeProject ?? ""]?.mergeEdges;
     let objectTypes = $mapSettings[$activeProject ?? ""]?.objectTypes ?? [];
     let minEvents = $mapSettings[$activeProject ?? ""].dfg.minEvents;
     let minOccurrences = $mapSettings[$activeProject ?? ""].dfg.minOccurrences;
     let minSuccessions = $mapSettings[$activeProject ?? ""].dfg.minSuccessions;
 
     $: {
-        // Update the local store settings whenever any of the referenced values change
         let settings = $mapSettings;
         settings[$activeProject ?? ""].displayType = displayType;
         settings[$activeProject ?? ""].edgeType = edgeType;
         settings[$activeProject ?? ""].displayMethod = displayMethod;
         settings[$activeProject ?? ""].groupByNamespace = groupByNamespace;
+        settings[$activeProject ?? ""].mergeEdges = mergeEdges;
         settings[$activeProject ?? ""].objectTypes = objectTypes;
         settings[$activeProject ?? ""].dfg.minEvents = minEvents;
         settings[$activeProject ?? ""].dfg.minOccurrences = minOccurrences;
@@ -48,8 +50,11 @@
                 <RadioButton labelText="Cytoscape" value={DisplayMethod.Cytoscape} />
             </RadioButtonGroup>
         </FormGroup>
-        <FormGroup noMargin>
+        <FormGroup >
             <Toggle labelText="Group by namespace" bind:toggled={groupByNamespace}></Toggle>
+        </FormGroup>
+        <FormGroup noMargin>
+            <Toggle labelText="Merge edges" bind:toggled={mergeEdges}></Toggle>
         </FormGroup>
     </AccordionItem>
     <AccordionItem open>

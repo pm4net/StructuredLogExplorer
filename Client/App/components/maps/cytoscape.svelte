@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { End, Event, GraphLayout, Start } from "../../shared/pm4net-client";
+    import { Edge, End, Event, GraphLayout, Start } from "../../shared/pm4net-client";
     import { onMount } from "svelte";
     import cytoscape from "cytoscape";
 
@@ -7,6 +7,10 @@
     let cy : cytoscape.Core;
 
     const scaleFactor = 25;
+
+    function getEdgeId(edge: Edge) {
+        return edge.sourceId + "-" + edge.targetId;
+    }
 
     function createNodesFromLayout(graph: GraphLayout) {
         return graph.nodes!.map(node => {
@@ -28,7 +32,7 @@
         return graph.edges!.map(edge => {
             let elem : cytoscape.EdgeDefinition = {
                 data: {
-                    id: edge.sourceId + "-" + edge.targetId,
+                    id: getEdgeId(edge),
                     source: edge.sourceId!,
                     target: edge.targetId!
                 }
@@ -40,6 +44,7 @@
     onMount(() => {
         let nodes = createNodesFromLayout(layout);
         let edges = createEdgesFromLayout(layout);
+        let maxEdgeWeight = Math.max(...edges.map(e => e.e.totalWeight));
 
         // Initialize the Cytoscape container
         cy = cytoscape({
@@ -68,8 +73,7 @@
                         'width': 3,
                         'line-color': '#ccc',
                         'target-arrow-color': '#ccc',
-                        'target-arrow-shape': 'triangle',
-                        'curve-style': 'bezier',
+                        'target-arrow-shape': 'triangle'
                     }
                 }
             ],
@@ -113,6 +117,15 @@
             } else if (n.nodeType instanceof End) {
                 elem.style(endNodeStyles);
             }
+        });
+
+        // Add styling to edges
+        layout.edges?.forEach(e => {
+            let elem = cy.$id(getEdgeId(e));
+            elem.style({
+                'curve-style': 'bezier', // TODO: make bezier curves with waypoints
+                'width': Math.max(e.totalWeight / maxEdgeWeight * 15, 5),
+            });
         });
     });
 </script>

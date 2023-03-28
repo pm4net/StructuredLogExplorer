@@ -9,6 +9,7 @@ export type MapSettings = {
     edgeType: EdgeType,
     displayMethod: DisplayMethod,
     groupByNamespace: boolean,
+    mergeEdges: boolean,
     objectTypes: string[],
     dfg: {
         minEvents: number,

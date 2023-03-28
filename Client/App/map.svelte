@@ -27,6 +27,7 @@
                     edgeType: EdgeType.Frequency,
                     displayMethod: DisplayMethod.Dot,
                     groupByNamespace: true,
+                    mergeEdges: true,
                     objectTypes: [], //(await logInfoPromise).objectTypes,
                     dfg: {
                         minEvents: 0,
@@ -51,7 +52,7 @@
                         includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes
                     }),
                     layoutOptions: new GraphLayoutOptions({
-                        mergeEdgesOfSameType: true,
+                        mergeEdgesOfSameType: $mapSettings[$activeProject ?? ""]?.mergeEdges,
                         maxCharsPerLine: 25,
                         nodeSeparation: 1,
                         rankSeparation: 5,
