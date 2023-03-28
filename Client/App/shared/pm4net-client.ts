@@ -1398,8 +1398,8 @@ export interface IEdge {
 
 export class EdgeTypeInfoOfEdgeInfo implements IEdgeTypeInfoOfEdgeInfo {
     weight!: number;
-    type?: FSharpOptionOfString | undefined;
-    info?: FSharpOptionOfEdgeInfo | undefined;
+    type?: string | undefined;
+    info?: EdgeInfo | undefined;
 
     constructor(data?: IEdgeTypeInfoOfEdgeInfo) {
         if (data) {
@@ -1413,8 +1413,8 @@ export class EdgeTypeInfoOfEdgeInfo implements IEdgeTypeInfoOfEdgeInfo {
     init(_data?: any) {
         if (_data) {
             this.weight = _data["weight"];
-            this.type = _data["type"] ? FSharpOptionOfString.fromJS(_data["type"]) : <any>undefined;
-            this.info = _data["info"] ? FSharpOptionOfEdgeInfo.fromJS(_data["info"]) : <any>undefined;
+            this.type = _data["type"];
+            this.info = _data["info"] ? EdgeInfo.fromJS(_data["info"]) : <any>undefined;
         }
     }
 
@@ -1428,7 +1428,7 @@ export class EdgeTypeInfoOfEdgeInfo implements IEdgeTypeInfoOfEdgeInfo {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["weight"] = this.weight;
-        data["type"] = this.type ? this.type.toJSON() : <any>undefined;
+        data["type"] = this.type;
         data["info"] = this.info ? this.info.toJSON() : <any>undefined;
         return data;
     }
@@ -1436,8 +1436,52 @@ export class EdgeTypeInfoOfEdgeInfo implements IEdgeTypeInfoOfEdgeInfo {
 
 export interface IEdgeTypeInfoOfEdgeInfo {
     weight: number;
-    type?: FSharpOptionOfString | undefined;
-    info?: FSharpOptionOfEdgeInfo | undefined;
+    type?: string | undefined;
+    info?: EdgeInfo | undefined;
+}
+
+export class EdgeInfo implements IEdgeInfo {
+    durations?: Duration[] | undefined;
+
+    constructor(data?: IEdgeInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["durations"])) {
+                this.durations = [] as any;
+                for (let item of _data["durations"])
+                    this.durations!.push(DateTime.fromISO(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): EdgeInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new EdgeInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.durations)) {
+            data["durations"] = [];
+            for (let item of this.durations)
+                data["durations"].push(item.toString());
+        }
+        return data;
+    }
+}
+
+export interface IEdgeInfo {
+    durations?: Duration[] | undefined;
 }
 
 export class OcDfgLayoutOptions implements IOcDfgLayoutOptions {

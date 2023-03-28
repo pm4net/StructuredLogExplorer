@@ -52,7 +52,16 @@ namespace StructuredLogExplorer.Models
 
 		public int TotalWeight { get; set; }
 
-		public IEnumerable<OutputTypes.EdgeTypeInfo<EdgeInfo>> TypeInfos { get; set; } = Enumerable.Empty<OutputTypes.EdgeTypeInfo<EdgeInfo>>();
+		public IEnumerable<EdgeTypeInfo<EdgeInfo>> TypeInfos { get; set; } = Enumerable.Empty<EdgeTypeInfo<EdgeInfo>>();
+	}
+
+	public class EdgeTypeInfo<T>
+	{
+		public int Weight { get; set; }
+
+		public string? Type { get; set; }
+
+		public T? Info { get; set; }
 	}
 
 	public static class GraphLayoutExtensions
@@ -94,7 +103,12 @@ namespace StructuredLogExplorer.Models
 				Waypoints = edge.Waypoints,
 				Downwards = edge.Downwards,
 				TotalWeight = edge.TotalWeight,
-				TypeInfos = edge.TypeInfos
+				TypeInfos = edge.TypeInfos.Select(x => new EdgeTypeInfo<EdgeInfo>
+				{
+					Weight = x.Weight,
+					Type = x.Type.IsSome() ? x.Type.Value : null,
+					Info = x.Info.IsSome() ? x.Info.Value : null
+				})
 			};
 		}
 

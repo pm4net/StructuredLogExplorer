@@ -737,10 +737,22 @@
           "format": "int32"
         },
         "type": {
-          "$ref": "#/definitions/FSharpOptionOfString"
+          "type": "string"
         },
         "info": {
-          "$ref": "#/definitions/FSharpOptionOfEdgeInfo"
+          "$ref": "#/definitions/EdgeInfo"
+        }
+      }
+    },
+    "EdgeInfo": {
+      "type": "object",
+      "properties": {
+        "durations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "duration"
+          }
         }
       }
     },
