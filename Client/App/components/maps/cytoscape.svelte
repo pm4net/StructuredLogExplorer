@@ -1,68 +1,58 @@
 <script lang="ts">
-    import { DirectedGraphOfNodeAndEdge, EndNode, EventNode, Node, StartNode } from "../../shared/pm4net-client";
+    import { End, Event, GraphLayout, Start } from "../../shared/pm4net-client";
     import { onMount } from "svelte";
     import cytoscape from "cytoscape";
 
-    export let dfg : DirectedGraphOfNodeAndEdge = new DirectedGraphOfNodeAndEdge({ nodes: [], edges: [] });
+    export let layout : GraphLayout = new GraphLayout({ nodes: [], edges: [] });
+    let cy : cytoscape.Core;
 
-    const scaleFactor = 100;
+    const scaleFactor = 25;
 
-    function getNodeName(node: Node) {
-        if (node instanceof StartNode) {
-            return "Start: " + node.type;
-        } else if (node instanceof EndNode) {
-            return "End: " + node.type;
-        } else if (node instanceof EventNode) {
-            return node.name;
-        } else {
-            return "";
-        }
-    }
-
-    function createElementsFromDirectedGraph(graph: DirectedGraphOfNodeAndEdge) {
-        let nodes = graph.nodes.map(node => {
+    function createNodesFromLayout(graph: GraphLayout) {
+        return graph.nodes!.map(node => {
             let elem : cytoscape.NodeDefinition = {
                 data: { 
-                    id: getNodeName(node)
+                    id: node.id
                 },
                 position: { 
-                    x: node.coordinate ? node.coordinate.x * scaleFactor : 0, 
-                    y: node.coordinate ? node.coordinate.y * scaleFactor : 0
+                    x: node.position!.x * scaleFactor, 
+                    y: node.position!.y * scaleFactor
                 },
                 
             };
-            return elem;
+            return { elem: elem, n: node };
         });
+    }
 
-        let edges = graph.edges.map(edge => {
+    function createEdgesFromLayout(graph: GraphLayout) {
+        return graph.edges!.map(edge => {
             let elem : cytoscape.EdgeDefinition = {
                 data: {
-                    id: getNodeName(edge.item1) + "-" + getNodeName(edge.item2),
-                    source: getNodeName(edge.item1),
-                    target: getNodeName(edge.item2)
+                    id: edge.sourceId + "-" + edge.targetId,
+                    source: edge.sourceId!,
+                    target: edge.targetId!
                 }
             };
-            
-            return elem;
+            return { elem: elem, e: edge };
         });
-
-        return nodes.concat(edges);
     }
 
     onMount(() => {
+        let nodes = createNodesFromLayout(layout);
+        let edges = createEdgesFromLayout(layout);
+
         // Initialize the Cytoscape container
-        var cy = cytoscape({
+        cy = cytoscape({
             container: document.getElementById("dfg"),
-            elements: createElementsFromDirectedGraph(dfg),
             style: [
                 {
                     selector: 'node',
                     style: {
-                        'background-color': '#666',
-                        'content': 'data(id)',
                         'text-valign': 'center',
                         'text-halign': 'center',
-                        'shape': 'rectangle'
+                        'text-wrap': 'wrap',
+                        'shape': 'rectangle',
+                        'font-family': 'monospace'
                     }
                 },
                 {
@@ -79,14 +69,49 @@
                         'line-color': '#ccc',
                         'target-arrow-color': '#ccc',
                         'target-arrow-shape': 'triangle',
-                        'curve-style': 'unbundled-bezier',
+                        'curve-style': 'bezier',
                     }
                 }
             ],
+            elements: nodes.map(n => n.elem).concat(edges.map(e => e.elem)),
             layout: {
                 name: "preset",
                 fit: true,
                 animate: false
+            },
+            autoungrabify: true
+        });
+
+        let eventNodeStyles = {
+            'background-color': '#000000',
+            'color': '#ffffff'
+        };
+
+        let startNodeStyles = {
+            'background-color': '#00ff00',
+            'color': '#fff'
+        };
+
+        let endNodeStyles = {
+            'background-color': '#ff0000',
+            'color': '#fff'
+        };
+
+        // Add styling to nodes
+        layout.nodes?.forEach(n => {
+            let elem = cy.$id(n.id!);
+            elem.style({
+                'label': n.text?.join('\n'),
+                'width': n.size!.width! * scaleFactor / 2,
+                'height': n.size!.height! * scaleFactor
+            });
+            
+            if (n.nodeType instanceof Event) {
+                elem.style(eventNodeStyles);
+            } else if (n.nodeType instanceof Start) {
+                elem.style(startNodeStyles);
+            } else if (n.nodeType instanceof End) {
+                elem.style(endNodeStyles);
             }
         });
     });

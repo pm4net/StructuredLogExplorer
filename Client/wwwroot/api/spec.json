@@ -253,7 +253,7 @@
             "x-nullable": false,
             "description": "",
             "schema": {
-              "$ref": "#/definitions/GraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo"
+              "$ref": "#/definitions/GraphLayout"
             }
           }
         }
@@ -531,26 +531,35 @@
         }
       }
     },
-    "GraphLayoutOfFSharpOptionOfNodeInfoAndEdgeInfo": {
+    "GraphLayout": {
       "type": "object",
+      "required": [
+        "nodes",
+        "edges"
+      ],
       "properties": {
         "nodes": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/NodeOfFSharpOptionOfNodeInfo"
+            "$ref": "#/definitions/Node"
           }
         },
         "edges": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/EdgeOfEdgeInfo2"
+            "$ref": "#/definitions/Edge"
           }
         }
       }
     },
-    "NodeOfFSharpOptionOfNodeInfo": {
+    "Node": {
       "type": "object",
       "required": [
+        "id",
+        "text",
+        "nodeType",
+        "position",
+        "size",
         "rank"
       ],
       "properties": {
@@ -576,13 +585,53 @@
           "type": "integer",
           "format": "int32"
         },
-        "info": {
-          "$ref": "#/definitions/FSharpOptionOfFSharpOptionOfNodeInfo"
+        "nodeInfo": {
+          "$ref": "#/definitions/NodeInfo"
         }
       }
     },
     "NodeType": {
-      "type": "object"
+      "type": "object",
+      "discriminator": "discriminator",
+      "x-abstract": true,
+      "required": [
+        "discriminator"
+      ],
+      "properties": {
+        "discriminator": {
+          "type": "string"
+        }
+      }
+    },
+    "Event": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/NodeType"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "Start": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/NodeType"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "End": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/NodeType"
+        },
+        {
+          "type": "object"
+        }
+      ]
     },
     "Coordinate": {
       "type": "object",
@@ -618,14 +667,36 @@
         }
       }
     },
-    "FSharpOptionOfFSharpOptionOfNodeInfo": {
-      "type": "object"
-    },
-    "EdgeOfEdgeInfo2": {
+    "NodeInfo": {
       "type": "object",
       "required": [
+        "frequency"
+      ],
+      "properties": {
+        "frequency": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "namespace": {
+          "$ref": "#/definitions/FSharpOptionOfString"
+        },
+        "level": {
+          "$ref": "#/definitions/FSharpOptionOfLogLevel"
+        }
+      }
+    },
+    "FSharpOptionOfLogLevel": {
+      "type": "object"
+    },
+    "Edge": {
+      "type": "object",
+      "required": [
+        "sourceId",
+        "targetId",
+        "waypoints",
         "downwards",
-        "totalWeight"
+        "totalWeight",
+        "typeInfos"
       ],
       "properties": {
         "sourceId": {

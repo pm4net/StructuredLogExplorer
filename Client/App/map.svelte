@@ -7,7 +7,6 @@
     import Filters from "./components/filters.svelte";
     import Cytoscape from "./components/maps/cytoscape.svelte"
     import Dot from "./components/maps/dot.svelte";
-    import D3 from "./components/maps/d3.svelte";
     import { GraphLayoutOptions, OcDfgLayoutOptions, OcDfgOptions } from "./shared/pm4net-client";
 
     // The state of the error notification that is shown when an API error occurs
@@ -53,9 +52,9 @@
                     }),
                     layoutOptions: new GraphLayoutOptions({
                         mergeEdgesOfSameType: true,
-                        maxCharsPerLine: 30,
+                        maxCharsPerLine: 25,
                         nodeSeparation: 1,
-                        rankSeparation: 2,
+                        rankSeparation: 5,
                         edgeSeparation: 0.5
                     })
                 })
@@ -122,13 +121,7 @@
                                         {#await getOcDfg()}
                                             <Loading description="Loading..." />
                                         {:then ocDfg}
-                                            <Cytoscape dfg={ocDfg}></Cytoscape>
-                                        {/await}
-                                    {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.D3}
-                                        {#await getOcDfg()}
-                                            <Loading description="Loading..." />
-                                        {:then ocDfg} 
-                                            <!--<D3 dfg={ocDfg}></D3>-->
+                                            <Cytoscape layout={ocDfg}></Cytoscape>
                                         {/await}
                                     {/if}
                                 {:else if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcPn}

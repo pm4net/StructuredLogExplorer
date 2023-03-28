@@ -65,7 +65,7 @@ namespace StructuredLogExplorer.ApiControllers
         [HttpPost]
         [Route("discoverOcDfgAndApplyStableGraphLayout")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
-        public OutputTypes.GraphLayout<FSharpOption<NodeInfo>, EdgeInfo> DiscoverOcDfgAndApplyStableGraphLayout(string projectName, [FromBody] OcDfgLayoutOptions options)
+        public GraphLayout DiscoverOcDfgAndApplyStableGraphLayout(string projectName, [FromBody] OcDfgLayoutOptions options)
         {
             // Discover object-centric directly follows graph
             var log = GetProjectLog(projectName);
@@ -77,7 +77,7 @@ namespace StructuredLogExplorer.ApiControllers
 	            options.LayoutOptions.MergeEdgesOfSameType, options.LayoutOptions.MaxCharsPerLine,
 	            options.LayoutOptions.NodeSeparation,
 	            options.LayoutOptions.RankSeparation, options.LayoutOptions.EdgeSeparation);
-            return layout;
+            return layout.FromFSharpGraphLayout();
         }
 
         [HttpPost]
