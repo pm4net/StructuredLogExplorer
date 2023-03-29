@@ -106,7 +106,7 @@
             let elem = cy.$id(n.id!);
             elem.style({
                 'label': n.text?.join('\n'),
-                'width': n.size!.width! * scaleFactor / 2,
+                'width': n.size!.width! * scaleFactor,
                 'height': n.size!.height! * scaleFactor
             });
             

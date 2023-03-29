@@ -8,8 +8,6 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
-import { DateTime, Duration } from "luxon";
-
 export interface IFileClient {
 
     getLogFileInfos(projectName: string | null | undefined): Promise<LogFileInfo[]>;
@@ -510,8 +508,8 @@ export class LogFileInfo implements ILogFileInfo {
     noOfImportedEvents!: number;
     noOfImportedObjects!: number;
     fileSize!: number;
-    lastImported?: DateTime | undefined;
-    lastChanged?: DateTime | undefined;
+    lastImported?: Date | undefined;
+    lastChanged?: Date | undefined;
 
     constructor(data?: ILogFileInfo) {
         if (data) {
@@ -528,8 +526,8 @@ export class LogFileInfo implements ILogFileInfo {
             this.noOfImportedEvents = _data["noOfImportedEvents"];
             this.noOfImportedObjects = _data["noOfImportedObjects"];
             this.fileSize = _data["fileSize"];
-            this.lastImported = _data["lastImported"] ? DateTime.fromISO(_data["lastImported"].toString()) : <any>undefined;
-            this.lastChanged = _data["lastChanged"] ? DateTime.fromISO(_data["lastChanged"].toString()) : <any>undefined;
+            this.lastImported = _data["lastImported"] ? new Date(_data["lastImported"].toString()) : <any>undefined;
+            this.lastChanged = _data["lastChanged"] ? new Date(_data["lastChanged"].toString()) : <any>undefined;
         }
     }
 
@@ -546,8 +544,8 @@ export class LogFileInfo implements ILogFileInfo {
         data["noOfImportedEvents"] = this.noOfImportedEvents;
         data["noOfImportedObjects"] = this.noOfImportedObjects;
         data["fileSize"] = this.fileSize;
-        data["lastImported"] = this.lastImported ? this.lastImported.toString() : <any>undefined;
-        data["lastChanged"] = this.lastChanged ? this.lastChanged.toString() : <any>undefined;
+        data["lastImported"] = this.lastImported ? this.lastImported.toISOString() : <any>undefined;
+        data["lastChanged"] = this.lastChanged ? this.lastChanged.toISOString() : <any>undefined;
         return data;
     }
 }
@@ -557,8 +555,8 @@ export interface ILogFileInfo {
     noOfImportedEvents: number;
     noOfImportedObjects: number;
     fileSize: number;
-    lastImported?: DateTime | undefined;
-    lastChanged?: DateTime | undefined;
+    lastImported?: Date | undefined;
+    lastChanged?: Date | undefined;
 }
 
 export class LogInfo implements ILogInfo {
@@ -1441,7 +1439,7 @@ export interface IEdgeTypeInfoOfEdgeInfo {
 }
 
 export class EdgeInfo implements IEdgeInfo {
-    durations?: Duration[] | undefined;
+    durations?: string[] | undefined;
 
     constructor(data?: IEdgeInfo) {
         if (data) {
@@ -1457,7 +1455,7 @@ export class EdgeInfo implements IEdgeInfo {
             if (Array.isArray(_data["durations"])) {
                 this.durations = [] as any;
                 for (let item of _data["durations"])
-                    this.durations!.push(DateTime.fromISO(item));
+                    this.durations!.push(item);
             }
         }
     }
@@ -1474,14 +1472,14 @@ export class EdgeInfo implements IEdgeInfo {
         if (Array.isArray(this.durations)) {
             data["durations"] = [];
             for (let item of this.durations)
-                data["durations"].push(item.toString());
+                data["durations"].push(item);
         }
         return data;
     }
 }
 
 export interface IEdgeInfo {
-    durations?: Duration[] | undefined;
+    durations?: string[] | undefined;
 }
 
 export class OcDfgLayoutOptions implements IOcDfgLayoutOptions {

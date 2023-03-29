@@ -53,10 +53,10 @@
                     }),
                     layoutOptions: new GraphLayoutOptions({
                         mergeEdgesOfSameType: $mapSettings[$activeProject ?? ""]?.mergeEdges,
-                        maxCharsPerLine: 25,
-                        nodeSeparation: 1,
+                        maxCharsPerLine: 50,
+                        nodeSeparation: 5,
                         rankSeparation: 5,
-                        edgeSeparation: 0.5
+                        edgeSeparation: 1
                     })
                 })
             );
