@@ -58,7 +58,7 @@
                         'text-halign': 'center',
                         'text-wrap': 'wrap',
                         'shape': 'round-rectangle',
-                        'font-family': 'sans-serif'
+                        'font-family': 'sans-serif',
                     }
                 },
                 {
@@ -74,7 +74,7 @@
                         'width': 3,
                         'line-color': '#ccc',
                         'target-arrow-color': '#ccc',
-                        'target-arrow-shape': 'triangle'
+                        'target-arrow-shape': 'triangle',
                     }
                 }
             ],
@@ -89,15 +89,17 @@
 
         let eventNodeStyles = {
             'background-color': '#D3D3D3',
-            'color': '#000000'
+            'color': '#000000',
         };
 
         let startNodeStyles = {
-            'color': '#fff'
+            'color': '#fff',
+            'shape': 'cut-rectangle',
         };
 
         let endNodeStyles = {
-            'color': '#fff'
+            'color': '#fff',
+            'shape': 'cut-rectangle',
         };
 
         // Add styling to nodes
