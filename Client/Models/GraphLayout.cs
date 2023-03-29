@@ -37,8 +37,16 @@ namespace StructuredLogExplorer.Models
 	[JsonConverter(typeof(JsonInheritanceConverter), "discriminator")]
 	public abstract class NodeType { }
 	public class Event : NodeType { }
-	public class Start : NodeType { }
-	public class End : NodeType { }
+
+	public class Start : NodeType
+	{
+		public string ObjectType { get; set; } = string.Empty;
+	}
+
+	public class End : NodeType
+	{
+		public string ObjectType { get; set; } = string.Empty;
+	}
 
 	public class Edge
 	{
@@ -68,18 +76,25 @@ namespace StructuredLogExplorer.Models
 	{
 		private static Node FromFSharpNode(this OutputTypes.Node<NodeInfo> node)
 		{
+			var objType = string.Empty;
 			NodeType nodeType = new Event();
 			if (node.NodeType.IsEvent)
 			{
 				nodeType = new Event();
 			}
-			else if (node.NodeType.IsStart)
+			else if (node.NodeType.TryStart(ref objType))
 			{
-				nodeType = new Start();
+				nodeType = new Start
+				{
+					ObjectType = objType
+				};
 			}
-			else if (node.NodeType.IsEnd)
+			else if (node.NodeType.TryEnd(ref objType))
 			{
-				nodeType = new End();
+				nodeType = new End
+				{
+					ObjectType = objType
+				};
 			}
 
 			return new Node

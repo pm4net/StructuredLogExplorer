@@ -619,7 +619,15 @@
           "$ref": "#/definitions/NodeType"
         },
         {
-          "type": "object"
+          "type": "object",
+          "required": [
+            "objectType"
+          ],
+          "properties": {
+            "objectType": {
+              "type": "string"
+            }
+          }
         }
       ]
     },
@@ -629,7 +637,15 @@
           "$ref": "#/definitions/NodeType"
         },
         {
-          "type": "object"
+          "type": "object",
+          "required": [
+            "objectType"
+          ],
+          "properties": {
+            "objectType": {
+              "type": "string"
+            }
+          }
         }
       ]
     },

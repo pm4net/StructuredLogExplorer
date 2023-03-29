@@ -2,6 +2,7 @@
     import { Edge, End, Event, GraphLayout, Start } from "../../shared/pm4net-client";
     import { onMount } from "svelte";
     import cytoscape from "cytoscape";
+    import { getColor } from "../../helpers/color-helpers";
 
     export let layout : GraphLayout = new GraphLayout({ nodes: [], edges: [] });
     let cy : cytoscape.Core;
@@ -56,8 +57,8 @@
                         'text-valign': 'center',
                         'text-halign': 'center',
                         'text-wrap': 'wrap',
-                        'shape': 'rectangle',
-                        'font-family': 'monospace'
+                        'shape': 'round-rectangle',
+                        'font-family': 'sans-serif'
                     }
                 },
                 {
@@ -87,17 +88,15 @@
         });
 
         let eventNodeStyles = {
-            'background-color': '#000000',
-            'color': '#ffffff'
+            'background-color': '#D3D3D3',
+            'color': '#000000'
         };
 
         let startNodeStyles = {
-            'background-color': '#00ff00',
             'color': '#fff'
         };
 
         let endNodeStyles = {
-            'background-color': '#ff0000',
             'color': '#fff'
         };
 
@@ -106,7 +105,7 @@
             let elem = cy.$id(n.id!);
             elem.style({
                 'label': n.text?.join('\n'),
-                'width': n.size!.width! * scaleFactor,
+                'width': n.size!.width! * scaleFactor / 2,
                 'height': n.size!.height! * scaleFactor
             });
             
@@ -114,8 +113,14 @@
                 elem.style(eventNodeStyles);
             } else if (n.nodeType instanceof Start) {
                 elem.style(startNodeStyles);
+                elem.style({
+                    'background-color': getColor(n.nodeType.objectType)
+                });
             } else if (n.nodeType instanceof End) {
                 elem.style(endNodeStyles);
+                elem.style({
+                    'background-color': getColor(n.nodeType.objectType)
+                });
             }
         });
 

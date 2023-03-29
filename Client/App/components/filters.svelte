@@ -1,6 +1,8 @@
 <script lang="ts">
-    import { Accordion, AccordionItem, Button, Checkbox, FormGroup, NumberInput, RadioButton, RadioButtonGroup, Toggle } from "carbon-components-svelte";
+    import { Accordion, AccordionItem, Checkbox, FormGroup, NumberInput, RadioButton, RadioButtonGroup, Toggle } from "carbon-components-svelte";
     import { activeProject, DisplayMethod, DisplayType, EdgeType, mapSettings } from "../shared/stores";
+    import uniqolor from "uniqolor";
+    import { getColor } from "../helpers/color-helpers";
 
     export let availableObjectTypes = <string[]>[];
     
@@ -66,7 +68,9 @@
     <AccordionItem open>
         <svelte:fragment slot="title"><strong>Object types</strong></svelte:fragment>
         {#each availableObjectTypes as objType}
-            <Checkbox bind:group={objectTypes} labelText={objType} value={objType} />
+            <Checkbox bind:group={objectTypes} value={objType}>
+                <svelte:fragment slot="labelText">{objType} <div class="circle" style:background-color="{getColor(objType)}"></div></svelte:fragment>
+            </Checkbox>
         {/each}
     </AccordionItem>
 </Accordion>
@@ -74,5 +78,21 @@
 <style lang="scss">
     :global(.bx--accordion__content) {
         padding-right: 0;
+    }
+
+    :global(.bx--checkbox-label) {
+        width: 100%;
+    }
+
+    :global(.bx--checkbox-label-text) {
+       flex-grow: 1;
+    }
+
+    .circle {
+        height: 16px;
+        width: 16px;
+        border-radius: 50%;
+        margin-right: 1rem;
+        float: right;
     }
 </style>

@@ -1109,6 +1109,7 @@ export interface IEvent extends INodeType {
 }
 
 export class Start extends NodeType implements IStart {
+    objectType!: string;
 
     constructor(data?: IStart) {
         super(data);
@@ -1117,6 +1118,9 @@ export class Start extends NodeType implements IStart {
 
     override init(_data?: any) {
         super.init(_data);
+        if (_data) {
+            this.objectType = _data["objectType"];
+        }
     }
 
     static override fromJS(data: any): Start {
@@ -1128,15 +1132,18 @@ export class Start extends NodeType implements IStart {
 
     override toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["objectType"] = this.objectType;
         super.toJSON(data);
         return data;
     }
 }
 
 export interface IStart extends INodeType {
+    objectType: string;
 }
 
 export class End extends NodeType implements IEnd {
+    objectType!: string;
 
     constructor(data?: IEnd) {
         super(data);
@@ -1145,6 +1152,9 @@ export class End extends NodeType implements IEnd {
 
     override init(_data?: any) {
         super.init(_data);
+        if (_data) {
+            this.objectType = _data["objectType"];
+        }
     }
 
     static override fromJS(data: any): End {
@@ -1156,12 +1166,14 @@ export class End extends NodeType implements IEnd {
 
     override toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["objectType"] = this.objectType;
         super.toJSON(data);
         return data;
     }
 }
 
 export interface IEnd extends INodeType {
+    objectType: string;
 }
 
 export class Coordinate implements ICoordinate {
