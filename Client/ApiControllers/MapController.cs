@@ -17,11 +17,13 @@ namespace StructuredLogExplorer.ApiControllers
     public class MapController : ControllerBase
     {
         private readonly IProjectService _projectService;
+        private readonly ITextSizeService _textSizeService;
         private readonly IDictionary<string, OcelLog> _logs;
 
-        public MapController(IProjectService projectService)
+        public MapController(IProjectService projectService, ITextSizeService textSizeService)
         {
             _projectService = projectService;
+            _textSizeService = textSizeService;
             _logs = new Dictionary<string, OcelLog>();
         }
 
@@ -71,7 +73,12 @@ namespace StructuredLogExplorer.ApiControllers
             var ocDfg = OcelDfg.Discover(options.OcDfgOptions.MinimumEvents, options.OcDfgOptions.MinimumOccurrence, options.OcDfgOptions.MinimumSuccessions, options.OcDfgOptions.IncludedTypes, log);
 
             var lineWrapFunc = new Func<string, IEnumerable<string>>(str => new List<string> { str }); // TODO: Calculate properly
-            var nodeSizeFunc = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size>(n => new OutputTypes.Size(n.Text.MaxBy(x => x.Length)?.Length ?? 0, n.Text.Count())); // TODO: Calculate properly
+            var nodeSizeFunc = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size>(n => new OutputTypes.Size(n.Text.MaxBy(x => x.Length)?.Length / 2 ?? 0, n.Text.Count())); // TODO: Calculate properly
+            var openTypeJs = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size>(n =>
+            {
+	            var a = _textSizeService.CalculateTextSize(n.Text.ToString(), "", 12);
+	            return new OutputTypes.Size(0, 0);
+            });
 
             var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog());
             if (options.LayoutOptions.FixUnforeseenEdges)
@@ -81,7 +88,7 @@ namespace StructuredLogExplorer.ApiControllers
 	            {
 		            var discoveredGraph = ProcessGraphLayout.DefaultCustomMeasurements.ComputeDiscoveredGraph(globalRanking, ocDfg, options.LayoutOptions.MergeEdgesOfSameType); // TODO: Cacheable
 		            return ProcessGraphLayout.DefaultCustomMeasurements.ComputeNodePositions(
-			            FSharpFunc.FromFunc(lineWrapFunc), FSharpFunc.FromFunc(nodeSizeFunc), discoveredGraph, ocDfg,
+			            FSharpFunc.FromFunc(lineWrapFunc), FSharpFunc.FromFunc(openTypeJs), discoveredGraph, ocDfg,
 			            options.LayoutOptions.NodeSeparation, options.LayoutOptions.RankSeparation,
 			            options.LayoutOptions.EdgeSeparation).FromFSharpGraphLayout();
 	            }
@@ -96,7 +103,7 @@ namespace StructuredLogExplorer.ApiControllers
 				var (globalOrder, globalRanking) = ProcessGraphLayout.FastDefault.ComputeGlobalOrder(traces); // TODO: Cacheable
 				if (options.LayoutOptions.UseCustomMeasurements)
 				{
-					return ProcessGraphLayout.FastCustomMeasurements.ComputeLayout(FSharpFunc.FromFunc(lineWrapFunc), FSharpFunc.FromFunc(nodeSizeFunc), globalOrder,
+					return ProcessGraphLayout.FastCustomMeasurements.ComputeLayout(FSharpFunc.FromFunc(lineWrapFunc), FSharpFunc.FromFunc(openTypeJs), globalOrder,
 						globalRanking, ocDfg, options.LayoutOptions.NodeSeparation,
 						options.LayoutOptions.RankSeparation, options.LayoutOptions.EdgeSeparation,
 						options.LayoutOptions.MergeEdgesOfSameType).FromFSharpGraphLayout();

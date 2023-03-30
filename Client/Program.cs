@@ -40,6 +40,8 @@ builder.Services.AddScoped<ILogFileService>(sp =>
     return new LogFileService(projectService!);
 });
 
+builder.Services.AddScoped<ITextSizeService>(_ => new TextSizeService());
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
