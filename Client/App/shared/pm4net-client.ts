@@ -1540,6 +1540,8 @@ export interface IOcDfgLayoutOptions {
 
 export class GraphLayoutOptions implements IGraphLayoutOptions {
     mergeEdgesOfSameType!: boolean;
+    fixUnforeseenEdges!: boolean;
+    useCustomMeasurements!: boolean;
     maxCharsPerLine!: number;
     nodeSeparation!: number;
     rankSeparation!: number;
@@ -1557,6 +1559,8 @@ export class GraphLayoutOptions implements IGraphLayoutOptions {
     init(_data?: any) {
         if (_data) {
             this.mergeEdgesOfSameType = _data["mergeEdgesOfSameType"];
+            this.fixUnforeseenEdges = _data["fixUnforeseenEdges"];
+            this.useCustomMeasurements = _data["useCustomMeasurements"];
             this.maxCharsPerLine = _data["maxCharsPerLine"];
             this.nodeSeparation = _data["nodeSeparation"];
             this.rankSeparation = _data["rankSeparation"];
@@ -1574,6 +1578,8 @@ export class GraphLayoutOptions implements IGraphLayoutOptions {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["mergeEdgesOfSameType"] = this.mergeEdgesOfSameType;
+        data["fixUnforeseenEdges"] = this.fixUnforeseenEdges;
+        data["useCustomMeasurements"] = this.useCustomMeasurements;
         data["maxCharsPerLine"] = this.maxCharsPerLine;
         data["nodeSeparation"] = this.nodeSeparation;
         data["rankSeparation"] = this.rankSeparation;
@@ -1584,6 +1590,8 @@ export class GraphLayoutOptions implements IGraphLayoutOptions {
 
 export interface IGraphLayoutOptions {
     mergeEdgesOfSameType: boolean;
+    fixUnforeseenEdges: boolean;
+    useCustomMeasurements: boolean;
     maxCharsPerLine: number;
     nodeSeparation: number;
     rankSeparation: number;

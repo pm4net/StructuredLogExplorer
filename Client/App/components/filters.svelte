@@ -12,6 +12,8 @@
     let groupByNamespace = $mapSettings[$activeProject ?? ""]?.groupByNamespace;
     let mergeEdges = $mapSettings[$activeProject ?? ""]?.mergeEdges;
     let objectTypes = $mapSettings[$activeProject ?? ""]?.objectTypes ?? [];
+    let fixUnforeseenEdges = $mapSettings[$activeProject ?? ""].fixUnforeseenEdges;
+    let useCustomMeasurements = $mapSettings[$activeProject ?? ""].useCustomMeasurements;
     let minEvents = $mapSettings[$activeProject ?? ""].dfg.minEvents;
     let minOccurrences = $mapSettings[$activeProject ?? ""].dfg.minOccurrences;
     let minSuccessions = $mapSettings[$activeProject ?? ""].dfg.minSuccessions;
@@ -24,6 +26,8 @@
         settings[$activeProject ?? ""].groupByNamespace = groupByNamespace;
         settings[$activeProject ?? ""].mergeEdges = mergeEdges;
         settings[$activeProject ?? ""].objectTypes = objectTypes;
+        settings[$activeProject ?? ""].fixUnforeseenEdges = fixUnforeseenEdges;
+        settings[$activeProject ?? ""].useCustomMeasurements = useCustomMeasurements;
         settings[$activeProject ?? ""].dfg.minEvents = minEvents;
         settings[$activeProject ?? ""].dfg.minOccurrences = minOccurrences;
         settings[$activeProject ?? ""].dfg.minSuccessions = minSuccessions;
@@ -54,6 +58,12 @@
         </FormGroup>
         <FormGroup >
             <Toggle labelText="Group by namespace" bind:toggled={groupByNamespace}></Toggle>
+        </FormGroup>
+        <FormGroup >
+            <Toggle labelText="Fix unforeseen edges" bind:toggled={fixUnforeseenEdges}></Toggle>
+        </FormGroup>
+        <FormGroup >
+            <Toggle labelText="Use custom measurements" bind:toggled={useCustomMeasurements}></Toggle>
         </FormGroup>
         <FormGroup noMargin>
             <Toggle labelText="Merge edges" bind:toggled={mergeEdges}></Toggle>

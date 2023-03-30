@@ -791,6 +791,8 @@
       "type": "object",
       "required": [
         "mergeEdgesOfSameType",
+        "fixUnforeseenEdges",
+        "useCustomMeasurements",
         "maxCharsPerLine",
         "nodeSeparation",
         "rankSeparation",
@@ -798,6 +800,12 @@
       ],
       "properties": {
         "mergeEdgesOfSameType": {
+          "type": "boolean"
+        },
+        "fixUnforeseenEdges": {
+          "type": "boolean"
+        },
+        "useCustomMeasurements": {
           "type": "boolean"
         },
         "maxCharsPerLine": {

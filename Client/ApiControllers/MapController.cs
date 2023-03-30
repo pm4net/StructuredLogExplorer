@@ -1,12 +1,11 @@
-﻿using Infrastructure.Interfaces;
+﻿using FSharpx;
+using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
-using Microsoft.FSharp.Core;
 using pm4net.Algorithms.Discovery.Ocel;
 using OCEL.CSharp;
 using pm4net.Types.Trees;
 using pm4net.Utilities;
-using pm4net.Algorithms.Layout;
 using pm4net.Types;
 using StructuredLogExplorer.Models;
 using StructuredLogExplorer.Models.ControllerOptions;
@@ -71,13 +70,43 @@ namespace StructuredLogExplorer.ApiControllers
             var log = GetProjectLog(projectName);
             var ocDfg = OcelDfg.Discover(options.OcDfgOptions.MinimumEvents, options.OcDfgOptions.MinimumOccurrence, options.OcDfgOptions.MinimumSuccessions, options.OcDfgOptions.IncludedTypes, log);
 
-            // Compute the final graph layout based on discovered model
-            var globalRanking = StableGraphLayout.ComputeGlobalRanking(log);
-            var layout = StableGraphLayout.ComputeGraphLayout(globalRanking, ocDfg,
-	            options.LayoutOptions.MergeEdgesOfSameType, options.LayoutOptions.MaxCharsPerLine,
-	            options.LayoutOptions.NodeSeparation,
-	            options.LayoutOptions.RankSeparation, options.LayoutOptions.EdgeSeparation);
-            return layout.FromFSharpGraphLayout();
+            var lineWrapFunc = new Func<string, IEnumerable<string>>(str => new List<string> { str }); // TODO: Calculate properly
+            var nodeSizeFunc = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size>(n => new OutputTypes.Size(n.Text.MaxBy(x => x.Length)?.Length ?? 0, n.Text.Count())); // TODO: Calculate properly
+
+            var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog());
+            if (options.LayoutOptions.FixUnforeseenEdges)
+            {
+	            var globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces); // TODO: Cacheable
+	            if (options.LayoutOptions.UseCustomMeasurements)
+	            {
+		            var discoveredGraph = ProcessGraphLayout.DefaultCustomMeasurements.ComputeDiscoveredGraph(globalRanking, ocDfg, options.LayoutOptions.MergeEdgesOfSameType); // TODO: Cacheable
+		            return ProcessGraphLayout.DefaultCustomMeasurements.ComputeNodePositions(
+			            FSharpFunc.FromFunc(lineWrapFunc), FSharpFunc.FromFunc(nodeSizeFunc), discoveredGraph, ocDfg,
+			            options.LayoutOptions.NodeSeparation, options.LayoutOptions.RankSeparation,
+			            options.LayoutOptions.EdgeSeparation).FromFSharpGraphLayout();
+	            }
+
+	            return ProcessGraphLayout.Default.ComputeLayout(globalRanking, ocDfg,
+		            options.LayoutOptions.MergeEdgesOfSameType, options.LayoutOptions.MaxCharsPerLine,
+		            options.LayoutOptions.NodeSeparation, options.LayoutOptions.RankSeparation,
+		            options.LayoutOptions.EdgeSeparation).FromFSharpGraphLayout();
+            }
+            else
+            {
+				var (globalOrder, globalRanking) = ProcessGraphLayout.FastDefault.ComputeGlobalOrder(traces); // TODO: Cacheable
+				if (options.LayoutOptions.UseCustomMeasurements)
+				{
+					return ProcessGraphLayout.FastCustomMeasurements.ComputeLayout(FSharpFunc.FromFunc(lineWrapFunc), FSharpFunc.FromFunc(nodeSizeFunc), globalOrder,
+						globalRanking, ocDfg, options.LayoutOptions.NodeSeparation,
+						options.LayoutOptions.RankSeparation, options.LayoutOptions.EdgeSeparation,
+						options.LayoutOptions.MergeEdgesOfSameType).FromFSharpGraphLayout();
+				}
+
+				return ProcessGraphLayout.FastDefault.ComputeLayout(globalOrder, globalRanking, ocDfg,
+					options.LayoutOptions.MergeEdgesOfSameType, options.LayoutOptions.MaxCharsPerLine,
+					options.LayoutOptions.NodeSeparation, options.LayoutOptions.RankSeparation,
+					options.LayoutOptions.EdgeSeparation).FromFSharpGraphLayout();
+			}
         }
 
         [HttpPost]

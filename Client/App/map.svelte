@@ -29,6 +29,8 @@
                     groupByNamespace: true,
                     mergeEdges: true,
                     objectTypes: [], //(await logInfoPromise).objectTypes,
+                    fixUnforeseenEdges: false,
+                    useCustomMeasurements: true,
                     dfg: {
                         minEvents: 0,
                         minOccurrences: 0,
@@ -53,6 +55,8 @@
                     }),
                     layoutOptions: new GraphLayoutOptions({
                         mergeEdgesOfSameType: $mapSettings[$activeProject ?? ""]?.mergeEdges,
+                        fixUnforeseenEdges: $mapSettings[$activeProject ?? ""]?.fixUnforeseenEdges,
+                        useCustomMeasurements: $mapSettings[$activeProject ?? ""]?.useCustomMeasurements,
                         maxCharsPerLine: 50,
                         nodeSeparation: 5,
                         rankSeparation: 5,
