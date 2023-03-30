@@ -40,6 +40,12 @@ builder.Services.AddScoped<ILogFileService>(sp =>
     return new LogFileService(projectService!);
 });
 
+builder.Services.AddScoped<IGraphLayoutService>(sp =>
+{
+	var projectService = sp.GetService<IProjectService>();
+	return new GraphLayoutService(projectService!);
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

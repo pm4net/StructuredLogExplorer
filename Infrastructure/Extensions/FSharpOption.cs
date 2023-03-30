@@ -1,6 +1,6 @@
 ﻿using Microsoft.FSharp.Core;
 
-namespace StructuredLogExplorer.Extensions
+namespace Infrastructure.Extensions
 {
 	public static class FSharpOption
 	{

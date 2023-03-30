@@ -202,7 +202,13 @@ export interface IMapClient {
 
     getLogInfo(projectName: string | null | undefined): Promise<LogInfo>;
 
-    discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo>;
+    discoverOcDfg(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo>;
+
+    saveNodeCalculations(projectName: string | null | undefined, calculations: { [key: string]: ValueTupleOfIEnumerableOfStringAndSize; }): Promise<void>;
+
+    computeLayoutWithModel(projectName: string | null | undefined, modelAndOptions: ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions): Promise<GraphLayout>;
+
+    computeLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayout>;
 
     discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayout>;
 
@@ -257,7 +263,7 @@ export class MapClient implements IMapClient {
         return Promise.resolve<LogInfo>(null as any);
     }
 
-    discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo> {
+    discoverOcDfg(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo> {
         let url_ = this.baseUrl + "/api/Map/discoverOcDfg?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
@@ -275,11 +281,11 @@ export class MapClient implements IMapClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDiscoverObjectCentricDirectlyFollowsGraph(_response);
+            return this.processDiscoverOcDfg(_response);
         });
     }
 
-    protected processDiscoverObjectCentricDirectlyFollowsGraph(response: Response): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo> {
+    protected processDiscoverOcDfg(response: Response): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -295,6 +301,122 @@ export class MapClient implements IMapClient {
             });
         }
         return Promise.resolve<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo>(null as any);
+    }
+
+    saveNodeCalculations(projectName: string | null | undefined, calculations: { [key: string]: ValueTupleOfIEnumerableOfStringAndSize; }): Promise<void> {
+        let url_ = this.baseUrl + "/api/Map/saveNodeCalculations?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(calculations);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSaveNodeCalculations(_response);
+        });
+    }
+
+    protected processSaveNodeCalculations(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    computeLayoutWithModel(projectName: string | null | undefined, modelAndOptions: ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions): Promise<GraphLayout> {
+        let url_ = this.baseUrl + "/api/Map/computeLayoutWithModel?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(modelAndOptions);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processComputeLayoutWithModel(_response);
+        });
+    }
+
+    protected processComputeLayoutWithModel(response: Response): Promise<GraphLayout> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GraphLayout.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<GraphLayout>(null as any);
+    }
+
+    computeLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayout> {
+        let url_ = this.baseUrl + "/api/Map/computeLayout?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(options);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processComputeLayout(_response);
+        });
+    }
+
+    protected processComputeLayout(response: Response): Promise<GraphLayout> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GraphLayout.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<GraphLayout>(null as any);
     }
 
     discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayout> {
@@ -900,6 +1022,98 @@ export interface IOcDfgOptions {
     includedTypes: string[];
 }
 
+export class ValueTupleOfIEnumerableOfStringAndSize implements IValueTupleOfIEnumerableOfStringAndSize {
+    item1!: string[];
+    item2!: Size;
+
+    constructor(data?: IValueTupleOfIEnumerableOfStringAndSize) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.item1 = [];
+            this.item2 = new Size();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["item1"])) {
+                this.item1 = [] as any;
+                for (let item of _data["item1"])
+                    this.item1!.push(item);
+            }
+            this.item2 = _data["item2"] ? Size.fromJS(_data["item2"]) : new Size();
+        }
+    }
+
+    static fromJS(data: any): ValueTupleOfIEnumerableOfStringAndSize {
+        data = typeof data === 'object' ? data : {};
+        let result = new ValueTupleOfIEnumerableOfStringAndSize();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.item1)) {
+            data["item1"] = [];
+            for (let item of this.item1)
+                data["item1"].push(item);
+        }
+        data["item2"] = this.item2 ? this.item2.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IValueTupleOfIEnumerableOfStringAndSize {
+    item1: string[];
+    item2: Size;
+}
+
+export class Size implements ISize {
+    width!: number;
+    height!: number;
+
+    constructor(data?: ISize) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.width = _data["width"];
+            this.height = _data["height"];
+        }
+    }
+
+    static fromJS(data: any): Size {
+        data = typeof data === 'object' ? data : {};
+        let result = new Size();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["width"] = this.width;
+        data["height"] = this.height;
+        return data;
+    }
+}
+
+export interface ISize {
+    width: number;
+    height: number;
+}
+
 export class GraphLayout implements IGraphLayout {
     nodes!: Node[];
     edges!: Edge[];
@@ -1216,46 +1430,6 @@ export interface ICoordinate {
     y: number;
 }
 
-export class Size implements ISize {
-    width!: number;
-    height!: number;
-
-    constructor(data?: ISize) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.width = _data["width"];
-            this.height = _data["height"];
-        }
-    }
-
-    static fromJS(data: any): Size {
-        data = typeof data === 'object' ? data : {};
-        let result = new Size();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["width"] = this.width;
-        data["height"] = this.height;
-        return data;
-    }
-}
-
-export interface ISize {
-    width: number;
-    height: number;
-}
-
 export class NodeInfo implements INodeInfo {
     frequency!: number;
     namespace?: FSharpOptionOfString | undefined;
@@ -1494,11 +1668,11 @@ export interface IEdgeInfo {
     durations?: string[] | undefined;
 }
 
-export class OcDfgLayoutOptions implements IOcDfgLayoutOptions {
-    ocDfgOptions!: OcDfgOptions;
-    layoutOptions!: GraphLayoutOptions;
+export class ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions implements IValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions {
+    item1!: DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo;
+    item2!: GraphLayoutOptions;
 
-    constructor(data?: IOcDfgLayoutOptions) {
+    constructor(data?: IValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1506,36 +1680,36 @@ export class OcDfgLayoutOptions implements IOcDfgLayoutOptions {
             }
         }
         if (!data) {
-            this.ocDfgOptions = new OcDfgOptions();
-            this.layoutOptions = new GraphLayoutOptions();
+            this.item1 = new DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo();
+            this.item2 = new GraphLayoutOptions();
         }
     }
 
     init(_data?: any) {
         if (_data) {
-            this.ocDfgOptions = _data["ocDfgOptions"] ? OcDfgOptions.fromJS(_data["ocDfgOptions"]) : new OcDfgOptions();
-            this.layoutOptions = _data["layoutOptions"] ? GraphLayoutOptions.fromJS(_data["layoutOptions"]) : new GraphLayoutOptions();
+            this.item1 = _data["item1"] ? DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo.fromJS(_data["item1"]) : new DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo();
+            this.item2 = _data["item2"] ? GraphLayoutOptions.fromJS(_data["item2"]) : new GraphLayoutOptions();
         }
     }
 
-    static fromJS(data: any): OcDfgLayoutOptions {
+    static fromJS(data: any): ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions {
         data = typeof data === 'object' ? data : {};
-        let result = new OcDfgLayoutOptions();
+        let result = new ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["ocDfgOptions"] = this.ocDfgOptions ? this.ocDfgOptions.toJSON() : <any>undefined;
-        data["layoutOptions"] = this.layoutOptions ? this.layoutOptions.toJSON() : <any>undefined;
+        data["item1"] = this.item1 ? this.item1.toJSON() : <any>undefined;
+        data["item2"] = this.item2 ? this.item2.toJSON() : <any>undefined;
         return data;
     }
 }
 
-export interface IOcDfgLayoutOptions {
-    ocDfgOptions: OcDfgOptions;
-    layoutOptions: GraphLayoutOptions;
+export interface IValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions {
+    item1: DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo;
+    item2: GraphLayoutOptions;
 }
 
 export class GraphLayoutOptions implements IGraphLayoutOptions {
@@ -1596,6 +1770,50 @@ export interface IGraphLayoutOptions {
     nodeSeparation: number;
     rankSeparation: number;
     edgeSeparation: number;
+}
+
+export class OcDfgLayoutOptions implements IOcDfgLayoutOptions {
+    ocDfgOptions!: OcDfgOptions;
+    layoutOptions!: GraphLayoutOptions;
+
+    constructor(data?: IOcDfgLayoutOptions) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.ocDfgOptions = new OcDfgOptions();
+            this.layoutOptions = new GraphLayoutOptions();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.ocDfgOptions = _data["ocDfgOptions"] ? OcDfgOptions.fromJS(_data["ocDfgOptions"]) : new OcDfgOptions();
+            this.layoutOptions = _data["layoutOptions"] ? GraphLayoutOptions.fromJS(_data["layoutOptions"]) : new GraphLayoutOptions();
+        }
+    }
+
+    static fromJS(data: any): OcDfgLayoutOptions {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcDfgLayoutOptions();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["ocDfgOptions"] = this.ocDfgOptions ? this.ocDfgOptions.toJSON() : <any>undefined;
+        data["layoutOptions"] = this.layoutOptions ? this.layoutOptions.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IOcDfgLayoutOptions {
+    ocDfgOptions: OcDfgOptions;
+    layoutOptions: GraphLayoutOptions;
 }
 
 export class ListTreeOfString implements IListTreeOfString {

@@ -1,5 +1,6 @@
 ﻿using FSharpx;
 using Infrastructure.Interfaces;
+using Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using pm4net.Algorithms.Discovery.Ocel;
@@ -17,11 +18,13 @@ namespace StructuredLogExplorer.ApiControllers
     public class MapController : ControllerBase
     {
         private readonly IProjectService _projectService;
+        private readonly IGraphLayoutService _graphLayoutService;
         private readonly IDictionary<string, OcelLog> _logs;
 
-        public MapController(IProjectService projectService)
+        public MapController(IProjectService projectService, IGraphLayoutService graphLayoutService)
         {
             _projectService = projectService;
+            _graphLayoutService = graphLayoutService;
             _logs = new Dictionary<string, OcelLog>();
         }
 
@@ -55,13 +58,41 @@ namespace StructuredLogExplorer.ApiControllers
         [HttpPost]
         [Route("discoverOcDfg")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
-        public GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>> DiscoverObjectCentricDirectlyFollowsGraph(string projectName, [FromBody] OcDfgOptions options)
+        public GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>> DiscoverOcDfg(string projectName, [FromBody] OcDfgOptions options)
         {
             var log = GetProjectLog(projectName);
             return OcelDfg.Discover(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions, options.IncludedTypes, log);
         }
 
         [HttpPost]
+        [Route("saveNodeCalculations")]
+        public void SaveNodeCalculations(string projectName, [FromBody] IDictionary<string, (IEnumerable<string>, OutputTypes.Size)> calculations)
+        {
+            _graphLayoutService.SaveNodeCalculations(projectName, calculations);
+        }
+
+        [HttpPost]
+        [Route("computeLayoutWithModel")]
+        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
+		public GraphLayout ComputeLayoutWithModel(string projectName, [FromBody] (GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>>, GraphLayoutOptions) modelAndOptions)
+        {
+	        var log = GetProjectLog(projectName);
+	        return _graphLayoutService.ComputeGraphLayout(projectName, log, modelAndOptions.Item1,
+		        modelAndOptions.Item2.MergeEdgesOfSameType, modelAndOptions.Item2.FixUnforeseenEdges,
+		        modelAndOptions.Item2.NodeSeparation, modelAndOptions.Item2.RankSeparation,
+		        modelAndOptions.Item2.EdgeSeparation);
+        }
+
+		[HttpPost]
+		[Route("computeLayout")]
+		[OutputCache] // TODO: Invalidate in FileController when new log files are imported
+		public GraphLayout ComputeLayout(string projectName, [FromBody] OcDfgLayoutOptions options)
+		{
+			var model = DiscoverOcDfg(projectName, options.OcDfgOptions);
+			return ComputeLayoutWithModel(projectName, (model, options.LayoutOptions));
+		}
+
+		[HttpPost]
         [Route("discoverOcDfgAndApplyStableGraphLayout")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
         public GraphLayout DiscoverOcDfgAndApplyStableGraphLayout(string projectName, [FromBody] OcDfgLayoutOptions options)
@@ -114,8 +145,7 @@ namespace StructuredLogExplorer.ApiControllers
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
         public string DiscoverOcDfgAndGenerateDot(string projectName, bool groupByNamespace, [FromBody] OcDfgOptions options)
         {
-            var log = GetProjectLog(projectName);
-            var ocDfg = OcelDfg.Discover(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions, options.IncludedTypes, log);
+	        var ocDfg = DiscoverOcDfg(projectName, options);
             var dot = pm4net.Visualization.Ocel.Graphviz.OcDfg2Dot(ocDfg, groupByNamespace);
             return dot;
         }

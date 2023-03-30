@@ -174,7 +174,7 @@
         "tags": [
           "Map"
         ],
-        "operationId": "Map_DiscoverObjectCentricDirectlyFollowsGraph",
+        "operationId": "Map_DiscoverOcDfg",
         "consumes": [
           "application/json-patch+json",
           "application/json",
@@ -209,6 +209,135 @@
             "description": "",
             "schema": {
               "$ref": "#/definitions/DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo"
+            }
+          }
+        }
+      }
+    },
+    "/api/Map/saveNodeCalculations": {
+      "post": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_SaveNodeCalculations",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "name": "calculations",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/ValueTupleOfIEnumerableOfStringAndSize"
+              }
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/Map/computeLayoutWithModel": {
+      "post": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_ComputeLayoutWithModel",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "name": "modelAndOptions",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/GraphLayout"
+            }
+          }
+        }
+      }
+    },
+    "/api/Map/computeLayout": {
+      "post": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_ComputeLayout",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "name": "options",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OcDfgLayoutOptions"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/GraphLayout"
             }
           }
         }
@@ -531,6 +660,41 @@
         }
       }
     },
+    "ValueTupleOfIEnumerableOfStringAndSize": {
+      "type": "object",
+      "required": [
+        "item1",
+        "item2"
+      ],
+      "properties": {
+        "item1": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "item2": {
+          "$ref": "#/definitions/Size"
+        }
+      }
+    },
+    "Size": {
+      "type": "object",
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "height": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "GraphLayout": {
       "type": "object",
       "required": [
@@ -666,23 +830,6 @@
         }
       }
     },
-    "Size": {
-      "type": "object",
-      "required": [
-        "width",
-        "height"
-      ],
-      "properties": {
-        "width": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "height": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
-    },
     "NodeInfo": {
       "type": "object",
       "required": [
@@ -772,17 +919,17 @@
         }
       }
     },
-    "OcDfgLayoutOptions": {
+    "ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions": {
       "type": "object",
       "required": [
-        "ocDfgOptions",
-        "layoutOptions"
+        "item1",
+        "item2"
       ],
       "properties": {
-        "ocDfgOptions": {
-          "$ref": "#/definitions/OcDfgOptions"
+        "item1": {
+          "$ref": "#/definitions/DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo"
         },
-        "layoutOptions": {
+        "item2": {
           "$ref": "#/definitions/GraphLayoutOptions"
         }
       }
@@ -823,6 +970,21 @@
         "edgeSeparation": {
           "type": "number",
           "format": "float"
+        }
+      }
+    },
+    "OcDfgLayoutOptions": {
+      "type": "object",
+      "required": [
+        "ocDfgOptions",
+        "layoutOptions"
+      ],
+      "properties": {
+        "ocDfgOptions": {
+          "$ref": "#/definitions/OcDfgOptions"
+        },
+        "layoutOptions": {
+          "$ref": "#/definitions/GraphLayoutOptions"
         }
       }
     },
