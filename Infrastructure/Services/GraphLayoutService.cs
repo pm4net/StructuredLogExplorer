@@ -3,6 +3,7 @@ using Infrastructure.Constants;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using LiteDB;
+using Newtonsoft.Json;
 using OCEL.CSharp;
 using pm4net.Types;
 using pm4net.Utilities;
@@ -106,12 +107,13 @@ namespace Infrastructure.Services
 		{
 			var db = _projectService.GetProjectDatabase(projectName, false);
 			var sizeColl = db.GetCollection<NodeCalculation>(Identifiers.NodeCalculations);
-			return sizeColl.FindAll().ToDictionary(x => x.Id, x => (x.TextWrap, x.Size));
+			var items = sizeColl.FindAll().ToList();
+			return items.ToDictionary(x => x.Id, x => (x.TextWrap, x.Size));
 		}
 		
 		private void SaveGlobalRanking(string projectName, OutputTypes.GlobalRanking ranking)
 		{
-			var db = _projectService.GetProjectDatabase(projectName, true);
+			var db = _projectService.GetProjectDatabase(projectName, false);
 			var coll = db.GetCollection<OutputTypes.GlobalRanking>(Identifiers.GlobalRanking);
 			coll.DeleteAll();
 			coll.Insert(ranking);
@@ -119,13 +121,17 @@ namespace Infrastructure.Services
 
 		private OutputTypes.GlobalRanking? GetGlobalRanking(string projectName)
 		{
-			var db = _projectService.GetProjectDatabase(projectName, false);
+			var db = _projectService.GetProjectDatabase(projectName, true);
 			var coll = db.GetCollection<OutputTypes.GlobalRanking>(Identifiers.GlobalRanking);
 			return coll.FindOne(_ => true);
 		}
 
 		private class NodeCalculation
 		{
+			public NodeCalculation()
+			{
+			}
+
 			public NodeCalculation(string id, IEnumerable<string> textWrap, OutputTypes.Size size)
 			{
 				Id = id;

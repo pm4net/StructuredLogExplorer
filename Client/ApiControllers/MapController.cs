@@ -64,6 +64,14 @@ namespace StructuredLogExplorer.ApiControllers
             return OcelDfg.Discover(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions, options.IncludedTypes, log);
         }
 
+        [HttpGet]
+        [Route("getAllNodesInLog")]
+        public IEnumerable<string> GetAllNodesInLog(string projectName)
+        {
+	        var log = GetProjectLog(projectName);
+	        return log.Events.Select(x => x.Value.Activity).Concat(log.ObjectTypes).Distinct(); // Include all activity names, and also names of object types for start/end nodes
+		}
+
         [HttpPost]
         [Route("saveNodeCalculations")]
         public void SaveNodeCalculations(string projectName, [FromBody] IDictionary<string, (IEnumerable<string>, OutputTypes.Size)> calculations)
@@ -108,33 +116,33 @@ namespace StructuredLogExplorer.ApiControllers
             if (options.LayoutOptions.FixUnforeseenEdges)
             {
 	            var globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces); // TODO: Cacheable
-	            if (options.LayoutOptions.UseCustomMeasurements)
+	            /*if (options.LayoutOptions.UseCustomMeasurements)
 	            {
 		            var discoveredGraph = ProcessGraphLayout.DefaultCustomMeasurements.ComputeDiscoveredGraph(globalRanking, ocDfg, options.LayoutOptions.MergeEdgesOfSameType); // TODO: Cacheable
 		            return ProcessGraphLayout.DefaultCustomMeasurements.ComputeNodePositions(
 			            FSharpFunc.FromFunc(lineWrapFunc), FSharpFunc.FromFunc(nodeSizeFunc), discoveredGraph, ocDfg,
 			            options.LayoutOptions.NodeSeparation, options.LayoutOptions.RankSeparation,
 			            options.LayoutOptions.EdgeSeparation).FromFSharpGraphLayout();
-	            }
+	            }*/
 
 	            return ProcessGraphLayout.Default.ComputeLayout(globalRanking, ocDfg,
-		            options.LayoutOptions.MergeEdgesOfSameType, options.LayoutOptions.MaxCharsPerLine,
+		            options.LayoutOptions.MergeEdgesOfSameType, 30,
 		            options.LayoutOptions.NodeSeparation, options.LayoutOptions.RankSeparation,
 		            options.LayoutOptions.EdgeSeparation).FromFSharpGraphLayout();
             }
             else
             {
 				var (globalOrder, globalRanking) = ProcessGraphLayout.FastDefault.ComputeGlobalOrder(traces); // TODO: Cacheable
-				if (options.LayoutOptions.UseCustomMeasurements)
+				/*if (options.LayoutOptions.UseCustomMeasurements)
 				{
 					return ProcessGraphLayout.FastCustomMeasurements.ComputeLayout(FSharpFunc.FromFunc(lineWrapFunc), FSharpFunc.FromFunc(nodeSizeFunc), globalOrder,
 						globalRanking, ocDfg, options.LayoutOptions.NodeSeparation,
 						options.LayoutOptions.RankSeparation, options.LayoutOptions.EdgeSeparation,
 						options.LayoutOptions.MergeEdgesOfSameType).FromFSharpGraphLayout();
-				}
+				}*/
 
 				return ProcessGraphLayout.FastDefault.ComputeLayout(globalOrder, globalRanking, ocDfg,
-					options.LayoutOptions.MergeEdgesOfSameType, options.LayoutOptions.MaxCharsPerLine,
+					options.LayoutOptions.MergeEdgesOfSameType, 30,
 					options.LayoutOptions.NodeSeparation, options.LayoutOptions.RankSeparation,
 					options.LayoutOptions.EdgeSeparation).FromFSharpGraphLayout();
 			}

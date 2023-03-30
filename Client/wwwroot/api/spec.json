@@ -214,6 +214,39 @@
         }
       }
     },
+    "/api/Map/getAllNodesInLog": {
+      "get": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_GetAllNodesInLog",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Map/saveNodeCalculations": {
       "post": {
         "tags": [
@@ -939,8 +972,6 @@
       "required": [
         "mergeEdgesOfSameType",
         "fixUnforeseenEdges",
-        "useCustomMeasurements",
-        "maxCharsPerLine",
         "nodeSeparation",
         "rankSeparation",
         "edgeSeparation"
@@ -951,13 +982,6 @@
         },
         "fixUnforeseenEdges": {
           "type": "boolean"
-        },
-        "useCustomMeasurements": {
-          "type": "boolean"
-        },
-        "maxCharsPerLine": {
-          "type": "integer",
-          "format": "int32"
         },
         "nodeSeparation": {
           "type": "number",

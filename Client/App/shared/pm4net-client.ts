@@ -204,6 +204,8 @@ export interface IMapClient {
 
     discoverOcDfg(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo>;
 
+    getAllNodesInLog(projectName: string | null | undefined): Promise<string[]>;
+
     saveNodeCalculations(projectName: string | null | undefined, calculations: { [key: string]: ValueTupleOfIEnumerableOfStringAndSize; }): Promise<void>;
 
     computeLayoutWithModel(projectName: string | null | undefined, modelAndOptions: ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions): Promise<GraphLayout>;
@@ -301,6 +303,49 @@ export class MapClient implements IMapClient {
             });
         }
         return Promise.resolve<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo>(null as any);
+    }
+
+    getAllNodesInLog(projectName: string | null | undefined): Promise<string[]> {
+        let url_ = this.baseUrl + "/api/Map/getAllNodesInLog?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAllNodesInLog(_response);
+        });
+    }
+
+    protected processGetAllNodesInLog(response: Response): Promise<string[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(item);
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<string[]>(null as any);
     }
 
     saveNodeCalculations(projectName: string | null | undefined, calculations: { [key: string]: ValueTupleOfIEnumerableOfStringAndSize; }): Promise<void> {
@@ -1715,8 +1760,6 @@ export interface IValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndG
 export class GraphLayoutOptions implements IGraphLayoutOptions {
     mergeEdgesOfSameType!: boolean;
     fixUnforeseenEdges!: boolean;
-    useCustomMeasurements!: boolean;
-    maxCharsPerLine!: number;
     nodeSeparation!: number;
     rankSeparation!: number;
     edgeSeparation!: number;
@@ -1734,8 +1777,6 @@ export class GraphLayoutOptions implements IGraphLayoutOptions {
         if (_data) {
             this.mergeEdgesOfSameType = _data["mergeEdgesOfSameType"];
             this.fixUnforeseenEdges = _data["fixUnforeseenEdges"];
-            this.useCustomMeasurements = _data["useCustomMeasurements"];
-            this.maxCharsPerLine = _data["maxCharsPerLine"];
             this.nodeSeparation = _data["nodeSeparation"];
             this.rankSeparation = _data["rankSeparation"];
             this.edgeSeparation = _data["edgeSeparation"];
@@ -1753,8 +1794,6 @@ export class GraphLayoutOptions implements IGraphLayoutOptions {
         data = typeof data === 'object' ? data : {};
         data["mergeEdgesOfSameType"] = this.mergeEdgesOfSameType;
         data["fixUnforeseenEdges"] = this.fixUnforeseenEdges;
-        data["useCustomMeasurements"] = this.useCustomMeasurements;
-        data["maxCharsPerLine"] = this.maxCharsPerLine;
         data["nodeSeparation"] = this.nodeSeparation;
         data["rankSeparation"] = this.rankSeparation;
         data["edgeSeparation"] = this.edgeSeparation;
@@ -1765,8 +1804,6 @@ export class GraphLayoutOptions implements IGraphLayoutOptions {
 export interface IGraphLayoutOptions {
     mergeEdgesOfSameType: boolean;
     fixUnforeseenEdges: boolean;
-    useCustomMeasurements: boolean;
-    maxCharsPerLine: number;
     nodeSeparation: number;
     rankSeparation: number;
     edgeSeparation: number;
