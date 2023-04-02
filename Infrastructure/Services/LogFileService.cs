@@ -23,7 +23,7 @@ namespace Infrastructure.Services
 
         public IEnumerable<LogFileInfo> GetLogFileInfos(string projectName)
         {
-            var db = _projectService.GetProjectDatabase(projectName, readOnly: true);
+            var db = _projectService.GetProjectDatabase(projectName);
             var projectInfo = ProjectInfoHelper.GetProjectInformation(db);
             var dbLogFiles = db.GetCollection<LogFileInfo>(Identifiers.LogFilesInfo)?.FindAll()?.ToList();
 
@@ -63,7 +63,7 @@ namespace Infrastructure.Services
 
         public IDictionary<string, LogFileInfo?> ImportAllLogs(string projectName)
         {
-            var db = _projectService.GetProjectDatabase(projectName, readOnly: true);
+            var db = _projectService.GetProjectDatabase(projectName);
             var projectInfo = ProjectInfoHelper.GetProjectInformation(db);
             var dict = new Dictionary<string, LogFileInfo?>();
 
@@ -89,7 +89,7 @@ namespace Infrastructure.Services
 
         public LogFileInfo? ImportLog(string projectName, string fileName)
         {
-            var db = _projectService.GetProjectDatabase(projectName, readOnly: false);
+            var db = _projectService.GetProjectDatabase(projectName);
             var logDir = ProjectInfoHelper.GetProjectInformation(db).LogDirectory;
             var filePath = Path.Combine(logDir, fileName);
             var fileInfo = new FileInfo(filePath);

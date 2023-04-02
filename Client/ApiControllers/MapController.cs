@@ -38,7 +38,7 @@ namespace StructuredLogExplorer.ApiControllers
             }
             else
             {
-                var db = _projectService.GetProjectDatabase(projectName, readOnly: true);
+                var db = _projectService.GetProjectDatabase(projectName);
                 log = OcelLiteDB.Deserialize(db);
                 _logs.Add(projectName, log);
             }

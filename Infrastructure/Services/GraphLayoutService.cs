@@ -3,7 +3,6 @@ using Infrastructure.Constants;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using LiteDB;
-using Newtonsoft.Json;
 using OCEL.CSharp;
 using pm4net.Types;
 using pm4net.Utilities;
@@ -86,8 +85,10 @@ namespace Infrastructure.Services
 		/// <param name="nodes">The dictionary of node sizes.</param>
 		public void SaveNodeCalculations(string projectName, IDictionary<string, (IEnumerable<string>, OutputTypes.Size)> nodes)
 		{
-			var db = _projectService.GetProjectDatabase(projectName, false);
+			var db = _projectService.GetProjectDatabase(projectName);
 			var coll = db.GetCollection<NodeCalculation>(Identifiers.NodeCalculations);
+
+			// TODO: Handle start and end nodes properly, maybe by returning both id and display name when getting nodes
 
 			foreach (var node in nodes)
 			{
@@ -105,7 +106,7 @@ namespace Infrastructure.Services
 		/// <param name="projectName">The name of the project.</param>
 		private IDictionary<string, (IEnumerable<string>, OutputTypes.Size)> GetNodeCalculations(string projectName)
 		{
-			var db = _projectService.GetProjectDatabase(projectName, false);
+			var db = _projectService.GetProjectDatabase(projectName);
 			var sizeColl = db.GetCollection<NodeCalculation>(Identifiers.NodeCalculations);
 			var items = sizeColl.FindAll().ToList();
 			return items.ToDictionary(x => x.Id, x => (x.TextWrap, x.Size));
@@ -113,7 +114,7 @@ namespace Infrastructure.Services
 		
 		private void SaveGlobalRanking(string projectName, OutputTypes.GlobalRanking ranking)
 		{
-			var db = _projectService.GetProjectDatabase(projectName, false);
+			var db = _projectService.GetProjectDatabase(projectName);
 			var coll = db.GetCollection<OutputTypes.GlobalRanking>(Identifiers.GlobalRanking);
 			coll.DeleteAll();
 			coll.Insert(ranking);
@@ -121,7 +122,7 @@ namespace Infrastructure.Services
 
 		private OutputTypes.GlobalRanking? GetGlobalRanking(string projectName)
 		{
-			var db = _projectService.GetProjectDatabase(projectName, true);
+			var db = _projectService.GetProjectDatabase(projectName);
 			var coll = db.GetCollection<OutputTypes.GlobalRanking>(Identifiers.GlobalRanking);
 			return coll.FindOne(_ => true);
 		}
@@ -140,11 +141,11 @@ namespace Infrastructure.Services
 			}
 
 			[BsonId]
-			public string Id { get; }
+			public string Id { get; set; }
 
-			public IEnumerable<string> TextWrap { get; }
+			public IEnumerable<string> TextWrap { get; set; }
 
-			public OutputTypes.Size Size { get; }
+			public OutputTypes.Size Size { get; set; }
 		}
 	}
 }
