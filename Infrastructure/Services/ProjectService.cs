@@ -39,7 +39,7 @@ namespace Infrastructure.Services
             var fileName = GetDbFileName(projectName);
             _activeProject = new Project(projectName, new LiteDatabase(fileName));
 
-	        return _activeProject.Database;
+            return _activeProject.Database;
         }
 
         public void CreateProject(string projectName, string logDirectory)

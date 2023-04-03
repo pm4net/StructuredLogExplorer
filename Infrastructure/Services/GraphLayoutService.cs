@@ -55,7 +55,7 @@ namespace Infrastructure.Services
 				{
 					var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog());
 					globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces).FromFSharpGlobalRanking();
-					SaveGlobalRanking(projectName, globalRanking.ToFSharpGlobalRanking());
+					SaveGlobalRanking(projectName, globalRanking);
 				}
 
 				var discoveredGraph = ProcessGraphLayout.DefaultCustomMeasurements.ComputeDiscoveredGraph(globalRanking.ToFSharpGlobalRanking(), model, mergeEdges);
@@ -112,12 +112,12 @@ namespace Infrastructure.Services
 		/// </summary>
 		/// <param name="projectName"></param>
 		/// <param name="ranking"></param>
-		private void SaveGlobalRanking(string projectName, OutputTypes.GlobalRanking ranking)
+		private void SaveGlobalRanking(string projectName, GlobalRanking ranking)
 		{
 			var db = _projectService.GetProjectDatabase(projectName);
 			var coll = db.GetCollection<GlobalRanking>(Identifiers.GlobalRanking);
 			coll.DeleteAll();
-			coll.Insert(ranking.FromFSharpGlobalRanking());
+			coll.Insert(ranking);
 		}
 
 		/// <summary>
