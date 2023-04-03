@@ -7,7 +7,7 @@
     import Filters from "./components/filters.svelte";
     import Cytoscape from "./components/maps/cytoscape.svelte"
     import Dot from "./components/maps/dot.svelte";
-    import { GraphLayoutOptions, OcDfgLayoutOptions, OcDfgOptions, Size, ValueTupleOfIEnumerableOfStringAndSize } from "./shared/pm4net-client";
+    import { End, GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size, Start } from "./shared/pm4net-client";
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
@@ -49,16 +49,17 @@
         }
     }
 
-    async function preComputeNodeProperties(nodes: string[] | undefined) {
+    async function preComputeNodeProperties(nodes: LogNode[] | undefined) {
         if (nodes) {
-            let dict = Object.assign({}, ...nodes.map((n) => {
-                var wrappedText = [n]; // TODO
-                var width = n.length; // TODO
-                var height = 1; // TODO
-                //return { [n]: ValueTupleOfIEnumerableOfStringAndSize.fromJS({ item1: wrappedText, item2: Size.fromJS({ width: width, height: height })}) };
-                return { [n]: new ValueTupleOfIEnumerableOfStringAndSize({ item1: wrappedText, item2 : new Size({ width: width, height: height })})};
-            }));
-            await mapClient.saveNodeCalculations($activeProject, dict);
+            let computedSizes = nodes.map(n => {
+                return new NodeCalculation({
+                    nodeId: n.id,
+                    textWrap: [n.displayName], // TODO
+                    size: new Size({ width: n.displayName.length, height: 1 }), // TODO
+                    nodeType: n.nodeType
+                });
+            });
+            await mapClient.saveNodeCalculations($activeProject, computedSizes);
         }
     }
 

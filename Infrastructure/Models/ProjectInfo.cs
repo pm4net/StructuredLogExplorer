@@ -9,7 +9,7 @@ namespace Infrastructure.Models
 {
     public class ProjectInfo
     {
-        public ProjectInfo(string name, string logDirectory)
+		public ProjectInfo(string name, string logDirectory)
         {
             Name = name;
             LogDirectory = logDirectory;

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Infrastructure.Models;
 using OCEL.CSharp;
 using pm4net.Types;
+using static Infrastructure.Services.GraphLayoutService;
 
 namespace Infrastructure.Interfaces
 {
@@ -21,6 +22,6 @@ namespace Infrastructure.Interfaces
 			float rankSep,
 			float edgeSep);
 
-		void SaveNodeCalculations(string projectName, IDictionary<string, (IEnumerable<string>, OutputTypes.Size)> calculations);
+		void SaveNodeCalculations(string projectName, IEnumerable<NodeCalculation> nodes);
 	}
 }

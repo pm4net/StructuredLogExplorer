@@ -1,4 +1,5 @@
 ﻿using FSharpx;
+using LiteDB;
 using static OutputTypes;
 
 namespace Infrastructure.Models
@@ -6,17 +7,19 @@ namespace Infrastructure.Models
 	public class GlobalRanking
 	{
 		public GlobalRanking() { }
-
-		public GlobalRanking(GraphTypes.DirectedGraph<Tuple<string, int>, int> globalRankGraph, IEnumerable<IEnumerable<Tuple<OutputTypes.SequenceElement<string>, int>>> skeleton, IEnumerable<ISet<string>> components)
+		
+		public GlobalRanking(DirectedGraph<Tuple<string, int>, int> globalRankGraph, IEnumerable<IEnumerable<Tuple<SequenceElement<string>, int>>> skeleton, IEnumerable<ISet<string>> components)
 		{
 			GlobalRankGraph = globalRankGraph;
 			Skeleton = skeleton;
 			Components = components;
 		}
 
-		public GraphTypes.DirectedGraph<Tuple<string, int>, int> GlobalRankGraph { get; set; }
+		// TODO: Custom deserializer/serializer
+		public DirectedGraph<Tuple<string, int>, int> GlobalRankGraph { get; set; }
 
-		public IEnumerable<IEnumerable<Tuple<OutputTypes.SequenceElement<string>, int>>> Skeleton { get; set; }
+		// TODO: Custom deserializer/serializer
+		public IEnumerable<IEnumerable<Tuple<SequenceElement<string>, int>>> Skeleton { get; set; }
 
 		public IEnumerable<ISet<string>> Components { get; set; }
 	}
@@ -27,7 +30,7 @@ namespace Infrastructure.Models
 		{
 			return new GlobalRanking
 			{
-				GlobalRankGraph = globalRanking.Graph,
+				GlobalRankGraph = globalRanking.Graph.FromFSharpDirectedGraph(),
 				Skeleton = globalRanking.Skeleton,
 				Components = globalRanking.Components.Select(x => x.ToHashSet())
 			};
@@ -36,7 +39,7 @@ namespace Infrastructure.Models
 		public static OutputTypes.GlobalRanking ToFSharpGlobalRanking(this GlobalRanking globalRanking)
 		{
 			return new OutputTypes.GlobalRanking(
-				globalRanking.GlobalRankGraph,
+				globalRanking.GlobalRankGraph.ToFSharpDirectedGraph(),
 				globalRanking.Skeleton.Select(x => x.ToFSharpList()).ToFSharpList(),
 				globalRanking.Components.Select(x => x.ToFSharpSet()).ToFSharpList());
 		}

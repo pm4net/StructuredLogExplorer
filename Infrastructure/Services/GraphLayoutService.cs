@@ -2,7 +2,6 @@
 using Infrastructure.Constants;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
-using LiteDB;
 using OCEL.CSharp;
 using pm4net.Types;
 using pm4net.Utilities;
@@ -46,8 +45,8 @@ namespace Infrastructure.Services
 				throw new ArgumentNullException(nameof(nodeCalculations), "Node calculations have not been made yet.");
 			}
 
-			var lineWrapFunc = new Func<string, IEnumerable<string>>(str => nodeCalculations[str].Item1);
-			var nodeSizeFunc = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size>(n => nodeCalculations[n.Id].Item2);
+			var lineWrapFunc = new Func<OutputTypes.Node<NodeInfo>, IEnumerable<string>>(n => nodeCalculations.First(x => x.NodeId == n.Id).TextWrap);
+			var nodeSizeFunc = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size>(n => nodeCalculations.First(x => x.NodeId == n.Id).Size);
 
 			if (fixUnforeseenEdges)
 			{
@@ -72,7 +71,7 @@ namespace Infrastructure.Services
 			}
 			else
 			{
-				
+				// TODO
 			}
 
 			return null;
@@ -83,19 +82,16 @@ namespace Infrastructure.Services
 		/// </summary>
 		/// <param name="projectName">The name of the project.</param>
 		/// <param name="nodes">The dictionary of node sizes.</param>
-		public void SaveNodeCalculations(string projectName, IDictionary<string, (IEnumerable<string>, OutputTypes.Size)> nodes)
+		public void SaveNodeCalculations(string projectName, IEnumerable<NodeCalculation> nodes)
 		{
 			var db = _projectService.GetProjectDatabase(projectName);
 			var coll = db.GetCollection<NodeCalculation>(Identifiers.NodeCalculations);
-
-			// TODO: Handle start and end nodes properly, maybe by returning both id and display name when getting nodes
-
+			
 			foreach (var node in nodes)
 			{
-				var nodeCalc = new NodeCalculation(node.Key, node.Value.Item1, node.Value.Item2);
-				if (!coll.Update(nodeCalc))
+				if (!coll.Update(node))
 				{
-					coll.Insert(nodeCalc);
+					coll.Insert(node);
 				}
 			}
 		}
@@ -104,14 +100,18 @@ namespace Infrastructure.Services
 		/// Get the pre-calculated node sizes from the database.
 		/// </summary>
 		/// <param name="projectName">The name of the project.</param>
-		private IDictionary<string, (IEnumerable<string>, OutputTypes.Size)> GetNodeCalculations(string projectName)
+		private IEnumerable<NodeCalculation> GetNodeCalculations(string projectName)
 		{
 			var db = _projectService.GetProjectDatabase(projectName);
 			var sizeColl = db.GetCollection<NodeCalculation>(Identifiers.NodeCalculations);
-			var items = sizeColl.FindAll().ToList();
-			return items.ToDictionary(x => x.Id, x => (x.TextWrap, x.Size));
+			return sizeColl.FindAll();
 		}
 		
+		/// <summary>
+		/// Save a pre-calculated global ranking to the database.
+		/// </summary>
+		/// <param name="projectName"></param>
+		/// <param name="ranking"></param>
 		private void SaveGlobalRanking(string projectName, OutputTypes.GlobalRanking ranking)
 		{
 			var db = _projectService.GetProjectDatabase(projectName);
@@ -120,32 +120,16 @@ namespace Infrastructure.Services
 			coll.Insert(ranking.FromFSharpGlobalRanking());
 		}
 
+		/// <summary>
+		/// Get the pre-calculated global ranking from the database.
+		/// </summary>
+		/// <param name="projectName"></param>
+		/// <returns></returns>
 		private GlobalRanking? GetGlobalRanking(string projectName)
 		{
 			var db = _projectService.GetProjectDatabase(projectName);
 			var coll = db.GetCollection<GlobalRanking>(Identifiers.GlobalRanking);
 			return coll.FindOne(_ => true);
-		}
-
-		private class NodeCalculation
-		{
-			public NodeCalculation()
-			{
-			}
-
-			public NodeCalculation(string id, IEnumerable<string> textWrap, OutputTypes.Size size)
-			{
-				Id = id;
-				TextWrap = textWrap;
-				Size = size;
-			}
-
-			[BsonId]
-			public string Id { get; set; }
-
-			public IEnumerable<string> TextWrap { get; set; }
-
-			public OutputTypes.Size Size { get; set; }
 		}
 	}
 }

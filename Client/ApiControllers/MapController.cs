@@ -1,6 +1,7 @@
 ﻿using FSharpx;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using pm4net.Algorithms.Discovery.Ocel;
@@ -66,15 +67,19 @@ namespace StructuredLogExplorer.ApiControllers
 
         [HttpGet]
         [Route("getAllNodesInLog")]
-        public IEnumerable<string> GetAllNodesInLog(string projectName)
+        public IEnumerable<LogNode> GetAllNodesInLog(string projectName)
         {
 	        var log = GetProjectLog(projectName);
-	        return log.Events.Select(x => x.Value.Activity).Concat(log.ObjectTypes).Distinct(); // Include all activity names, and also names of object types for start/end nodes
-		}
+	        return log.Events
+		        .Select(x => new LogNode(x.Value.Activity, x.Value.Activity, new Event()))
+		        .Concat(log.ObjectTypes.Select(x => new LogNode(Constants.objectTypeStartNode + x, x, new Start())))
+		        .Concat(log.ObjectTypes.Select(x => new LogNode(Constants.objectTypeEndNode + x, x, new End())))
+		        .DistinctBy(x => x.Id);
+        }
 
         [HttpPost]
         [Route("saveNodeCalculations")]
-        public void SaveNodeCalculations(string projectName, [FromBody] IDictionary<string, (IEnumerable<string>, OutputTypes.Size)> calculations)
+        public void SaveNodeCalculations(string projectName, [FromBody] IEnumerable<NodeCalculation> calculations)
         {
             _graphLayoutService.SaveNodeCalculations(projectName, calculations);
         }

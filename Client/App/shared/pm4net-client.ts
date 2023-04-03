@@ -204,9 +204,9 @@ export interface IMapClient {
 
     discoverOcDfg(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo>;
 
-    getAllNodesInLog(projectName: string | null | undefined): Promise<string[]>;
+    getAllNodesInLog(projectName: string | null | undefined): Promise<LogNode[]>;
 
-    saveNodeCalculations(projectName: string | null | undefined, calculations: { [key: string]: ValueTupleOfIEnumerableOfStringAndSize; }): Promise<void>;
+    saveNodeCalculations(projectName: string | null | undefined, calculations: NodeCalculation[]): Promise<void>;
 
     computeLayoutWithModel(projectName: string | null | undefined, modelAndOptions: ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions): Promise<GraphLayout>;
 
@@ -305,7 +305,7 @@ export class MapClient implements IMapClient {
         return Promise.resolve<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo>(null as any);
     }
 
-    getAllNodesInLog(projectName: string | null | undefined): Promise<string[]> {
+    getAllNodesInLog(projectName: string | null | undefined): Promise<LogNode[]> {
         let url_ = this.baseUrl + "/api/Map/getAllNodesInLog?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
@@ -323,7 +323,7 @@ export class MapClient implements IMapClient {
         });
     }
 
-    protected processGetAllNodesInLog(response: Response): Promise<string[]> {
+    protected processGetAllNodesInLog(response: Response): Promise<LogNode[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -333,7 +333,7 @@ export class MapClient implements IMapClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(item);
+                    result200!.push(LogNode.fromJS(item));
             }
             else {
                 result200 = <any>null;
@@ -345,10 +345,10 @@ export class MapClient implements IMapClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<string[]>(null as any);
+        return Promise.resolve<LogNode[]>(null as any);
     }
 
-    saveNodeCalculations(projectName: string | null | undefined, calculations: { [key: string]: ValueTupleOfIEnumerableOfStringAndSize; }): Promise<void> {
+    saveNodeCalculations(projectName: string | null | undefined, calculations: NodeCalculation[]): Promise<void> {
         let url_ = this.baseUrl + "/api/Map/saveNodeCalculations?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
@@ -1067,11 +1067,200 @@ export interface IOcDfgOptions {
     includedTypes: string[];
 }
 
-export class ValueTupleOfIEnumerableOfStringAndSize implements IValueTupleOfIEnumerableOfStringAndSize {
-    item1!: string[];
-    item2!: Size;
+export class LogNode implements ILogNode {
+    id!: string;
+    displayName!: string;
+    nodeType!: NodeType;
 
-    constructor(data?: IValueTupleOfIEnumerableOfStringAndSize) {
+    constructor(data?: ILogNode) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.displayName = _data["displayName"];
+            this.nodeType = _data["nodeType"] ? NodeType.fromJS(_data["nodeType"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): LogNode {
+        data = typeof data === 'object' ? data : {};
+        let result = new LogNode();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["displayName"] = this.displayName;
+        data["nodeType"] = this.nodeType ? this.nodeType.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ILogNode {
+    id: string;
+    displayName: string;
+    nodeType: NodeType;
+}
+
+export abstract class NodeType implements INodeType {
+
+    protected _discriminator: string;
+
+    constructor(data?: INodeType) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "NodeType";
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): NodeType {
+        data = typeof data === 'object' ? data : {};
+        if (data["discriminator"] === "Event") {
+            let result = new Event();
+            result.init(data);
+            return result;
+        }
+        if (data["discriminator"] === "Start") {
+            let result = new Start();
+            result.init(data);
+            return result;
+        }
+        if (data["discriminator"] === "End") {
+            let result = new End();
+            result.init(data);
+            return result;
+        }
+        throw new Error("The abstract class 'NodeType' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["discriminator"] = this._discriminator;
+        return data;
+    }
+}
+
+export interface INodeType {
+}
+
+export class Event extends NodeType implements IEvent {
+
+    constructor(data?: IEvent) {
+        super(data);
+        this._discriminator = "Event";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+    }
+
+    static override fromJS(data: any): Event {
+        data = typeof data === 'object' ? data : {};
+        let result = new Event();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IEvent extends INodeType {
+}
+
+export class Start extends NodeType implements IStart {
+    objectType!: string;
+
+    constructor(data?: IStart) {
+        super(data);
+        this._discriminator = "Start";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.objectType = _data["objectType"];
+        }
+    }
+
+    static override fromJS(data: any): Start {
+        data = typeof data === 'object' ? data : {};
+        let result = new Start();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["objectType"] = this.objectType;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IStart extends INodeType {
+    objectType: string;
+}
+
+export class End extends NodeType implements IEnd {
+    objectType!: string;
+
+    constructor(data?: IEnd) {
+        super(data);
+        this._discriminator = "End";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.objectType = _data["objectType"];
+        }
+    }
+
+    static override fromJS(data: any): End {
+        data = typeof data === 'object' ? data : {};
+        let result = new End();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["objectType"] = this.objectType;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IEnd extends INodeType {
+    objectType: string;
+}
+
+export class NodeCalculation implements INodeCalculation {
+    nodeId!: string;
+    textWrap!: string[];
+    size!: Size;
+    nodeType!: NodeType;
+
+    constructor(data?: INodeCalculation) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1079,44 +1268,50 @@ export class ValueTupleOfIEnumerableOfStringAndSize implements IValueTupleOfIEnu
             }
         }
         if (!data) {
-            this.item1 = [];
-            this.item2 = new Size();
+            this.textWrap = [];
+            this.size = new Size();
         }
     }
 
     init(_data?: any) {
         if (_data) {
-            if (Array.isArray(_data["item1"])) {
-                this.item1 = [] as any;
-                for (let item of _data["item1"])
-                    this.item1!.push(item);
+            this.nodeId = _data["nodeId"];
+            if (Array.isArray(_data["textWrap"])) {
+                this.textWrap = [] as any;
+                for (let item of _data["textWrap"])
+                    this.textWrap!.push(item);
             }
-            this.item2 = _data["item2"] ? Size.fromJS(_data["item2"]) : new Size();
+            this.size = _data["size"] ? Size.fromJS(_data["size"]) : new Size();
+            this.nodeType = _data["nodeType"] ? NodeType.fromJS(_data["nodeType"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): ValueTupleOfIEnumerableOfStringAndSize {
+    static fromJS(data: any): NodeCalculation {
         data = typeof data === 'object' ? data : {};
-        let result = new ValueTupleOfIEnumerableOfStringAndSize();
+        let result = new NodeCalculation();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.item1)) {
-            data["item1"] = [];
-            for (let item of this.item1)
-                data["item1"].push(item);
+        data["nodeId"] = this.nodeId;
+        if (Array.isArray(this.textWrap)) {
+            data["textWrap"] = [];
+            for (let item of this.textWrap)
+                data["textWrap"].push(item);
         }
-        data["item2"] = this.item2 ? this.item2.toJSON() : <any>undefined;
+        data["size"] = this.size ? this.size.toJSON() : <any>undefined;
+        data["nodeType"] = this.nodeType ? this.nodeType.toJSON() : <any>undefined;
         return data;
     }
 }
 
-export interface IValueTupleOfIEnumerableOfStringAndSize {
-    item1: string[];
-    item2: Size;
+export interface INodeCalculation {
+    nodeId: string;
+    textWrap: string[];
+    size: Size;
+    nodeType: NodeType;
 }
 
 export class Size implements ISize {
@@ -1290,149 +1485,6 @@ export interface INode {
     size: Size;
     rank: number;
     nodeInfo?: NodeInfo | undefined;
-}
-
-export abstract class NodeType implements INodeType {
-
-    protected _discriminator: string;
-
-    constructor(data?: INodeType) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        this._discriminator = "NodeType";
-    }
-
-    init(_data?: any) {
-    }
-
-    static fromJS(data: any): NodeType {
-        data = typeof data === 'object' ? data : {};
-        if (data["discriminator"] === "Event") {
-            let result = new Event();
-            result.init(data);
-            return result;
-        }
-        if (data["discriminator"] === "Start") {
-            let result = new Start();
-            result.init(data);
-            return result;
-        }
-        if (data["discriminator"] === "End") {
-            let result = new End();
-            result.init(data);
-            return result;
-        }
-        throw new Error("The abstract class 'NodeType' cannot be instantiated.");
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["discriminator"] = this._discriminator;
-        return data;
-    }
-}
-
-export interface INodeType {
-}
-
-export class Event extends NodeType implements IEvent {
-
-    constructor(data?: IEvent) {
-        super(data);
-        this._discriminator = "Event";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-    }
-
-    static override fromJS(data: any): Event {
-        data = typeof data === 'object' ? data : {};
-        let result = new Event();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IEvent extends INodeType {
-}
-
-export class Start extends NodeType implements IStart {
-    objectType!: string;
-
-    constructor(data?: IStart) {
-        super(data);
-        this._discriminator = "Start";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.objectType = _data["objectType"];
-        }
-    }
-
-    static override fromJS(data: any): Start {
-        data = typeof data === 'object' ? data : {};
-        let result = new Start();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["objectType"] = this.objectType;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IStart extends INodeType {
-    objectType: string;
-}
-
-export class End extends NodeType implements IEnd {
-    objectType!: string;
-
-    constructor(data?: IEnd) {
-        super(data);
-        this._discriminator = "End";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.objectType = _data["objectType"];
-        }
-    }
-
-    static override fromJS(data: any): End {
-        data = typeof data === 'object' ? data : {};
-        let result = new End();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["objectType"] = this.objectType;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IEnd extends INodeType {
-    objectType: string;
 }
 
 export class Coordinate implements ICoordinate {

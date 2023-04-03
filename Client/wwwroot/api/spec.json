@@ -240,7 +240,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "type": "string"
+                "$ref": "#/definitions/LogNode"
               }
             }
           }
@@ -271,9 +271,9 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "additionalProperties": {
-                "$ref": "#/definitions/ValueTupleOfIEnumerableOfStringAndSize"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/NodeCalculation"
               }
             },
             "x-nullable": false
@@ -693,97 +693,22 @@
         }
       }
     },
-    "ValueTupleOfIEnumerableOfStringAndSize": {
-      "type": "object",
-      "required": [
-        "item1",
-        "item2"
-      ],
-      "properties": {
-        "item1": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "item2": {
-          "$ref": "#/definitions/Size"
-        }
-      }
-    },
-    "Size": {
-      "type": "object",
-      "required": [
-        "width",
-        "height"
-      ],
-      "properties": {
-        "width": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "height": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
-    },
-    "GraphLayout": {
-      "type": "object",
-      "required": [
-        "nodes",
-        "edges"
-      ],
-      "properties": {
-        "nodes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Node"
-          }
-        },
-        "edges": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Edge"
-          }
-        }
-      }
-    },
-    "Node": {
+    "LogNode": {
       "type": "object",
       "required": [
         "id",
-        "text",
-        "nodeType",
-        "position",
-        "size",
-        "rank"
+        "displayName",
+        "nodeType"
       ],
       "properties": {
         "id": {
           "type": "string"
         },
-        "text": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+        "displayName": {
+          "type": "string"
         },
         "nodeType": {
           "$ref": "#/definitions/NodeType"
-        },
-        "position": {
-          "$ref": "#/definitions/Coordinate"
-        },
-        "size": {
-          "$ref": "#/definitions/Size"
-        },
-        "rank": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "nodeInfo": {
-          "$ref": "#/definitions/NodeInfo"
         }
       }
     },
@@ -845,6 +770,108 @@
           }
         }
       ]
+    },
+    "NodeCalculation": {
+      "type": "object",
+      "required": [
+        "nodeId",
+        "textWrap",
+        "size",
+        "nodeType"
+      ],
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "textWrap": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "size": {
+          "$ref": "#/definitions/Size"
+        },
+        "nodeType": {
+          "$ref": "#/definitions/NodeType"
+        }
+      }
+    },
+    "Size": {
+      "type": "object",
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "type": "number",
+          "format": "float"
+        },
+        "height": {
+          "type": "number",
+          "format": "float"
+        }
+      }
+    },
+    "GraphLayout": {
+      "type": "object",
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Node"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Edge"
+          }
+        }
+      }
+    },
+    "Node": {
+      "type": "object",
+      "required": [
+        "id",
+        "text",
+        "nodeType",
+        "position",
+        "size",
+        "rank"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nodeType": {
+          "$ref": "#/definitions/NodeType"
+        },
+        "position": {
+          "$ref": "#/definitions/Coordinate"
+        },
+        "size": {
+          "$ref": "#/definitions/Size"
+        },
+        "rank": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "nodeInfo": {
+          "$ref": "#/definitions/NodeInfo"
+        }
+      }
     },
     "Coordinate": {
       "type": "object",
