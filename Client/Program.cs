@@ -8,7 +8,10 @@ using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using ElectronNET.API;
 using ElectronNET.API.Entities;
+using Infrastructure.Models;
+using LiteDB;
 using StructuredLogExplorer;
+using StructuredLogExplorer.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -97,6 +100,8 @@ if (HybridSupport.IsElectronActive) {
 }
 
 app.Lifetime.ApplicationStopping.Register(() => OnShutdown(app.Services));
+
+BsonMapper.Global.RegisterType(LiteDbBsonMappers.SerializeGlobalRanking, LiteDbBsonMappers.DeserializeGlobalRanking);
 
 app.Run();
 

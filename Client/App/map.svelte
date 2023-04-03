@@ -144,8 +144,8 @@
                                             {#await preComputeNodeProperties(nodes)}
                                                 {#await getGraphLayout()}
                                                     <Loading description="Loading..." />
-                                                {:then ocDfg}
-                                                    <Cytoscape layout={ocDfg}></Cytoscape>
+                                                {:then layout}
+                                                    <Cytoscape layout={layout}></Cytoscape>
                                                 {/await}
                                             {/await}
                                         {/await}
