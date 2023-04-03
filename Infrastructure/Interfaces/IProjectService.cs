@@ -30,9 +30,9 @@ namespace Infrastructure.Interfaces
         void CreateProject(string projectName, string logDirectory);
 
         /// <summary>
-        /// Close a project's database connection and release the associated log from memory.
+        /// Close the current database connection and release the associated log from memory.
         /// </summary>
-        void CloseProject(string projectName);
+        void CloseProject();
 
         /// <summary>
         /// Delete a project entirely from disk.

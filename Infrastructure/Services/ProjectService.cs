@@ -57,7 +57,7 @@ namespace Infrastructure.Services
             db.Dispose();
         }
 
-        public void CloseProject(string projectName)
+        public void CloseProject()
         {
             _activeProject?.Database.Dispose();
             _activeProject = null;
@@ -65,7 +65,7 @@ namespace Infrastructure.Services
 
         public void DeleteProject(string projectName)
         {
-            CloseProject(projectName);
+            CloseProject();
             File.Delete(GetDbFileName(projectName));
         }
 

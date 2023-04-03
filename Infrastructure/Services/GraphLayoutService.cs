@@ -55,11 +55,11 @@ namespace Infrastructure.Services
 				if (globalRanking is null)
 				{
 					var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog());
-					globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces);
-					SaveGlobalRanking(projectName, globalRanking);
+					globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces).FromFSharpGlobalRanking();
+					SaveGlobalRanking(projectName, globalRanking.ToFSharpGlobalRanking());
 				}
 
-				var discoveredGraph = ProcessGraphLayout.DefaultCustomMeasurements.ComputeDiscoveredGraph(globalRanking, model, mergeEdges);
+				var discoveredGraph = ProcessGraphLayout.DefaultCustomMeasurements.ComputeDiscoveredGraph(globalRanking.ToFSharpGlobalRanking(), model, mergeEdges);
 				return ProcessGraphLayout.DefaultCustomMeasurements.ComputeNodePositions(
 					FSharpFunc.FromFunc(lineWrapFunc), 
 					FSharpFunc.FromFunc(nodeSizeFunc), 
@@ -115,15 +115,15 @@ namespace Infrastructure.Services
 		private void SaveGlobalRanking(string projectName, OutputTypes.GlobalRanking ranking)
 		{
 			var db = _projectService.GetProjectDatabase(projectName);
-			var coll = db.GetCollection<OutputTypes.GlobalRanking>(Identifiers.GlobalRanking);
+			var coll = db.GetCollection<GlobalRanking>(Identifiers.GlobalRanking);
 			coll.DeleteAll();
-			coll.Insert(ranking);
+			coll.Insert(ranking.FromFSharpGlobalRanking());
 		}
 
-		private OutputTypes.GlobalRanking? GetGlobalRanking(string projectName)
+		private GlobalRanking? GetGlobalRanking(string projectName)
 		{
 			var db = _projectService.GetProjectDatabase(projectName);
-			var coll = db.GetCollection<OutputTypes.GlobalRanking>(Identifiers.GlobalRanking);
+			var coll = db.GetCollection<GlobalRanking>(Identifiers.GlobalRanking);
 			return coll.FindOne(_ => true);
 		}
 

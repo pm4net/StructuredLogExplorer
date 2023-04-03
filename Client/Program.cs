@@ -93,12 +93,20 @@ app.MapFallback(context =>
 });
 
 if (HybridSupport.IsElectronActive) {
-    CreateElectronWindow();
+    CreateElectronWindow(app);
 }
+
+app.Lifetime.ApplicationStopping.Register(() => OnShutdown(app.Services));
 
 app.Run();
 
-static async void CreateElectronWindow()
+static void OnShutdown(IServiceProvider? serviceProvider)
+{
+	var projectService = serviceProvider?.GetService<IProjectService>();
+    projectService?.CloseProject();
+}
+
+static async void CreateElectronWindow(IHost? app)
 {
     BrowserWindow window = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
     {
@@ -107,5 +115,9 @@ static async void CreateElectronWindow()
         Height = 800
     });
     
-    window.OnClosed += () => Electron.App.Quit();
+    window.OnClosed += () =>
+    {
+        OnShutdown(app?.Services);
+	    Electron.App.Quit();
+    };
 }
