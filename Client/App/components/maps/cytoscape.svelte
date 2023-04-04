@@ -7,8 +7,6 @@
     export let layout : GraphLayout = new GraphLayout({ nodes: [], edges: [] });
     let cy : cytoscape.Core;
 
-    const scaleFactor = 25;
-
     function getEdgeId(edge: Edge) {
         return edge.sourceId + "-" + edge.targetId;
     }
@@ -20,8 +18,8 @@
                     id: node.id
                 },
                 position: { 
-                    x: node.position!.x * scaleFactor, 
-                    y: node.position!.y * scaleFactor
+                    x: node.position!.x, 
+                    y: node.position!.y
                 },
                 
             };
@@ -59,6 +57,7 @@
                         'text-wrap': 'wrap',
                         'shape': 'round-rectangle',
                         'font-family': 'sans-serif',
+                        'font-size': '1em'
                     }
                 },
                 {
@@ -82,7 +81,7 @@
             layout: {
                 name: "preset",
                 fit: true,
-                padding: 5 * scaleFactor,
+                padding: 100,
                 animate: true
             },
             autoungrabify: true
@@ -95,12 +94,12 @@
 
         let startNodeStyles = {
             'color': '#fff',
-            'shape': 'cut-rectangle',
+            'shape': 'round-rectangle',
         };
 
         let endNodeStyles = {
             'color': '#fff',
-            'shape': 'cut-rectangle',
+            'shape': 'round-rectangle',
         };
 
         // Add styling to nodes
@@ -108,8 +107,8 @@
             let elem = cy.$id(n.id!);
             elem.style({
                 'label': n.text?.join('\n'),
-                'width': n.size!.width! * scaleFactor / 2,
-                'height': n.size!.height! * scaleFactor
+                'width': n.size!.width!,
+                'height': n.size!.height!
             });
             
             if (n.nodeType instanceof Event) {

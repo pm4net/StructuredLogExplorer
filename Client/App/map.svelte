@@ -2,12 +2,13 @@
     import Layout from "./shared/layout.svelte";
     import { activeProject, mapSettings, DisplayType, DisplayMethod, EdgeType } from "./shared/stores";
     import { mapClient } from "./shared/pm4net-client-config";
-    import { getErrorMessage } from "./shared/helpers";
+    import { getErrorMessage, getTextSize } from "./shared/helpers";
     import { Column, Grid, InlineNotification, Loading, Row, ToastNotification } from "carbon-components-svelte";
     import Filters from "./components/filters.svelte";
     import Cytoscape from "./components/maps/cytoscape.svelte"
     import Dot from "./components/maps/dot.svelte";
-    import { End, GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size, Start } from "./shared/pm4net-client";
+    import { GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size } from "./shared/pm4net-client";
+    import wrapAnsi from "wrap-ansi";
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
@@ -52,10 +53,13 @@
     async function preComputeNodeProperties(nodes: LogNode[] | undefined) {
         if (nodes) {
             let computedSizes = nodes.map(n => {
+                var wrapped = wrapAnsi(n.displayName, 20, { hard: false });
+                var textSize = getTextSize(wrapped);
+                console.log(`size for ${n.displayName}`, textSize);
                 return new NodeCalculation({
                     nodeId: n.id,
-                    textWrap: [n.displayName], // TODO
-                    size: new Size({ width: n.displayName.length, height: 1 }), // TODO
+                    textWrap: wrapped.split("\n"),
+                    size: new Size({ width: textSize.width * 2, height: textSize.height * 2 }),
                     nodeType: n.nodeType
                 });
             });
@@ -76,9 +80,9 @@
                     layoutOptions: new GraphLayoutOptions({
                         mergeEdgesOfSameType: $mapSettings[$activeProject ?? ""]?.mergeEdges,
                         fixUnforeseenEdges: $mapSettings[$activeProject ?? ""]?.fixUnforeseenEdges,
-                        nodeSeparation: 5,
-                        rankSeparation: 5,
-                        edgeSeparation: 1
+                        nodeSeparation: 25,
+                        rankSeparation: 50,
+                        edgeSeparation: 10
                     })
             }));
         } catch (e: unknown) {

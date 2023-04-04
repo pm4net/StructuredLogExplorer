@@ -19,3 +19,26 @@ export function getErrorMessage(e: unknown) : string {
         return "Unknown error";
     }
 }
+
+/**
+  * Uses canvas.measureText to compute and return the width and height of the given text of given font in pixels.
+  * 
+  * @param {String} text The text to be rendered.
+  * @param {String} font The css font descriptor that text is to be rendered with (e.g. "bold 14px verdana").
+  * 
+  * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
+  */
+export function getTextSize(text: string, font?: string) {
+    const canvas = document.getElementsByTagName("canvas")?.[0] || document.createElement("canvas");
+    const context = canvas.getContext("2d")!;
+    if (font) {
+        context.font = font;
+    }
+
+    const lines = text.split("\n");
+    const measured = lines.map(l => context.measureText(l));
+    return { 
+        width: Math.max(...measured.map(m => m.width)), 
+        height: measured.map(m => m.actualBoundingBoxAscent + m.actualBoundingBoxDescent).reduce((acc, height) => acc + height)
+    };
+}
