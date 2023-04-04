@@ -59,7 +59,7 @@
                 return new NodeCalculation({
                     nodeId: n.id,
                     textWrap: wrapped.split("\n"),
-                    size: new Size({ width: textSize.width * 2, height: textSize.height * 2 }),
+                    size: new Size({ width: textSize.width * 2, height: textSize.height * 2 + 3 }),
                     nodeType: n.nodeType
                 });
             });

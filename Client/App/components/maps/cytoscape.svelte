@@ -1,8 +1,9 @@
 <script lang="ts">
     import { Edge, End, Event, GraphLayout, Start } from "../../shared/pm4net-client";
+    import { getColor } from "../../helpers/color-helpers";
     import { onMount } from "svelte";
     import cytoscape from "cytoscape";
-    import { getColor } from "../../helpers/color-helpers";
+
 
     export let layout : GraphLayout = new GraphLayout({ nodes: [], edges: [] });
     let cy : cytoscape.Core;
@@ -40,10 +41,18 @@
         });
     }
 
+    // https://stackoverflow.com/a/31687097/2102106
+    function scaleBetween(unscaledNum: number, minAllowed: number, maxAllowed: number, min: number, max: number) {
+      return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
+    }
+
     onMount(() => {
         let nodes = createNodesFromLayout(layout);
         let edges = createEdgesFromLayout(layout);
-        let maxEdgeWeight = Math.max(...edges.map(e => e.e.totalWeight));
+        
+        let edgeWeights = edges.map(e => e.e.totalWeight);
+        let minEdgeWeight = Math.min(...edgeWeights);
+        let maxEdgeWeight = Math.max(...edgeWeights);
 
         // Initialize the Cytoscape container
         cy = cytoscape({
@@ -57,7 +66,9 @@
                         'text-wrap': 'wrap',
                         'shape': 'round-rectangle',
                         'font-family': 'sans-serif',
-                        'font-size': '1em'
+                        'font-size': '1em',
+                        'border-width': '1px',
+                        'border-color': 'black'
                     }
                 },
                 {
@@ -95,11 +106,15 @@
         let startNodeStyles = {
             'color': '#fff',
             'shape': 'round-rectangle',
+            'border-width': '3px',
+            'border-style': 'double'
         };
 
         let endNodeStyles = {
             'color': '#fff',
             'shape': 'round-rectangle',
+            'border-width': '3px',
+            'border-style': 'double'
         };
 
         // Add styling to nodes
@@ -136,7 +151,7 @@
             } else {
                 elem.style({
                     'curve-style': 'bezier', // TODO: make bezier curves with waypoints
-                    'width': Math.max(e.totalWeight / maxEdgeWeight * 15, 5),
+                    'width': scaleBetween(e.totalWeight, 3, 10, minEdgeWeight, maxEdgeWeight),
                 });
             }
         });
