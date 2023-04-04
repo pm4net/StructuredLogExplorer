@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Infrastructure.Models;
+﻿using Infrastructure.Models;
 using OCEL.CSharp;
 using pm4net.Types;
-using static Infrastructure.Services.GraphLayoutService;
+using NodeInfo = pm4net.Types.NodeInfo;
 
 namespace Infrastructure.Interfaces
 {

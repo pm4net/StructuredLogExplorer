@@ -5,6 +5,7 @@ using Infrastructure.Models;
 using OCEL.CSharp;
 using pm4net.Types;
 using pm4net.Utilities;
+using NodeInfo = pm4net.Types.NodeInfo;
 
 namespace Infrastructure.Services
 {

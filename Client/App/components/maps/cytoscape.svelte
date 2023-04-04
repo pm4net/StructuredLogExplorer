@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { Edge, End, Event, GraphLayout, Start } from "../../shared/pm4net-client";
+    import { Edge, End, Event, GraphLayout, LogLevel, Start } from "../../shared/pm4net-client";
     import { getColor } from "../../helpers/color-helpers";
     import { onMount } from "svelte";
     import cytoscape from "cytoscape";
+    import Color from "color";
 
 
     export let layout : GraphLayout = new GraphLayout({ nodes: [], edges: [] });
@@ -39,6 +40,25 @@
             };
             return { elem: elem, e: edge };
         });
+    }
+
+    function logLevelToColor(level: LogLevel) {
+        switch (level) {
+            case LogLevel.Verbose:
+                return "#FFFFFF";
+            case LogLevel.Debug:
+                return "#E0E0E0";
+            case LogLevel.Information:
+                return "#C0C0C0";
+            case LogLevel.Warning:
+                return "#FF9933";
+            case LogLevel.Error:
+                return "#FF3333";
+            case LogLevel.Fatal:
+                return "#990000";
+            default:
+                return "#FFFFFF";
+        }
     }
 
     // https://stackoverflow.com/a/31687097/2102106
@@ -98,11 +118,6 @@
             autoungrabify: true
         });
 
-        let eventNodeStyles = {
-            'background-color': '#D3D3D3',
-            'color': '#000000',
-        };
-
         let startNodeStyles = {
             'color': '#fff',
             'shape': 'round-rectangle',
@@ -127,7 +142,18 @@
             });
             
             if (n.nodeType instanceof Event) {
-                elem.style(eventNodeStyles);
+                if (n.nodeInfo?.logLevel) {
+                    let bgColor = logLevelToColor(n.nodeInfo.logLevel);
+                    elem.style({
+                        'background-color': bgColor,
+                        'color': Color(bgColor).isDark() ? '#FFFFFF' : "#000000"
+                    });
+                } else {
+                    elem.style({
+                        'background-color': '#C0C0C0',
+                        'color': '#000000',
+                    });
+                }
             } else if (n.nodeType instanceof Start) {
                 elem.style(startNodeStyles);
                 elem.style({

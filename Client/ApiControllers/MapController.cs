@@ -11,6 +11,7 @@ using pm4net.Utilities;
 using pm4net.Types;
 using StructuredLogExplorer.Models;
 using StructuredLogExplorer.Models.ControllerOptions;
+using NodeInfo = pm4net.Types.NodeInfo;
 
 namespace StructuredLogExplorer.ApiControllers
 {

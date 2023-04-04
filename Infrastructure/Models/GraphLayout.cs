@@ -73,7 +73,7 @@ namespace Infrastructure.Models
 
 	public static class GraphLayoutExtensions
 	{
-		private static Node FromFSharpNode(this OutputTypes.Node<NodeInfo> node)
+		private static Node FromFSharpNode(this OutputTypes.Node<pm4net.Types.NodeInfo> node)
 		{
 			var objType = string.Empty;
 			NodeType nodeType = new Event();
@@ -104,7 +104,7 @@ namespace Infrastructure.Models
 				Position = node.Position,
 				Size = node.Size,
 				Rank = node.Rank,
-				NodeInfo = node.Info.IsSome() ? node.Info.Value : null,
+				NodeInfo = node.Info.TryGetValue()?.FromFSharpNodeInfo()
 			};
 		}
 
@@ -126,7 +126,7 @@ namespace Infrastructure.Models
 			};
 		}
 
-		public static GraphLayout FromFSharpGraphLayout(this OutputTypes.GraphLayout<NodeInfo, EdgeInfo> graphLayout)
+		public static GraphLayout FromFSharpGraphLayout(this OutputTypes.GraphLayout<pm4net.Types.NodeInfo, EdgeInfo> graphLayout)
 		{
 			return new GraphLayout
 			{

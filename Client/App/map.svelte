@@ -55,7 +55,6 @@
             let computedSizes = nodes.map(n => {
                 var wrapped = wrapAnsi(n.displayName, 20, { hard: false });
                 var textSize = getTextSize(wrapped);
-                console.log(`size for ${n.displayName}`, textSize);
                 return new NodeCalculation({
                     nodeId: n.id,
                     textWrap: wrapped.split("\n"),

@@ -16,5 +16,10 @@ namespace Infrastructure.Extensions
 		{
 			return FSharpOption<T>.get_IsNone(opt);
 		}
+
+		public static T? TryGetValue<T>(this FSharpOption<T> opt)
+		{
+			return FSharpOption<T>.get_IsSome(opt) ? opt.Value : default;
+		}
 	}
 }

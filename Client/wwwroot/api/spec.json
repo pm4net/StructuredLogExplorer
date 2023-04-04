@@ -857,15 +857,34 @@
           "format": "int32"
         },
         "namespace": {
-          "$ref": "#/definitions/FSharpOptionOfString"
+          "type": "string"
         },
-        "level": {
-          "$ref": "#/definitions/FSharpOptionOfLogLevel"
+        "logLevel": {
+          "$ref": "#/definitions/LogLevel"
         }
       }
     },
-    "FSharpOptionOfLogLevel": {
-      "type": "object"
+    "LogLevel": {
+      "type": "integer",
+      "description": "",
+      "x-enumNames": [
+        "Verbose",
+        "Debug",
+        "Information",
+        "Warning",
+        "Error",
+        "Fatal",
+        "Unknown"
+      ],
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
     },
     "Edge": {
       "type": "object",

@@ -1495,8 +1495,8 @@ export interface ICoordinate {
 
 export class NodeInfo implements INodeInfo {
     frequency!: number;
-    namespace?: FSharpOptionOfString | undefined;
-    level?: FSharpOptionOfLogLevel | undefined;
+    namespace?: string | undefined;
+    logLevel?: LogLevel | undefined;
 
     constructor(data?: INodeInfo) {
         if (data) {
@@ -1510,8 +1510,8 @@ export class NodeInfo implements INodeInfo {
     init(_data?: any) {
         if (_data) {
             this.frequency = _data["frequency"];
-            this.namespace = _data["namespace"] ? FSharpOptionOfString.fromJS(_data["namespace"]) : <any>undefined;
-            this.level = _data["level"] ? FSharpOptionOfLogLevel.fromJS(_data["level"]) : <any>undefined;
+            this.namespace = _data["namespace"];
+            this.logLevel = _data["logLevel"];
         }
     }
 
@@ -1525,46 +1525,26 @@ export class NodeInfo implements INodeInfo {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["frequency"] = this.frequency;
-        data["namespace"] = this.namespace ? this.namespace.toJSON() : <any>undefined;
-        data["level"] = this.level ? this.level.toJSON() : <any>undefined;
+        data["namespace"] = this.namespace;
+        data["logLevel"] = this.logLevel;
         return data;
     }
 }
 
 export interface INodeInfo {
     frequency: number;
-    namespace?: FSharpOptionOfString | undefined;
-    level?: FSharpOptionOfLogLevel | undefined;
+    namespace?: string | undefined;
+    logLevel?: LogLevel | undefined;
 }
 
-export class FSharpOptionOfLogLevel implements IFSharpOptionOfLogLevel {
-
-    constructor(data?: IFSharpOptionOfLogLevel) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-    }
-
-    static fromJS(data: any): FSharpOptionOfLogLevel {
-        data = typeof data === 'object' ? data : {};
-        let result = new FSharpOptionOfLogLevel();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        return data;
-    }
-}
-
-export interface IFSharpOptionOfLogLevel {
+export enum LogLevel {
+    Verbose = 0,
+    Debug = 1,
+    Information = 2,
+    Warning = 3,
+    Error = 4,
+    Fatal = 5,
+    Unknown = 6,
 }
 
 export class Edge implements IEdge {
