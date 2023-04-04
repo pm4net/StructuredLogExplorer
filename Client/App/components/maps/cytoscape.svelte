@@ -82,7 +82,8 @@
             layout: {
                 name: "preset",
                 fit: true,
-                animate: false
+                padding: 5 * scaleFactor,
+                animate: true
             },
             autoungrabify: true
         });
@@ -129,10 +130,16 @@
         // Add styling to edges
         layout.edges?.forEach(e => {
             let elem = cy.$id(getEdgeId(e));
-            elem.style({
-                'curve-style': 'bezier', // TODO: make bezier curves with waypoints
-                'width': Math.max(e.totalWeight / maxEdgeWeight * 15, 5),
-            });
+            if (e.sourceId === e.targetId) {
+                elem.style({
+                    'curve-style': 'bezier'
+                });
+            } else {
+                elem.style({
+                    'curve-style': 'bezier', // TODO: make bezier curves with waypoints
+                    'width': Math.max(e.totalWeight / maxEdgeWeight * 15, 5),
+                });
+            }
         });
     });
 </script>

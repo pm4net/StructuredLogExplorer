@@ -48,18 +48,18 @@ namespace Infrastructure.Services
 			var lineWrapFunc = new Func<OutputTypes.Node<NodeInfo>, IEnumerable<string>>(n => nodeCalculations.First(x => x.NodeId == n.Id).TextWrap);
 			var nodeSizeFunc = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size>(n => nodeCalculations.First(x => x.NodeId == n.Id).Size);
 
+			var globalRanking = GetGlobalRanking(projectName);
 			var projectDb = _projectService.GetProjectDatabase(projectName);
+			var importedLogs = projectDb.GetCollection<LogFileInfo>(Identifiers.LogFilesInfo)?.FindAll() ?? new List<LogFileInfo>();
+			if (globalRanking is null || importedLogs.Any(l => l.LastImported >= globalRanking?.LastUpdated))
+			{
+				var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog());
+				globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces).FromFSharpGlobalRanking();
+				SaveGlobalRanking(projectName, globalRanking);
+			}
+
 			if (fixUnforeseenEdges)
 			{
-				var globalRanking = GetGlobalRanking(projectName);
-				var importedLogs = projectDb.GetCollection<LogFileInfo>(Identifiers.LogFilesInfo)?.FindAll() ?? new List<LogFileInfo>();
-				if (globalRanking is null || importedLogs.Any(l => l.LastImported >= globalRanking?.LastUpdated))
-				{
-					var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog());
-					globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces).FromFSharpGlobalRanking();
-					SaveGlobalRanking(projectName, globalRanking);
-				}
-
 				var discoveredGraph = ProcessGraphLayout.DefaultCustomMeasurements.ComputeDiscoveredGraph(globalRanking.ToFSharpGlobalRanking(), model, mergeEdges);
 				return ProcessGraphLayout.DefaultCustomMeasurements.ComputeNodePositions(
 					FSharpFunc.FromFunc(lineWrapFunc), 
@@ -73,10 +73,21 @@ namespace Infrastructure.Services
 			}
 			else
 			{
-				// TODO
+				var fSharpGlobalRanking = globalRanking.ToFSharpGlobalRanking();
+				var nsg = ProcessGraphLayout.FastCustomMeasurements.ComputeNodeSequenceGraph(fSharpGlobalRanking); // TODO: Save NSG in DB
+				var globalOrder = ProcessGraphLayout.FastCustomMeasurements.ComputeGlobalOrder(fSharpGlobalRanking, nsg); // TODO: Save GO in DB
+				return ProcessGraphLayout.FastCustomMeasurements.ComputeLayout(
+					FSharpFunc.FromFunc(lineWrapFunc),
+					FSharpFunc.FromFunc(nodeSizeFunc),
+					globalOrder,
+					fSharpGlobalRanking,
+					model,
+					nodeSep,
+					rankSep,
+					edgeSep,
+					mergeEdges)
+					.FromFSharpGraphLayout();
 			}
-
-			return null;
 		}
 
 		/// <summary>
