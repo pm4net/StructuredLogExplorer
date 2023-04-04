@@ -202,12 +202,22 @@ export interface IMapClient {
 
     getLogInfo(projectName: string | null | undefined): Promise<LogInfo>;
 
-    discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo>;
+    discoverOcDfg(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo>;
 
-    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayout>;
+    getAllNodesInLog(projectName: string | null | undefined): Promise<LogNode[]>;
+
+    saveNodeCalculations(projectName: string | null | undefined, calculations: NodeCalculation[]): Promise<void>;
+
+    computeLayoutWithModel(projectName: string | null | undefined, modelAndOptions: ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions): Promise<GraphLayout>;
+
+    computeLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayout>;
 
     discoverOcDfgAndGenerateDot(projectName: string | null | undefined, groupByNamespace: boolean | undefined, options: OcDfgOptions): Promise<string>;
 
+    /**
+     * @param projectName (optional) 
+     * @deprecated
+     */
     getNamespaceTree(projectName: string | null | undefined): Promise<ListTreeOfString>;
 }
 
@@ -257,7 +267,7 @@ export class MapClient implements IMapClient {
         return Promise.resolve<LogInfo>(null as any);
     }
 
-    discoverObjectCentricDirectlyFollowsGraph(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo> {
+    discoverOcDfg(projectName: string | null | undefined, options: OcDfgOptions): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo> {
         let url_ = this.baseUrl + "/api/Map/discoverOcDfg?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
@@ -275,11 +285,11 @@ export class MapClient implements IMapClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDiscoverObjectCentricDirectlyFollowsGraph(_response);
+            return this.processDiscoverOcDfg(_response);
         });
     }
 
-    protected processDiscoverObjectCentricDirectlyFollowsGraph(response: Response): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo> {
+    protected processDiscoverOcDfg(response: Response): Promise<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -297,8 +307,127 @@ export class MapClient implements IMapClient {
         return Promise.resolve<DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo>(null as any);
     }
 
-    discoverOcDfgAndApplyStableGraphLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayout> {
-        let url_ = this.baseUrl + "/api/Map/discoverOcDfgAndApplyStableGraphLayout?";
+    getAllNodesInLog(projectName: string | null | undefined): Promise<LogNode[]> {
+        let url_ = this.baseUrl + "/api/Map/getAllNodesInLog?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAllNodesInLog(_response);
+        });
+    }
+
+    protected processGetAllNodesInLog(response: Response): Promise<LogNode[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(LogNode.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<LogNode[]>(null as any);
+    }
+
+    saveNodeCalculations(projectName: string | null | undefined, calculations: NodeCalculation[]): Promise<void> {
+        let url_ = this.baseUrl + "/api/Map/saveNodeCalculations?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(calculations);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processSaveNodeCalculations(_response);
+        });
+    }
+
+    protected processSaveNodeCalculations(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    computeLayoutWithModel(projectName: string | null | undefined, modelAndOptions: ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions): Promise<GraphLayout> {
+        let url_ = this.baseUrl + "/api/Map/computeLayoutWithModel?";
+        if (projectName !== undefined && projectName !== null)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(modelAndOptions);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processComputeLayoutWithModel(_response);
+        });
+    }
+
+    protected processComputeLayoutWithModel(response: Response): Promise<GraphLayout> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GraphLayout.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<GraphLayout>(null as any);
+    }
+
+    computeLayout(projectName: string | null | undefined, options: OcDfgLayoutOptions): Promise<GraphLayout> {
+        let url_ = this.baseUrl + "/api/Map/computeLayout?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
         url_ = url_.replace(/[?&]$/, "");
@@ -315,11 +444,11 @@ export class MapClient implements IMapClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDiscoverOcDfgAndApplyStableGraphLayout(_response);
+            return this.processComputeLayout(_response);
         });
     }
 
-    protected processDiscoverOcDfgAndApplyStableGraphLayout(response: Response): Promise<GraphLayout> {
+    protected processComputeLayout(response: Response): Promise<GraphLayout> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -382,6 +511,10 @@ export class MapClient implements IMapClient {
         return Promise.resolve<string>(null as any);
     }
 
+    /**
+     * @param projectName (optional) 
+     * @deprecated
+     */
     getNamespaceTree(projectName: string | null | undefined): Promise<ListTreeOfString> {
         let url_ = this.baseUrl + "/api/Map/namespaceTree?";
         if (projectName !== undefined && projectName !== null)
@@ -900,108 +1033,31 @@ export interface IOcDfgOptions {
     includedTypes: string[];
 }
 
-export class GraphLayout implements IGraphLayout {
-    nodes!: Node[];
-    edges!: Edge[];
-
-    constructor(data?: IGraphLayout) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.nodes = [];
-            this.edges = [];
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["nodes"])) {
-                this.nodes = [] as any;
-                for (let item of _data["nodes"])
-                    this.nodes!.push(Node.fromJS(item));
-            }
-            if (Array.isArray(_data["edges"])) {
-                this.edges = [] as any;
-                for (let item of _data["edges"])
-                    this.edges!.push(Edge.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): GraphLayout {
-        data = typeof data === 'object' ? data : {};
-        let result = new GraphLayout();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.nodes)) {
-            data["nodes"] = [];
-            for (let item of this.nodes)
-                data["nodes"].push(item.toJSON());
-        }
-        if (Array.isArray(this.edges)) {
-            data["edges"] = [];
-            for (let item of this.edges)
-                data["edges"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IGraphLayout {
-    nodes: Node[];
-    edges: Edge[];
-}
-
-export class Node implements INode {
+export class LogNode implements ILogNode {
     id!: string;
-    text!: string[];
+    displayName!: string;
     nodeType!: NodeType;
-    position!: Coordinate;
-    size!: Size;
-    rank!: number;
-    nodeInfo?: NodeInfo | undefined;
 
-    constructor(data?: INode) {
+    constructor(data?: ILogNode) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
                     (<any>this)[property] = (<any>data)[property];
             }
-        }
-        if (!data) {
-            this.text = [];
-            this.position = new Coordinate();
-            this.size = new Size();
         }
     }
 
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            if (Array.isArray(_data["text"])) {
-                this.text = [] as any;
-                for (let item of _data["text"])
-                    this.text!.push(item);
-            }
+            this.displayName = _data["displayName"];
             this.nodeType = _data["nodeType"] ? NodeType.fromJS(_data["nodeType"]) : <any>undefined;
-            this.position = _data["position"] ? Coordinate.fromJS(_data["position"]) : new Coordinate();
-            this.size = _data["size"] ? Size.fromJS(_data["size"]) : new Size();
-            this.rank = _data["rank"];
-            this.nodeInfo = _data["nodeInfo"] ? NodeInfo.fromJS(_data["nodeInfo"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): Node {
+    static fromJS(data: any): LogNode {
         data = typeof data === 'object' ? data : {};
-        let result = new Node();
+        let result = new LogNode();
         result.init(data);
         return result;
     }
@@ -1009,28 +1065,16 @@ export class Node implements INode {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        if (Array.isArray(this.text)) {
-            data["text"] = [];
-            for (let item of this.text)
-                data["text"].push(item);
-        }
+        data["displayName"] = this.displayName;
         data["nodeType"] = this.nodeType ? this.nodeType.toJSON() : <any>undefined;
-        data["position"] = this.position ? this.position.toJSON() : <any>undefined;
-        data["size"] = this.size ? this.size.toJSON() : <any>undefined;
-        data["rank"] = this.rank;
-        data["nodeInfo"] = this.nodeInfo ? this.nodeInfo.toJSON() : <any>undefined;
         return data;
     }
 }
 
-export interface INode {
+export interface ILogNode {
     id: string;
-    text: string[];
+    displayName: string;
     nodeType: NodeType;
-    position: Coordinate;
-    size: Size;
-    rank: number;
-    nodeInfo?: NodeInfo | undefined;
 }
 
 export abstract class NodeType implements INodeType {
@@ -1176,44 +1220,64 @@ export interface IEnd extends INodeType {
     objectType: string;
 }
 
-export class Coordinate implements ICoordinate {
-    x!: number;
-    y!: number;
+export class NodeCalculation implements INodeCalculation {
+    nodeId!: string;
+    textWrap!: string[];
+    size!: Size;
+    nodeType!: NodeType;
 
-    constructor(data?: ICoordinate) {
+    constructor(data?: INodeCalculation) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
                     (<any>this)[property] = (<any>data)[property];
             }
         }
+        if (!data) {
+            this.textWrap = [];
+            this.size = new Size();
+        }
     }
 
     init(_data?: any) {
         if (_data) {
-            this.x = _data["x"];
-            this.y = _data["y"];
+            this.nodeId = _data["nodeId"];
+            if (Array.isArray(_data["textWrap"])) {
+                this.textWrap = [] as any;
+                for (let item of _data["textWrap"])
+                    this.textWrap!.push(item);
+            }
+            this.size = _data["size"] ? Size.fromJS(_data["size"]) : new Size();
+            this.nodeType = _data["nodeType"] ? NodeType.fromJS(_data["nodeType"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): Coordinate {
+    static fromJS(data: any): NodeCalculation {
         data = typeof data === 'object' ? data : {};
-        let result = new Coordinate();
+        let result = new NodeCalculation();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["x"] = this.x;
-        data["y"] = this.y;
+        data["nodeId"] = this.nodeId;
+        if (Array.isArray(this.textWrap)) {
+            data["textWrap"] = [];
+            for (let item of this.textWrap)
+                data["textWrap"].push(item);
+        }
+        data["size"] = this.size ? this.size.toJSON() : <any>undefined;
+        data["nodeType"] = this.nodeType ? this.nodeType.toJSON() : <any>undefined;
         return data;
     }
 }
 
-export interface ICoordinate {
-    x: number;
-    y: number;
+export interface INodeCalculation {
+    nodeId: string;
+    textWrap: string[];
+    size: Size;
+    nodeType: NodeType;
 }
 
 export class Size implements ISize {
@@ -1254,6 +1318,179 @@ export class Size implements ISize {
 export interface ISize {
     width: number;
     height: number;
+}
+
+export class GraphLayout implements IGraphLayout {
+    nodes!: Node[];
+    edges!: Edge[];
+
+    constructor(data?: IGraphLayout) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.nodes = [];
+            this.edges = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["nodes"])) {
+                this.nodes = [] as any;
+                for (let item of _data["nodes"])
+                    this.nodes!.push(Node.fromJS(item));
+            }
+            if (Array.isArray(_data["edges"])) {
+                this.edges = [] as any;
+                for (let item of _data["edges"])
+                    this.edges!.push(Edge.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GraphLayout {
+        data = typeof data === 'object' ? data : {};
+        let result = new GraphLayout();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.nodes)) {
+            data["nodes"] = [];
+            for (let item of this.nodes)
+                data["nodes"].push(item.toJSON());
+        }
+        if (Array.isArray(this.edges)) {
+            data["edges"] = [];
+            for (let item of this.edges)
+                data["edges"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IGraphLayout {
+    nodes: Node[];
+    edges: Edge[];
+}
+
+export class Node implements INode {
+    id!: string;
+    text!: string[];
+    nodeType!: NodeType;
+    position!: Coordinate;
+    size!: Size;
+    rank!: number;
+    nodeInfo?: NodeInfo | undefined;
+
+    constructor(data?: INode) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.text = [];
+            this.position = new Coordinate();
+            this.size = new Size();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            if (Array.isArray(_data["text"])) {
+                this.text = [] as any;
+                for (let item of _data["text"])
+                    this.text!.push(item);
+            }
+            this.nodeType = _data["nodeType"] ? NodeType.fromJS(_data["nodeType"]) : <any>undefined;
+            this.position = _data["position"] ? Coordinate.fromJS(_data["position"]) : new Coordinate();
+            this.size = _data["size"] ? Size.fromJS(_data["size"]) : new Size();
+            this.rank = _data["rank"];
+            this.nodeInfo = _data["nodeInfo"] ? NodeInfo.fromJS(_data["nodeInfo"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): Node {
+        data = typeof data === 'object' ? data : {};
+        let result = new Node();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        if (Array.isArray(this.text)) {
+            data["text"] = [];
+            for (let item of this.text)
+                data["text"].push(item);
+        }
+        data["nodeType"] = this.nodeType ? this.nodeType.toJSON() : <any>undefined;
+        data["position"] = this.position ? this.position.toJSON() : <any>undefined;
+        data["size"] = this.size ? this.size.toJSON() : <any>undefined;
+        data["rank"] = this.rank;
+        data["nodeInfo"] = this.nodeInfo ? this.nodeInfo.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface INode {
+    id: string;
+    text: string[];
+    nodeType: NodeType;
+    position: Coordinate;
+    size: Size;
+    rank: number;
+    nodeInfo?: NodeInfo | undefined;
+}
+
+export class Coordinate implements ICoordinate {
+    x!: number;
+    y!: number;
+
+    constructor(data?: ICoordinate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.x = _data["x"];
+            this.y = _data["y"];
+        }
+    }
+
+    static fromJS(data: any): Coordinate {
+        data = typeof data === 'object' ? data : {};
+        let result = new Coordinate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["x"] = this.x;
+        data["y"] = this.y;
+        return data;
+    }
+}
+
+export interface ICoordinate {
+    x: number;
+    y: number;
 }
 
 export class NodeInfo implements INodeInfo {
@@ -1494,6 +1731,102 @@ export interface IEdgeInfo {
     durations?: string[] | undefined;
 }
 
+export class ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions implements IValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions {
+    item1!: DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo;
+    item2!: GraphLayoutOptions;
+
+    constructor(data?: IValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.item1 = new DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo();
+            this.item2 = new GraphLayoutOptions();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.item1 = _data["item1"] ? DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo.fromJS(_data["item1"]) : new DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo();
+            this.item2 = _data["item2"] ? GraphLayoutOptions.fromJS(_data["item2"]) : new GraphLayoutOptions();
+        }
+    }
+
+    static fromJS(data: any): ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions {
+        data = typeof data === 'object' ? data : {};
+        let result = new ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["item1"] = this.item1 ? this.item1.toJSON() : <any>undefined;
+        data["item2"] = this.item2 ? this.item2.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions {
+    item1: DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo;
+    item2: GraphLayoutOptions;
+}
+
+export class GraphLayoutOptions implements IGraphLayoutOptions {
+    mergeEdgesOfSameType!: boolean;
+    fixUnforeseenEdges!: boolean;
+    nodeSeparation!: number;
+    rankSeparation!: number;
+    edgeSeparation!: number;
+
+    constructor(data?: IGraphLayoutOptions) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.mergeEdgesOfSameType = _data["mergeEdgesOfSameType"];
+            this.fixUnforeseenEdges = _data["fixUnforeseenEdges"];
+            this.nodeSeparation = _data["nodeSeparation"];
+            this.rankSeparation = _data["rankSeparation"];
+            this.edgeSeparation = _data["edgeSeparation"];
+        }
+    }
+
+    static fromJS(data: any): GraphLayoutOptions {
+        data = typeof data === 'object' ? data : {};
+        let result = new GraphLayoutOptions();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["mergeEdgesOfSameType"] = this.mergeEdgesOfSameType;
+        data["fixUnforeseenEdges"] = this.fixUnforeseenEdges;
+        data["nodeSeparation"] = this.nodeSeparation;
+        data["rankSeparation"] = this.rankSeparation;
+        data["edgeSeparation"] = this.edgeSeparation;
+        return data;
+    }
+}
+
+export interface IGraphLayoutOptions {
+    mergeEdgesOfSameType: boolean;
+    fixUnforeseenEdges: boolean;
+    nodeSeparation: number;
+    rankSeparation: number;
+    edgeSeparation: number;
+}
+
 export class OcDfgLayoutOptions implements IOcDfgLayoutOptions {
     ocDfgOptions!: OcDfgOptions;
     layoutOptions!: GraphLayoutOptions;
@@ -1536,66 +1869,6 @@ export class OcDfgLayoutOptions implements IOcDfgLayoutOptions {
 export interface IOcDfgLayoutOptions {
     ocDfgOptions: OcDfgOptions;
     layoutOptions: GraphLayoutOptions;
-}
-
-export class GraphLayoutOptions implements IGraphLayoutOptions {
-    mergeEdgesOfSameType!: boolean;
-    fixUnforeseenEdges!: boolean;
-    useCustomMeasurements!: boolean;
-    maxCharsPerLine!: number;
-    nodeSeparation!: number;
-    rankSeparation!: number;
-    edgeSeparation!: number;
-
-    constructor(data?: IGraphLayoutOptions) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.mergeEdgesOfSameType = _data["mergeEdgesOfSameType"];
-            this.fixUnforeseenEdges = _data["fixUnforeseenEdges"];
-            this.useCustomMeasurements = _data["useCustomMeasurements"];
-            this.maxCharsPerLine = _data["maxCharsPerLine"];
-            this.nodeSeparation = _data["nodeSeparation"];
-            this.rankSeparation = _data["rankSeparation"];
-            this.edgeSeparation = _data["edgeSeparation"];
-        }
-    }
-
-    static fromJS(data: any): GraphLayoutOptions {
-        data = typeof data === 'object' ? data : {};
-        let result = new GraphLayoutOptions();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["mergeEdgesOfSameType"] = this.mergeEdgesOfSameType;
-        data["fixUnforeseenEdges"] = this.fixUnforeseenEdges;
-        data["useCustomMeasurements"] = this.useCustomMeasurements;
-        data["maxCharsPerLine"] = this.maxCharsPerLine;
-        data["nodeSeparation"] = this.nodeSeparation;
-        data["rankSeparation"] = this.rankSeparation;
-        data["edgeSeparation"] = this.edgeSeparation;
-        return data;
-    }
-}
-
-export interface IGraphLayoutOptions {
-    mergeEdgesOfSameType: boolean;
-    fixUnforeseenEdges: boolean;
-    useCustomMeasurements: boolean;
-    maxCharsPerLine: number;
-    nodeSeparation: number;
-    rankSeparation: number;
-    edgeSeparation: number;
 }
 
 export class ListTreeOfString implements IListTreeOfString {

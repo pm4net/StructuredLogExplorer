@@ -12,7 +12,6 @@ export type MapSettings = {
     mergeEdges: boolean,
     objectTypes: string[],
     fixUnforeseenEdges: boolean,
-    useCustomMeasurements: boolean,
     dfg: {
         minEvents: number,
         minOccurrences: number,

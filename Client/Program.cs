@@ -6,11 +6,12 @@ using Infrastructure.Services;
 using Microsoft.AspNetCore.Diagnostics;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
-using System.Globalization;
 using ElectronNET.API;
 using ElectronNET.API.Entities;
-using Microsoft.AspNetCore.Localization;
+using Infrastructure.Models;
+using LiteDB;
 using StructuredLogExplorer;
+using StructuredLogExplorer.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,16 +29,22 @@ builder.Services.AddSwaggerDocument();
 builder.Services.AddOutputCache();
 
 // Add custom services (scoped instead of singletons to avoid mutex issues when using shared LiteDb connections (https://github.com/mbdavid/LiteDB/issues/1546#issuecomment-1321174469))
-builder.Services.AddScoped<IProjectService>(_ => {
+builder.Services.AddSingleton<IProjectService>(_ => {
     var userDir = builder.Configuration["DataDirectory"];
-    var defaultDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "pm4net");
+    var defaultDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "StructuredLogExplorer");
     return new ProjectService(!string.IsNullOrWhiteSpace(userDir) ? userDir : defaultDir);
 });
 
-builder.Services.AddScoped<ILogFileService>(sp =>
+builder.Services.AddSingleton<ILogFileService>(sp =>
 {
     var projectService = sp.GetService<IProjectService>();
     return new LogFileService(projectService!);
+});
+
+builder.Services.AddSingleton<IGraphLayoutService>(sp =>
+{
+	var projectService = sp.GetService<IProjectService>();
+	return new GraphLayoutService(projectService!);
 });
 
 var app = builder.Build();
@@ -89,12 +96,22 @@ app.MapFallback(context =>
 });
 
 if (HybridSupport.IsElectronActive) {
-    CreateElectronWindow();
+    CreateElectronWindow(app);
 }
+
+app.Lifetime.ApplicationStopping.Register(() => OnShutdown(app.Services));
+
+BsonMapper.Global.RegisterType(LiteDbBsonMappers.SerializeGlobalRanking, LiteDbBsonMappers.DeserializeGlobalRanking);
 
 app.Run();
 
-static async void CreateElectronWindow()
+static void OnShutdown(IServiceProvider? serviceProvider)
+{
+	var projectService = serviceProvider?.GetService<IProjectService>();
+    projectService?.CloseProject();
+}
+
+static async void CreateElectronWindow(IHost? app)
 {
     BrowserWindow window = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
     {
@@ -103,5 +120,9 @@ static async void CreateElectronWindow()
         Height = 800
     });
     
-    window.OnClosed += () => Electron.App.Quit();
+    window.OnClosed += () =>
+    {
+        OnShutdown(app?.Services);
+	    Electron.App.Quit();
+    };
 }

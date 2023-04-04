@@ -1,11 +1,10 @@
 ﻿using System.Runtime.Serialization;
-using Microsoft.FSharp.Core;
+using Infrastructure.Extensions;
 using Newtonsoft.Json;
 using NJsonSchema.Converters;
 using pm4net.Types;
-using StructuredLogExplorer.Extensions;
 
-namespace StructuredLogExplorer.Models
+namespace Infrastructure.Models
 {
 	public class GraphLayout
 	{

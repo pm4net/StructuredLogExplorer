@@ -174,7 +174,7 @@
         "tags": [
           "Map"
         ],
-        "operationId": "Map_DiscoverObjectCentricDirectlyFollowsGraph",
+        "operationId": "Map_DiscoverOcDfg",
         "consumes": [
           "application/json-patch+json",
           "application/json",
@@ -214,12 +214,129 @@
         }
       }
     },
-    "/api/Map/discoverOcDfgAndApplyStableGraphLayout": {
+    "/api/Map/getAllNodesInLog": {
+      "get": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_GetAllNodesInLog",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogNode"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Map/saveNodeCalculations": {
       "post": {
         "tags": [
           "Map"
         ],
-        "operationId": "Map_DiscoverOcDfgAndApplyStableGraphLayout",
+        "operationId": "Map_SaveNodeCalculations",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "name": "calculations",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/NodeCalculation"
+              }
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/Map/computeLayoutWithModel": {
+      "post": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_ComputeLayoutWithModel",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "name": "modelAndOptions",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/GraphLayout"
+            }
+          }
+        }
+      }
+    },
+    "/api/Map/computeLayout": {
+      "post": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_ComputeLayout",
         "consumes": [
           "application/json-patch+json",
           "application/json",
@@ -337,7 +454,8 @@
               "$ref": "#/definitions/ListTreeOfString"
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/api/Project/create": {
@@ -531,62 +649,22 @@
         }
       }
     },
-    "GraphLayout": {
-      "type": "object",
-      "required": [
-        "nodes",
-        "edges"
-      ],
-      "properties": {
-        "nodes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Node"
-          }
-        },
-        "edges": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Edge"
-          }
-        }
-      }
-    },
-    "Node": {
+    "LogNode": {
       "type": "object",
       "required": [
         "id",
-        "text",
-        "nodeType",
-        "position",
-        "size",
-        "rank"
+        "displayName",
+        "nodeType"
       ],
       "properties": {
         "id": {
           "type": "string"
         },
-        "text": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+        "displayName": {
+          "type": "string"
         },
         "nodeType": {
           "$ref": "#/definitions/NodeType"
-        },
-        "position": {
-          "$ref": "#/definitions/Coordinate"
-        },
-        "size": {
-          "$ref": "#/definitions/Size"
-        },
-        "rank": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "nodeInfo": {
-          "$ref": "#/definitions/NodeInfo"
         }
       }
     },
@@ -649,6 +727,108 @@
         }
       ]
     },
+    "NodeCalculation": {
+      "type": "object",
+      "required": [
+        "nodeId",
+        "textWrap",
+        "size",
+        "nodeType"
+      ],
+      "properties": {
+        "nodeId": {
+          "type": "string"
+        },
+        "textWrap": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "size": {
+          "$ref": "#/definitions/Size"
+        },
+        "nodeType": {
+          "$ref": "#/definitions/NodeType"
+        }
+      }
+    },
+    "Size": {
+      "type": "object",
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "type": "number",
+          "format": "float"
+        },
+        "height": {
+          "type": "number",
+          "format": "float"
+        }
+      }
+    },
+    "GraphLayout": {
+      "type": "object",
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Node"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Edge"
+          }
+        }
+      }
+    },
+    "Node": {
+      "type": "object",
+      "required": [
+        "id",
+        "text",
+        "nodeType",
+        "position",
+        "size",
+        "rank"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "text": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nodeType": {
+          "$ref": "#/definitions/NodeType"
+        },
+        "position": {
+          "$ref": "#/definitions/Coordinate"
+        },
+        "size": {
+          "$ref": "#/definitions/Size"
+        },
+        "rank": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "nodeInfo": {
+          "$ref": "#/definitions/NodeInfo"
+        }
+      }
+    },
     "Coordinate": {
       "type": "object",
       "required": [
@@ -663,23 +843,6 @@
         "y": {
           "type": "number",
           "format": "float"
-        }
-      }
-    },
-    "Size": {
-      "type": "object",
-      "required": [
-        "width",
-        "height"
-      ],
-      "properties": {
-        "width": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "height": {
-          "type": "integer",
-          "format": "int32"
         }
       }
     },
@@ -772,17 +935,17 @@
         }
       }
     },
-    "OcDfgLayoutOptions": {
+    "ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions": {
       "type": "object",
       "required": [
-        "ocDfgOptions",
-        "layoutOptions"
+        "item1",
+        "item2"
       ],
       "properties": {
-        "ocDfgOptions": {
-          "$ref": "#/definitions/OcDfgOptions"
+        "item1": {
+          "$ref": "#/definitions/DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo"
         },
-        "layoutOptions": {
+        "item2": {
           "$ref": "#/definitions/GraphLayoutOptions"
         }
       }
@@ -792,8 +955,6 @@
       "required": [
         "mergeEdgesOfSameType",
         "fixUnforeseenEdges",
-        "useCustomMeasurements",
-        "maxCharsPerLine",
         "nodeSeparation",
         "rankSeparation",
         "edgeSeparation"
@@ -804,13 +965,6 @@
         },
         "fixUnforeseenEdges": {
           "type": "boolean"
-        },
-        "useCustomMeasurements": {
-          "type": "boolean"
-        },
-        "maxCharsPerLine": {
-          "type": "integer",
-          "format": "int32"
         },
         "nodeSeparation": {
           "type": "number",
@@ -823,6 +977,21 @@
         "edgeSeparation": {
           "type": "number",
           "format": "float"
+        }
+      }
+    },
+    "OcDfgLayoutOptions": {
+      "type": "object",
+      "required": [
+        "ocDfgOptions",
+        "layoutOptions"
+      ],
+      "properties": {
+        "ocDfgOptions": {
+          "$ref": "#/definitions/OcDfgOptions"
+        },
+        "layoutOptions": {
+          "$ref": "#/definitions/GraphLayoutOptions"
         }
       }
     },

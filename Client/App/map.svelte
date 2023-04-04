@@ -7,7 +7,7 @@
     import Filters from "./components/filters.svelte";
     import Cytoscape from "./components/maps/cytoscape.svelte"
     import Dot from "./components/maps/dot.svelte";
-    import { GraphLayoutOptions, OcDfgLayoutOptions, OcDfgOptions } from "./shared/pm4net-client";
+    import { End, GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size, Start } from "./shared/pm4net-client";
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
@@ -30,7 +30,6 @@
                     mergeEdges: true,
                     objectTypes: [], //(await logInfoPromise).objectTypes,
                     fixUnforeseenEdges: false,
-                    useCustomMeasurements: true,
                     dfg: {
                         minEvents: 0,
                         minOccurrences: 0,
@@ -41,13 +40,34 @@
         }
     }
 
-    // Load the OC-DFG from the API, using the settings from local storage.
-    async function getOcDfg() {
+    async function getNodesToPreCompute() {
         try {
-            return await mapClient.discoverOcDfgAndApplyStableGraphLayout(
-                $activeProject, 
-                new OcDfgLayoutOptions({
-                    ocDfgOptions: new OcDfgOptions({
+            return await mapClient.getAllNodesInLog($activeProject);
+        } catch (e: unknown) {
+            errorNotification.show = true;
+            errorNotification.message = getErrorMessage(e);
+        }
+    }
+
+    async function preComputeNodeProperties(nodes: LogNode[] | undefined) {
+        if (nodes) {
+            let computedSizes = nodes.map(n => {
+                return new NodeCalculation({
+                    nodeId: n.id,
+                    textWrap: [n.displayName], // TODO
+                    size: new Size({ width: n.displayName.length, height: 1 }), // TODO
+                    nodeType: n.nodeType
+                });
+            });
+            await mapClient.saveNodeCalculations($activeProject, computedSizes);
+        }
+    }
+
+    // Load the OC-DFG from the API, using the settings from local storage.
+    async function getGraphLayout() {
+        try {
+            return await mapClient.computeLayout($activeProject, new OcDfgLayoutOptions({
+                ocDfgOptions: new OcDfgOptions({
                         minimumEvents: $mapSettings[$activeProject ?? ""]?.dfg.minEvents,
                         minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
                         minimumSuccessions: $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions,
@@ -56,14 +76,11 @@
                     layoutOptions: new GraphLayoutOptions({
                         mergeEdgesOfSameType: $mapSettings[$activeProject ?? ""]?.mergeEdges,
                         fixUnforeseenEdges: $mapSettings[$activeProject ?? ""]?.fixUnforeseenEdges,
-                        useCustomMeasurements: $mapSettings[$activeProject ?? ""]?.useCustomMeasurements,
-                        maxCharsPerLine: 50,
                         nodeSeparation: 5,
                         rankSeparation: 5,
                         edgeSeparation: 1
                     })
-                })
-            );
+            }));
         } catch (e: unknown) {
             errorNotification.show = true;
             errorNotification.message = getErrorMessage(e);
@@ -123,10 +140,14 @@
                                             <Dot dot={dot ?? ""}></Dot>
                                         {/await}
                                     {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Cytoscape}
-                                        {#await getOcDfg()}
-                                            <Loading description="Loading..." />
-                                        {:then ocDfg}
-                                            <Cytoscape layout={ocDfg}></Cytoscape>
+                                        {#await getNodesToPreCompute() then nodes}
+                                            {#await preComputeNodeProperties(nodes) then _}
+                                                {#await getGraphLayout()}
+                                                    <Loading description="Loading..." />
+                                                {:then layout}
+                                                    <Cytoscape layout={layout}></Cytoscape>
+                                                {/await}
+                                            {/await}
                                         {/await}
                                     {/if}
                                 {:else if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcPn}

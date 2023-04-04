@@ -21,7 +21,7 @@ namespace Infrastructure.Interfaces
         /// Get the shared database connection for a given project, and load it if necessary.
         /// </summary>
         /// <exception cref="ArgumentException">If the project does not exist.</exception>
-        public ILiteDatabase GetProjectDatabase(string projectName, bool readOnly);
+        public ILiteDatabase GetProjectDatabase(string projectName);
 
         /// <summary>
         /// Create a new project, if it doesn't already exist.
@@ -30,9 +30,9 @@ namespace Infrastructure.Interfaces
         void CreateProject(string projectName, string logDirectory);
 
         /// <summary>
-        /// Close a project's database connection and release the associated log from memory.
+        /// Close the current database connection and release the associated log from memory.
         /// </summary>
-        void CloseProject(string projectName);
+        void CloseProject();
 
         /// <summary>
         /// Delete a project entirely from disk.

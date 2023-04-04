@@ -1,25 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using Infrastructure.Constants;
+﻿using Infrastructure.Constants;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using LiteDB;
 
 namespace Infrastructure.Services
 {
-    public class ProjectService : IProjectService, IDisposable
+    public class ProjectService : IProjectService
     {
         private readonly string _projectDir;
-        private readonly IDictionary<string, ILiteDatabase> _dbConnections;
+        private Project? _activeProject;
 
         public ProjectService(string projectDir)
         {
             _projectDir = projectDir;
-            _dbConnections = new Dictionary<string, ILiteDatabase>();
 
             // Ensure that the project directory exists
             Directory.CreateDirectory(projectDir);
@@ -28,32 +21,25 @@ namespace Infrastructure.Services
         public IEnumerable<string> GetAvailableProjects()
         {
             var dirInfo = new DirectoryInfo(_projectDir);
-            var files = dirInfo.EnumerateFiles().Where(f => f.Extension is ".db");
+            var files = dirInfo.EnumerateFiles().Where(f => f.Extension is ".db" && !f.Name.EndsWith("-log.db"));
             return files.Select(f => Path.GetFileNameWithoutExtension(f.Name));
         }
 
-        public ILiteDatabase GetProjectDatabase(string projectName, bool readOnly)
+        public ILiteDatabase GetProjectDatabase(string projectName)
         {
+	        if (_activeProject?.Name == projectName && _activeProject?.Database != null)
+	        {
+				return _activeProject.Database;
+			}
+	        
+            // Close existing connection
+            _activeProject?.Database.Dispose();
+
+            // Open new connection
             var fileName = GetDbFileName(projectName);
-            if (!File.Exists(fileName))
-            {
-                throw new ArgumentException("File does not exist", nameof(projectName));
-            }
+            _activeProject = new Project(projectName, new LiteDatabase(fileName));
 
-            if (readOnly)
-            {
-                return new LiteDatabase($"Filename={fileName};ReadOnly=true;");
-            }
-
-            _dbConnections.TryGetValue(projectName, out var db);
-            if (db is not null)
-            {
-                return db;
-            }
-
-            db = new LiteDatabase($"Filename={fileName};Connection=shared;");
-            _dbConnections.Add(projectName, db);
-            return db;
+            return _activeProject.Database;
         }
 
         public void CreateProject(string projectName, string logDirectory)
@@ -71,25 +57,16 @@ namespace Infrastructure.Services
             db.Dispose();
         }
 
-        public void CloseProject(string projectName)
+        public void CloseProject()
         {
-            _dbConnections.TryGetValue(projectName, out var db);
-            db?.Dispose();
-            _dbConnections.Remove(projectName);
+            _activeProject?.Database.Dispose();
+            _activeProject = null;
         }
 
         public void DeleteProject(string projectName)
         {
-            CloseProject(projectName);
+            CloseProject();
             File.Delete(GetDbFileName(projectName));
-        }
-
-        public void Dispose()
-        {
-            foreach (var key in _dbConnections.Keys)
-            {
-                CloseProject(key);
-            }
         }
 
         /// <summary>
@@ -98,6 +75,19 @@ namespace Infrastructure.Services
         private string GetDbFileName(string projectName)
         {
             return Path.Combine(_projectDir, $"{projectName}.db");
+        }
+
+        private class Project
+        {
+	        public Project(string name, ILiteDatabase database)
+	        {
+		        Name = name;
+		        Database = database;
+	        }
+
+	        public string Name { get; set; }
+
+	        public ILiteDatabase Database { get; set; }
         }
     }
 }

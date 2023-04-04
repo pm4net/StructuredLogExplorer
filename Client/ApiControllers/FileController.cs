@@ -47,7 +47,7 @@ namespace StructuredLogExplorer.ApiControllers
         [Route("exportOcel")]
         public IActionResult ExportOcel(string projectName, string format)
         {
-            var db = _projectService.GetProjectDatabase(projectName, readOnly: true);
+            var db = _projectService.GetProjectDatabase(projectName);
             var log = OcelLiteDB.Deserialize(db);
 
             switch (format.ToLower())

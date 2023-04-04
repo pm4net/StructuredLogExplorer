@@ -25,9 +25,8 @@ public class IndexModel : PageModel
         var projects = _projectService.GetAvailableProjects();
         var projectInfos = projects.Select(name =>
         {
-            var db = _projectService.GetProjectDatabase(name, readOnly: true);
+            var db = _projectService.GetProjectDatabase(name);
             var info = ProjectInfoHelper.GetProjectInformation(db);
-            db.Dispose();
             return info;
         });
         return projectInfos;
