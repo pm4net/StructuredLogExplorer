@@ -58,7 +58,6 @@ namespace StructuredLogExplorer.ApiControllers
 
         [HttpPost]
         [Route("discoverOcDfg")]
-        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
         public GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>> DiscoverOcDfg(string projectName, [FromBody] OcDfgOptions options)
         {
             var log = GetProjectLog(projectName);
@@ -86,7 +85,6 @@ namespace StructuredLogExplorer.ApiControllers
 
         [HttpPost]
         [Route("computeLayoutWithModel")]
-        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
 		public GraphLayout ComputeLayoutWithModel(string projectName, [FromBody] (GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>>, GraphLayoutOptions) modelAndOptions)
         {
 	        var log = GetProjectLog(projectName);
@@ -98,7 +96,6 @@ namespace StructuredLogExplorer.ApiControllers
 
 		[HttpPost]
 		[Route("computeLayout")]
-		[OutputCache] // TODO: Invalidate in FileController when new log files are imported
 		public GraphLayout ComputeLayout(string projectName, [FromBody] OcDfgLayoutOptions options)
 		{
 			var model = DiscoverOcDfg(projectName, options.OcDfgOptions);
@@ -106,56 +103,7 @@ namespace StructuredLogExplorer.ApiControllers
 		}
 
 		[HttpPost]
-        [Route("discoverOcDfgAndApplyStableGraphLayout")]
-        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
-        public GraphLayout DiscoverOcDfgAndApplyStableGraphLayout(string projectName, [FromBody] OcDfgLayoutOptions options)
-        {
-            // Discover object-centric directly follows graph
-            var log = GetProjectLog(projectName);
-            var ocDfg = OcelDfg.Discover(options.OcDfgOptions.MinimumEvents, options.OcDfgOptions.MinimumOccurrence, options.OcDfgOptions.MinimumSuccessions, options.OcDfgOptions.IncludedTypes, log);
-
-            var lineWrapFunc = new Func<string, IEnumerable<string>>(str => new List<string> { str }); // TODO: Calculate properly
-            var nodeSizeFunc = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size>(n => new OutputTypes.Size(n.Text.MaxBy(x => x.Length)?.Length ?? 0, n.Text.Count())); // TODO: Calculate properly
-
-            var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog());
-            if (options.LayoutOptions.FixUnforeseenEdges)
-            {
-	            var globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces); // TODO: Cacheable
-	            /*if (options.LayoutOptions.UseCustomMeasurements)
-	            {
-		            var discoveredGraph = ProcessGraphLayout.DefaultCustomMeasurements.ComputeDiscoveredGraph(globalRanking, ocDfg, options.LayoutOptions.MergeEdgesOfSameType); // TODO: Cacheable
-		            return ProcessGraphLayout.DefaultCustomMeasurements.ComputeNodePositions(
-			            FSharpFunc.FromFunc(lineWrapFunc), FSharpFunc.FromFunc(nodeSizeFunc), discoveredGraph, ocDfg,
-			            options.LayoutOptions.NodeSeparation, options.LayoutOptions.RankSeparation,
-			            options.LayoutOptions.EdgeSeparation).FromFSharpGraphLayout();
-	            }*/
-
-	            return ProcessGraphLayout.Default.ComputeLayout(globalRanking, ocDfg,
-		            options.LayoutOptions.MergeEdgesOfSameType, 30,
-		            options.LayoutOptions.NodeSeparation, options.LayoutOptions.RankSeparation,
-		            options.LayoutOptions.EdgeSeparation).FromFSharpGraphLayout();
-            }
-            else
-            {
-				var (globalOrder, globalRanking) = ProcessGraphLayout.FastDefault.ComputeGlobalOrder(traces); // TODO: Cacheable
-				/*if (options.LayoutOptions.UseCustomMeasurements)
-				{
-					return ProcessGraphLayout.FastCustomMeasurements.ComputeLayout(FSharpFunc.FromFunc(lineWrapFunc), FSharpFunc.FromFunc(nodeSizeFunc), globalOrder,
-						globalRanking, ocDfg, options.LayoutOptions.NodeSeparation,
-						options.LayoutOptions.RankSeparation, options.LayoutOptions.EdgeSeparation,
-						options.LayoutOptions.MergeEdgesOfSameType).FromFSharpGraphLayout();
-				}*/
-
-				return ProcessGraphLayout.FastDefault.ComputeLayout(globalOrder, globalRanking, ocDfg,
-					options.LayoutOptions.MergeEdgesOfSameType, 30,
-					options.LayoutOptions.NodeSeparation, options.LayoutOptions.RankSeparation,
-					options.LayoutOptions.EdgeSeparation).FromFSharpGraphLayout();
-			}
-        }
-
-        [HttpPost]
         [Route("discoverOcDfgAndDot")]
-        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
         public string DiscoverOcDfgAndGenerateDot(string projectName, bool groupByNamespace, [FromBody] OcDfgOptions options)
         {
 	        var ocDfg = DiscoverOcDfg(projectName, options);
@@ -166,6 +114,7 @@ namespace StructuredLogExplorer.ApiControllers
         [HttpGet]
         [Route("namespaceTree")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
+        [Obsolete]
         public ListTree<string> GetNamespaceTree(string projectName)
         {
             // TODO: Port ListTree type to C# type that NSwag can convert

@@ -12,14 +12,16 @@ namespace StructuredLogExplorer.Mappers
 			["_id"] = Guid.NewGuid().ToString(),
 			["ranking"] = JsonConvert.SerializeObject(ranking.GlobalRankGraph),
 			["skeleton"] = JsonConvert.SerializeObject(ranking.Skeleton),
-			["components"] = JsonConvert.SerializeObject(ranking.Components)
+			["components"] = BsonMapper.Global.Serialize(ranking.Components),
+			["lastUpdated"] = BsonMapper.Global.Serialize(ranking.LastUpdated)
 		};
 
 		public static Func<BsonValue, Infrastructure.Models.GlobalRanking> DeserializeGlobalRanking => bson => new Infrastructure.Models.GlobalRanking
 		{
 			GlobalRankGraph = JsonConvert.DeserializeObject<DirectedGraph<Tuple<string, int>, int>>(bson["ranking"])!,
 			Skeleton = JsonConvert.DeserializeObject<IEnumerable<IEnumerable<Tuple<SequenceElement<string>, int>>>>(bson["skeleton"])!,
-			Components = JsonConvert.DeserializeObject<IEnumerable<ISet<string>>>(bson["components"])!
+			Components = BsonMapper.Global.Deserialize<IEnumerable<ISet<string>>>(bson["components"]),
+			LastUpdated = BsonMapper.Global.Deserialize<DateTime>(bson["lastUpdated"])
 		};
 	}
 }

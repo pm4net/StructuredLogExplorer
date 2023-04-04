@@ -141,7 +141,7 @@
                                         {/await}
                                     {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Cytoscape}
                                         {#await getNodesToPreCompute() then nodes}
-                                            {#await preComputeNodeProperties(nodes)}
+                                            {#await preComputeNodeProperties(nodes) then _}
                                                 {#await getGraphLayout()}
                                                     <Loading description="Loading..." />
                                                 {:then layout}

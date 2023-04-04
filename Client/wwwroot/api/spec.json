@@ -376,51 +376,6 @@
         }
       }
     },
-    "/api/Map/discoverOcDfgAndApplyStableGraphLayout": {
-      "post": {
-        "tags": [
-          "Map"
-        ],
-        "operationId": "Map_DiscoverOcDfgAndApplyStableGraphLayout",
-        "consumes": [
-          "application/json-patch+json",
-          "application/json",
-          "text/json",
-          "application/*+json"
-        ],
-        "produces": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "parameters": [
-          {
-            "type": "string",
-            "name": "projectName",
-            "in": "query",
-            "x-nullable": true
-          },
-          {
-            "name": "options",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/OcDfgLayoutOptions"
-            },
-            "x-nullable": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "x-nullable": false,
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/GraphLayout"
-            }
-          }
-        }
-      }
-    },
     "/api/Map/discoverOcDfgAndDot": {
       "post": {
         "tags": [
@@ -499,7 +454,8 @@
               "$ref": "#/definitions/ListTreeOfString"
             }
           }
-        }
+        },
+        "deprecated": true
       }
     },
     "/api/Project/create": {

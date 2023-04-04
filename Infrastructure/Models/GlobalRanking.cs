@@ -8,20 +8,21 @@ namespace Infrastructure.Models
 	{
 		public GlobalRanking() { }
 		
-		public GlobalRanking(DirectedGraph<Tuple<string, int>, int> globalRankGraph, IEnumerable<IEnumerable<Tuple<SequenceElement<string>, int>>> skeleton, IEnumerable<ISet<string>> components)
+		public GlobalRanking(DirectedGraph<Tuple<string, int>, int> globalRankGraph, IEnumerable<IEnumerable<Tuple<SequenceElement<string>, int>>> skeleton, IEnumerable<ISet<string>> components, DateTime lastUpdated)
 		{
 			GlobalRankGraph = globalRankGraph;
 			Skeleton = skeleton;
 			Components = components;
+			LastUpdated = lastUpdated;
 		}
-
-		// TODO: Custom deserializer/serializer
+		
 		public DirectedGraph<Tuple<string, int>, int> GlobalRankGraph { get; set; }
-
-		// TODO: Custom deserializer/serializer
+		
 		public IEnumerable<IEnumerable<Tuple<SequenceElement<string>, int>>> Skeleton { get; set; }
 
 		public IEnumerable<ISet<string>> Components { get; set; }
+
+		public DateTime LastUpdated { get; set; }
 	}
 
 	public static class GlobalRankingExtensions
@@ -32,7 +33,8 @@ namespace Infrastructure.Models
 			{
 				GlobalRankGraph = globalRanking.Graph.FromFSharpDirectedGraph(),
 				Skeleton = globalRanking.Skeleton,
-				Components = globalRanking.Components.Select(x => x.ToHashSet())
+				Components = globalRanking.Components.Select(x => x.ToHashSet()),
+				LastUpdated = DateTime.Now
 			};
 		}
 

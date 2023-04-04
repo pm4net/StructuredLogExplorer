@@ -48,10 +48,12 @@ namespace Infrastructure.Services
 			var lineWrapFunc = new Func<OutputTypes.Node<NodeInfo>, IEnumerable<string>>(n => nodeCalculations.First(x => x.NodeId == n.Id).TextWrap);
 			var nodeSizeFunc = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size>(n => nodeCalculations.First(x => x.NodeId == n.Id).Size);
 
+			var projectDb = _projectService.GetProjectDatabase(projectName);
 			if (fixUnforeseenEdges)
 			{
 				var globalRanking = GetGlobalRanking(projectName);
-				if (globalRanking is null)
+				var importedLogs = projectDb.GetCollection<LogFileInfo>(Identifiers.LogFilesInfo)?.FindAll() ?? new List<LogFileInfo>();
+				if (globalRanking is null || importedLogs.Any(l => l.LastImported >= globalRanking?.LastUpdated))
 				{
 					var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog());
 					globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces).FromFSharpGlobalRanking();
@@ -86,14 +88,8 @@ namespace Infrastructure.Services
 		{
 			var db = _projectService.GetProjectDatabase(projectName);
 			var coll = db.GetCollection<NodeCalculation>(Identifiers.NodeCalculations);
-			
-			foreach (var node in nodes)
-			{
-				if (!coll.Update(node))
-				{
-					coll.Insert(node);
-				}
-			}
+			coll.DeleteAll();
+			coll.InsertBulk(nodes);
 		}
 
 		/// <summary>
