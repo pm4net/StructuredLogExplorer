@@ -8,6 +8,7 @@
 
     export let layout : GraphLayout = new GraphLayout({ nodes: [], edges: [] });
     let cy : cytoscape.Core;
+    let searchVal : string;
 
     function getEdgeId(edge: Edge) {
         return edge.sourceId + "-" + edge.targetId;
@@ -110,7 +111,7 @@
             layout: {
                 name: "preset",
                 fit: true,
-                padding: 50,
+                padding: 75,
                 animate: true
             },
             autoungrabify: true
@@ -190,7 +191,8 @@
     });
 </script>
 
-<Search placeholder="Search nodes..."></Search>
+<!-- TODO: Highlight and zoom to nodes that match search -->
+<Search placeholder="Search nodes..." bind:value={searchVal} on:change={(_) => console.log(searchVal)}></Search>
 <div id="dfg"></div>
 
 <style lang="scss">
