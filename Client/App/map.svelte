@@ -130,10 +130,10 @@
                 <Grid fullWidth noGutter narrow>
                     <Row>
                         <!-- https://carbondesignsystem.com/guidelines/2x-grid/overview/#breakpoints -->
-                        <Column sm={4} md={3} lg={4} xlg={3} max={3}>
+                        <Column class="maxScreenHeight" sm={4} md={3} lg={4} xlg={3} max={3}>
                             <Filters availableObjectTypes={logInfo.objectTypes} />
                         </Column>
-                        <Column sm={4} md={5} lg={12} xlg={13} max={13}>
+                        <Column class="maxScreenHeight" sm={4} md={5} lg={12} xlg={13} max={13}>
                             {#key $mapSettings[$activeProject ?? ""]}
                                 {#if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcDfg}
                                     {#if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Dot}
@@ -170,3 +170,10 @@
             hideCloseButton />
     {/if}
 </Layout>
+
+<style lang="scss">
+    :global(.maxScreenHeight) {
+        height: calc(100vh - 48px);
+        overflow: auto;
+    }
+</style>

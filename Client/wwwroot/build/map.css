@@ -3,3 +3,4 @@ li.svelte-1tbdbmc{margin:2rem 1rem 0;color:#525252}span.svelte-1tbdbmc{font-size
 .content{background-color:transparent}.activeThemeLink{background-color:gray}.noPadding{padding:0}.noPadding .bx--row{margin-left:0;margin-right:0}
 .bx--accordion__content{padding-right:0}.bx--checkbox-label{width:100%}.bx--checkbox-label-text{flex-grow:1}.circle.svelte-lcnmpm{height:16px;width:16px;border-radius:50%;margin-right:1rem;float:right}
 #dfg.svelte-1w5ex40{width:100%;height:calc(100vh - 48px)}
+.maxScreenHeight{height:calc(100vh - 48px);overflow:auto}
