@@ -9,6 +9,7 @@
     import Dot from "./components/maps/dot.svelte";
     import { GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size } from "./shared/pm4net-client";
     import wrapAnsi from "wrap-ansi";
+    import Traces from "./components/traces.svelte";
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
@@ -130,10 +131,10 @@
                 <Grid fullWidth noGutter narrow>
                     <Row>
                         <!-- https://carbondesignsystem.com/guidelines/2x-grid/overview/#breakpoints -->
-                        <Column class="maxScreenHeight" sm={4} md={3} lg={4} xlg={3} max={3}>
+                        <Column class="maxScreenHeight" sm={4} md={2} lg={4} xlg={3} max={3}>
                             <Filters availableObjectTypes={logInfo.objectTypes} />
                         </Column>
-                        <Column class="maxScreenHeight" sm={4} md={5} lg={12} xlg={13} max={13}>
+                        <Column class="maxScreenHeight" sm={4} md={4} lg={8} xlg={10} max={10}>
                             {#key $mapSettings[$activeProject ?? ""]}
                                 {#if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcDfg}
                                     {#if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Dot}
@@ -158,6 +159,9 @@
                                 {/if}
                             {/key}
                         </Column>
+                        <Column class="maxScreenHeight" sm={4} md={2} lg={4} xlg={3} max={3}>
+                            <Traces />
+                        </Column>
                     </Row>
                 </Grid>
             {/await}
@@ -175,5 +179,6 @@
     :global(.maxScreenHeight) {
         height: calc(100vh - 48px);
         overflow: auto;
+        padding-right: 0 !important;
     }
 </style>
