@@ -134,7 +134,7 @@
                         <Column class="maxScreenHeight" sm={4} md={2} lg={4} xlg={3} max={3}>
                             <Filters availableObjectTypes={logInfo.objectTypes} />
                         </Column>
-                        <Column class="maxScreenHeight" sm={4} md={4} lg={8} xlg={10} max={10}>
+                        <Column class="maxScreenHeight relativePos" sm={4} md={4} lg={8} xlg={10} max={10}>
                             {#key $mapSettings[$activeProject ?? ""]}
                                 {#if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcDfg}
                                     {#if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Dot}
@@ -180,5 +180,9 @@
         height: calc(100vh - 48px);
         overflow: auto;
         padding-right: 0 !important;
+    }
+
+    :global(.relativePos) {
+        position: relative;
     }
 </style>

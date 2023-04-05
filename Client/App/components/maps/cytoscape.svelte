@@ -4,6 +4,7 @@
     import { onMount } from "svelte";
     import cytoscape from "cytoscape";
     import Color from "color";
+    import { Search } from "carbon-components-svelte";
 
     export let layout : GraphLayout = new GraphLayout({ nodes: [], edges: [] });
     let cy : cytoscape.Core;
@@ -109,7 +110,7 @@
             layout: {
                 name: "preset",
                 fit: true,
-                padding: 100,
+                padding: 50,
                 animate: true
             },
             autoungrabify: true
@@ -189,11 +190,20 @@
     });
 </script>
 
+<Search placeholder="Search nodes..."></Search>
 <div id="dfg"></div>
 
 <style lang="scss">
     #dfg {
         width: 100%;
         height: calc(100vh - 48px);
+    }
+
+    :global(.bx--search ) {
+        position: absolute;
+        z-index: 1;
+        top: 1rem;
+        left: 1rem;
+        width: calc(100% - 2rem);
     }
 </style>

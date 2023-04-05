@@ -2,6 +2,7 @@
     import { Accordion, AccordionItem, Button, ButtonSet, Checkbox, FormGroup, NumberInput, RadioButton, RadioButtonGroup, Toggle } from "carbon-components-svelte";
     import { activeProject, DisplayMethod, DisplayType, EdgeType, mapSettings } from "../shared/stores";
     import { getColor } from "../helpers/color-helpers";
+    import { onMount } from "svelte";
 
     export let availableObjectTypes = <string[]>[];
     
@@ -30,58 +31,75 @@
         settings[$activeProject ?? ""].dfg.minSuccessions = minSuccessions;
         mapSettings.set(settings);
     }
+
+    // Resize observer
+    let filterElem : Element;
+    let filterWidth : number;
+
+    onMount(() => {
+        // Register resize observer and change width whenever it changes
+        const resizeObserver = new ResizeObserver(entries => {
+            const entry = entries.at(0);
+            filterWidth = entry?.contentBoxSize[0].inlineSize!;
+        });
+        resizeObserver.observe(filterElem);
+        return () => resizeObserver.unobserve(filterElem);
+    });
+
 </script>
 
-<Accordion>
-    <AccordionItem open>
-        <svelte:fragment slot="title"><strong>Display</strong></svelte:fragment>
-        <FormGroup>
-            <RadioButtonGroup orientation="vertical" legendText="Display type" bind:selected={displayType}>
-                <RadioButton labelText="Object-Centric Directly Follows Graph" value={DisplayType.OcDfg} />
-                <RadioButton labelText="Object-Centric Petri Net" value={DisplayType.OcPn} disabled />
-            </RadioButtonGroup>
-        </FormGroup>
-        <FormGroup>
-            <RadioButtonGroup orientation="vertical" legendText="Edge type" bind:selected={edgeType}>
-                <RadioButton labelText="Frequency" value={EdgeType.Frequency} />
-                <RadioButton labelText="Performance" value={EdgeType.Performance} disabled />
-            </RadioButtonGroup>
-        </FormGroup>
-        <FormGroup>
-            <RadioButtonGroup orientation="vertical" legendText="Display method" bind:selected={displayMethod}>
-                <RadioButton labelText="DOT" value={DisplayMethod.Dot} />
-                <RadioButton labelText="Cytoscape" value={DisplayMethod.Cytoscape} />
-            </RadioButtonGroup>
-        </FormGroup>
-        <FormGroup >
-            <Toggle labelText="Group by namespace" bind:toggled={groupByNamespace}></Toggle>
-        </FormGroup>
-        <FormGroup >
-            <Toggle labelText="Fix unforeseen edges" bind:toggled={fixUnforeseenEdges}></Toggle>
-        </FormGroup>
-        <FormGroup noMargin>
-            <Toggle labelText="Merge edges" bind:toggled={mergeEdges}></Toggle>
-        </FormGroup>
-    </AccordionItem>
-    <AccordionItem open>
-        <svelte:fragment slot="title"><strong>Frequency</strong></svelte:fragment>
-        <NumberInput label="Min. events in trace" min={0} bind:value={minEvents} />
-        <NumberInput label="Min. occurrences" min={0} bind:value={minOccurrences} />
-        <NumberInput label="Min. successions" min={0} bind:value={minSuccessions} />
-    </AccordionItem>
-    <AccordionItem open>
-        <svelte:fragment slot="title"><strong>Object types</strong></svelte:fragment>
-        <ButtonSet>
-            <Button size="small" kind="tertiary" on:click={() => (objectTypes = availableObjectTypes)}>Select all</Button>
-            <Button size="small" kind="tertiary" on:click={() => (objectTypes = [])}>Deselect all</Button>
-        </ButtonSet>
-        {#each availableObjectTypes as objType}
-            <Checkbox bind:group={objectTypes} value={objType}>
-                <svelte:fragment slot="labelText">{objType} <div class="circle" style:background-color="{getColor(objType)}"></div></svelte:fragment>
-            </Checkbox>
-        {/each}
-    </AccordionItem>
-</Accordion>
+<div bind:this={filterElem}>
+    <Accordion>
+        <AccordionItem open>
+            <svelte:fragment slot="title"><strong>Display</strong></svelte:fragment>
+            <FormGroup>
+                <RadioButtonGroup orientation="vertical" legendText="Display type" bind:selected={displayType}>
+                    <RadioButton labelText="Object-Centric Directly Follows Graph" value={DisplayType.OcDfg} />
+                    <RadioButton labelText="Object-Centric Petri Net" value={DisplayType.OcPn} disabled />
+                </RadioButtonGroup>
+            </FormGroup>
+            <FormGroup>
+                <RadioButtonGroup orientation="vertical" legendText="Edge type" bind:selected={edgeType}>
+                    <RadioButton labelText="Frequency" value={EdgeType.Frequency} />
+                    <RadioButton labelText="Performance" value={EdgeType.Performance} disabled />
+                </RadioButtonGroup>
+            </FormGroup>
+            <FormGroup>
+                <RadioButtonGroup orientation="vertical" legendText="Display method" bind:selected={displayMethod}>
+                    <RadioButton labelText="DOT" value={DisplayMethod.Dot} />
+                    <RadioButton labelText="Cytoscape" value={DisplayMethod.Cytoscape} />
+                </RadioButtonGroup>
+            </FormGroup>
+            <FormGroup >
+                <Toggle labelText="Group by namespace" bind:toggled={groupByNamespace}></Toggle>
+            </FormGroup>
+            <FormGroup >
+                <Toggle labelText="Fix unforeseen edges" bind:toggled={fixUnforeseenEdges}></Toggle>
+            </FormGroup>
+            <FormGroup noMargin>
+                <Toggle labelText="Merge edges" bind:toggled={mergeEdges}></Toggle>
+            </FormGroup>
+        </AccordionItem>
+        <AccordionItem open>
+            <svelte:fragment slot="title"><strong>Frequency</strong></svelte:fragment>
+            <NumberInput label="Min. events in trace" min={0} bind:value={minEvents} />
+            <NumberInput label="Min. occurrences" min={0} bind:value={minOccurrences} />
+            <NumberInput label="Min. successions" min={0} bind:value={minSuccessions} />
+        </AccordionItem>
+        <AccordionItem open>
+            <svelte:fragment slot="title"><strong>Object types</strong></svelte:fragment>
+            <ButtonSet stacked={filterWidth < 425}>
+                <Button size="small" kind="tertiary" on:click={() => (objectTypes = availableObjectTypes)}>Select all</Button>
+                <Button size="small" kind="tertiary" on:click={() => (objectTypes = [])}>Deselect all</Button>
+            </ButtonSet>
+            {#each availableObjectTypes as objType}
+                <Checkbox bind:group={objectTypes} value={objType}>
+                    <svelte:fragment slot="labelText">{objType} <div class="circle" style:background-color="{getColor(objType)}"></div></svelte:fragment>
+                </Checkbox>
+            {/each}
+        </AccordionItem>
+    </Accordion>
+</div>
 
 <style lang="scss">
     :global(.bx--accordion__content) {
@@ -102,6 +120,7 @@
 
     :global(.bx--btn-set) {
         justify-content: center;
+        align-items: center;
         padding-bottom: 1rem;
     }
 
