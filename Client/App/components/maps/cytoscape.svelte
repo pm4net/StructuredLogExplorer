@@ -5,7 +5,6 @@
     import cytoscape from "cytoscape";
     import Color from "color";
 
-
     export let layout : GraphLayout = new GraphLayout({ nodes: [], edges: [] });
     let cy : cytoscape.Core;
 
@@ -102,8 +101,6 @@
                 selector: 'edge',
                     style: {
                         'width': 3,
-                        'line-color': '#ccc',
-                        'target-arrow-color': '#ccc',
                         'target-arrow-shape': 'triangle',
                     }
                 }
@@ -178,6 +175,14 @@
                 elem.style({
                     'curve-style': 'bezier', // TODO: make bezier curves with waypoints
                     'width': scaleBetween(e.totalWeight, 3, 10, minEdgeWeight, maxEdgeWeight),
+                });
+            }
+
+            if (e.typeInfos.length > 0) {
+                let color = e.typeInfos[0].type ? getColor(e.typeInfos[0].type) : "#ccc";
+                elem.style({
+                    'line-color': color,
+                    'target-arrow-color': color,
                 });
             }
         });
