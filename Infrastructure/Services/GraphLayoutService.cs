@@ -46,19 +46,24 @@ namespace Infrastructure.Services
 				throw new ArgumentNullException(nameof(nodeCalculations), "Node calculations have not been made yet.");
 			}
 
+			// Define custom functions
 			var lineWrapFunc = new Func<OutputTypes.Node<NodeInfo>, IEnumerable<string>>(n => nodeCalculations.First(x => x.NodeId == n.Id).TextWrap);
 			var nodeSizeFunc = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size>(n => nodeCalculations.First(x => x.NodeId == n.Id).Size);
 
+			// Get traces in log
+			var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog()).ToList();
+
+			// Retrieve or generate global ranking
 			var globalRanking = GetGlobalRanking(projectName);
 			var projectDb = _projectService.GetProjectDatabase(projectName);
-			var importedLogs = projectDb.GetCollection<LogFileInfo>(Identifiers.LogFilesInfo)?.FindAll() ?? new List<LogFileInfo>();
+			var importedLogs = projectDb.GetCollection<LogFileInfo>(Identifiers.LogFilesInfo)?.FindAll().ToList() ?? new List<LogFileInfo>();
 			if (globalRanking is null || importedLogs.Any(l => l.LastImported >= globalRanking?.LastUpdated))
 			{
-				var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog());
 				globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces).FromFSharpGlobalRanking();
 				SaveGlobalRanking(projectName, globalRanking);
 			}
 
+			// Perform separate methods, depending on whether the fast method is used
 			if (fixUnforeseenEdges)
 			{
 				var discoveredGraph = ProcessGraphLayout.DefaultCustomMeasurements.ComputeDiscoveredGraph(globalRanking.ToFSharpGlobalRanking(), model, mergeEdges);
@@ -74,14 +79,18 @@ namespace Infrastructure.Services
 			}
 			else
 			{
-				var fSharpGlobalRanking = globalRanking.ToFSharpGlobalRanking();
-				var nsg = ProcessGraphLayout.FastCustomMeasurements.ComputeNodeSequenceGraph(fSharpGlobalRanking); // TODO: Save NSG in DB
-				var globalOrder = ProcessGraphLayout.FastCustomMeasurements.ComputeGlobalOrder(fSharpGlobalRanking, nsg); // TODO: Save GO in DB
+				var globalOrder = GetGlobalOrder(projectName);
+				if (globalOrder is null || importedLogs.Any(l => l.LastImported >= globalOrder?.LastUpdated))
+				{
+					globalOrder = new GlobalOrder(ProcessGraphLayout.FastCustomMeasurements.ComputeGlobalOrder(traces), DateTime.Now);
+					SaveGlobalOrder(projectName, globalOrder);
+				}
+				
 				return ProcessGraphLayout.FastCustomMeasurements.ComputeLayout(
-					FSharpFunc.FromFunc(lineWrapFunc),
+					FSharpFunc.FromFunc(lineWrapFunc), 
 					FSharpFunc.FromFunc(nodeSizeFunc),
-					globalOrder,
-					fSharpGlobalRanking,
+					globalOrder.GlobalOrderGraph,
+					globalRanking.ToFSharpGlobalRanking(),
 					model,
 					nodeSep,
 					rankSep,
@@ -118,8 +127,6 @@ namespace Infrastructure.Services
 		/// <summary>
 		/// Save a pre-calculated global ranking to the database.
 		/// </summary>
-		/// <param name="projectName"></param>
-		/// <param name="ranking"></param>
 		private void SaveGlobalRanking(string projectName, GlobalRanking ranking)
 		{
 			var db = _projectService.GetProjectDatabase(projectName);
@@ -131,12 +138,31 @@ namespace Infrastructure.Services
 		/// <summary>
 		/// Get the pre-calculated global ranking from the database.
 		/// </summary>
-		/// <param name="projectName"></param>
-		/// <returns></returns>
 		private GlobalRanking? GetGlobalRanking(string projectName)
 		{
 			var db = _projectService.GetProjectDatabase(projectName);
 			var coll = db.GetCollection<GlobalRanking>(Identifiers.GlobalRanking);
+			return coll.FindOne(_ => true);
+		}
+
+		/// <summary>
+		/// Save a pre-calculated global order to the database.
+		/// </summary>
+		private void SaveGlobalOrder(string projectName, GlobalOrder globalOrder)
+		{
+			var db = _projectService.GetProjectDatabase(projectName);
+			var coll = db.GetCollection<GlobalOrder>(Identifiers.GlobalOrder);
+			coll.DeleteAll();
+			coll.Insert(globalOrder);
+		}
+
+		/// <summary>
+		/// Get the pre-calculated global order from the database.
+		/// </summary>
+		private GlobalOrder? GetGlobalOrder(string projectName)
+		{
+			var db = _projectService.GetProjectDatabase(projectName);
+			var coll = db.GetCollection<GlobalOrder>(Identifiers.GlobalOrder);
 			return coll.FindOne(_ => true);
 		}
 	}

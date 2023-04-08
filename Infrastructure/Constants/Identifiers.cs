@@ -12,5 +12,6 @@ namespace Infrastructure.Constants
         public const string LogFilesInfo = "logFilesInfo";
         public const string NodeCalculations = "nodeCalculations";
         public const string GlobalRanking = "globalRanking";
+        public const string GlobalOrder = "globalOrder";
     }
 }

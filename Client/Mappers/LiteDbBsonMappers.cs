@@ -23,5 +23,18 @@ namespace StructuredLogExplorer.Mappers
 			Components = BsonMapper.Global.Deserialize<IEnumerable<ISet<string>>>(bson["components"]),
 			LastUpdated = BsonMapper.Global.Deserialize<DateTime>(bson["lastUpdated"])
 		};
+
+		public static Func<Infrastructure.Models.GlobalOrder, BsonValue> SerializeGlobalOrder => globalOrder => new BsonDocument
+		{
+			["_id"] = Guid.NewGuid().ToString(),
+			["globalOrder"] = JsonConvert.SerializeObject(globalOrder.GlobalOrderGraph),
+			["lastUpdated"] = BsonMapper.Global.Serialize(globalOrder.LastUpdated)
+		};
+
+		public static Func<BsonValue, Infrastructure.Models.GlobalOrder> DeserializeGlobalOrder => bson => new Infrastructure.Models.GlobalOrder
+		{
+			GlobalOrderGraph = JsonConvert.DeserializeObject<GraphTypes.DirectedGraph<Tuple<int, SequenceNode>>>(bson["globalOrder"])!,
+			LastUpdated = BsonMapper.Global.Deserialize<DateTime>(bson["lastUpdated"])
+		};
 	}
 }

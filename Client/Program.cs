@@ -102,6 +102,7 @@ if (HybridSupport.IsElectronActive) {
 app.Lifetime.ApplicationStopping.Register(() => OnShutdown(app.Services));
 
 BsonMapper.Global.RegisterType(LiteDbBsonMappers.SerializeGlobalRanking, LiteDbBsonMappers.DeserializeGlobalRanking);
+BsonMapper.Global.RegisterType(LiteDbBsonMappers.SerializeGlobalOrder, LiteDbBsonMappers.DeserializeGlobalOrder);
 
 app.Run();
 
