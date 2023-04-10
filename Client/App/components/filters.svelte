@@ -70,14 +70,10 @@
                     <RadioButton labelText="Cytoscape" value={DisplayMethod.Cytoscape} />
                 </RadioButtonGroup>
             </FormGroup>
-            <FormGroup >
-                <Toggle labelText="Group by namespace" bind:toggled={groupByNamespace}></Toggle>
-            </FormGroup>
-            <FormGroup >
-                <Toggle labelText="Fix unforeseen edges" bind:toggled={fixUnforeseenEdges}></Toggle>
-            </FormGroup>
             <FormGroup noMargin>
-                <Toggle labelText="Merge edges" bind:toggled={mergeEdges}></Toggle>
+                <Checkbox labelText="Group by namespace" bind:checked={groupByNamespace}></Checkbox>
+                <Checkbox labelText="Fix unforeseen edges" bind:checked={fixUnforeseenEdges}></Checkbox>
+                <Checkbox labelText="Merge edges" bind:checked={mergeEdges}></Checkbox>
             </FormGroup>
         </AccordionItem>
         <AccordionItem open>
