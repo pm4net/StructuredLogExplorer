@@ -5,9 +5,17 @@
     import cytoscape from "cytoscape";
     import Color from "color";
     import { Search } from "carbon-components-svelte";
+    import nodeHtmlLabel from "cytoscape-node-html-label";
+    import { placeAroundMatches } from "../../helpers/string-helpers";
 
+    // Input to components
     export let layout : GraphLayout = new GraphLayout({ nodes: [], edges: [] });
+
+    // Create cytoscape instance and register extensions
     let cy : cytoscape.Core;
+    nodeHtmlLabel(cytoscape);
+
+    // State values
     let searchVal : string;
 
     function getEdgeId(edge: Edge) {
@@ -18,7 +26,10 @@
         return graph.nodes!.map(node => {
             let elem : cytoscape.NodeDefinition = {
                 data: { 
-                    id: node.id
+                    id: node.id,
+                    text: node.text,
+                    info: node.nodeInfo,
+                    type: node.nodeType
                 },
                 position: { 
                     x: node.position!.x, 
@@ -82,8 +93,6 @@
                 {
                     selector: 'node',
                     style: {
-                        'text-valign': 'center',
-                        'text-halign': 'center',
                         'text-wrap': 'wrap',
                         'shape': 'round-rectangle',
                         'font-family': 'sans-serif',
@@ -118,14 +127,12 @@
         });
 
         let startNodeStyles = {
-            'color': '#fff',
             'shape': 'round-rectangle',
             'border-width': '3px',
             'border-style': 'double'
         };
 
         let endNodeStyles = {
-            'color': '#fff',
             'shape': 'round-rectangle',
             'border-width': '3px',
             'border-style': 'double'
@@ -135,7 +142,7 @@
         layout.nodes?.forEach(n => {
             let elem = cy.$id(n.id!);
             elem.style({
-                'label': n.text?.join('\n'),
+                //'label': n.text?.join('\n'),
                 'width': n.size!.width!,
                 'height': n.size!.height!
             });
@@ -144,8 +151,7 @@
                 if (n.nodeInfo?.logLevel) {
                     let bgColor = logLevelToColor(n.nodeInfo.logLevel);
                     elem.style({
-                        'background-color': bgColor,
-                        'color': Color(bgColor).isDark() ? '#FFFFFF' : "#000000"
+                        'background-color': bgColor
                     });
                 } else {
                     elem.style({
@@ -188,6 +194,33 @@
                 });
             }
         });
+
+        // Add HTML labels to nodes
+        cy.nodeHtmlLabel([{
+            query: 'node',
+            halign: 'center', // title vertical position. Can be 'left',''center, 'right'
+            valign: 'center', // title vertical position. Can be 'top',''center, 'bottom'
+            halignBox: 'center', // title vertical position. Can be 'left',''center, 'right'
+            valignBox: 'center', // title relative box vertical position. Can be 'top',''center, 'bottom'
+            cssClass: 'cy-title', // any classes will be as attribute of <div> container for every title
+            tpl: function(data: any) {
+
+                // Text color calculations
+                let bgColor;
+                if (data.type instanceof Event) {
+                    bgColor = logLevelToColor(data.info?.logLevel);
+                } else {
+                    bgColor = getColor(data.type.objectType);
+                }
+                let txtColor = Color(bgColor).isDark() ? '#FFFFFF' : "#000000";
+
+                // Bold text calculations
+                let text = data.text.join('<br>');
+                text = placeAroundMatches(text, '{', '}', '<strong>', '</strong>');
+                
+                return `<span style="color: ${txtColor}">${text}</span>`
+            }
+        }]);
     });
 </script>
 
@@ -207,5 +240,9 @@
         top: 1rem;
         left: 1rem;
         width: calc(100% - 2rem);
+    }
+
+    :global(.cy-title) {
+        text-align: center;
     }
 </style>

@@ -33,6 +33,7 @@
         "carbon-preprocess-svelte": "^0.9.1",
         "color": "^4.2.3",
         "cytoscape": "^3.23.0",
+        "cytoscape-node-html-label": "^1.2.2",
         "d3": "^7.8.2",
         "file-saver": "^2.0.5",
         "luxon": "^3.2.1",
