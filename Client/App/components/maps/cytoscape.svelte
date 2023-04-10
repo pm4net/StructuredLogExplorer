@@ -78,6 +78,14 @@
       return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
     }
 
+    function zoomToAndHighlightMatchingNodes(search: string) {
+        let matchingNodes = cy.nodes().filter(function(el) {
+            return el.data('text').join(' ').toLowerCase().includes(search.toLowerCase());
+        });
+        cy.fit(matchingNodes, 50);
+        // TODO: highlight nodes somehow
+    }
+
     onMount(() => {
         let nodes = createNodesFromLayout(layout);
         let edges = createEdgesFromLayout(layout);
@@ -224,8 +232,7 @@
     });
 </script>
 
-<!-- TODO: Highlight and zoom to nodes that match search -->
-<Search placeholder="Search nodes..." bind:value={searchVal} on:change={(_) => console.log(searchVal)}></Search>
+<Search placeholder="Search nodes..." bind:value={searchVal} on:change={(_) => zoomToAndHighlightMatchingNodes(searchVal)}></Search>
 <div id="dfg"></div>
 
 <style lang="scss">
