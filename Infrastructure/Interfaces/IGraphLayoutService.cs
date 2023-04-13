@@ -15,7 +15,8 @@ namespace Infrastructure.Interfaces
 			bool fixUnforeseenEdges,
 			float nodeSep,
 			float rankSep,
-			float edgeSep);
+			float edgeSep,
+			float tension);
 
 		void SaveNodeCalculations(string projectName, IEnumerable<NodeCalculation> nodes);
 	}

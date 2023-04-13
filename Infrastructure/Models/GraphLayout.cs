@@ -47,13 +47,22 @@ namespace Infrastructure.Models
 		public string ObjectType { get; set; } = string.Empty;
 	}
 
+	public class Waypoints
+	{
+		public IEnumerable<OutputTypes.Coordinate> Coordinates { get; set; } = Enumerable.Empty<OutputTypes.Coordinate>();
+
+		public IEnumerable<OutputTypes.Coordinate> CatmullRom { get; set; } = Enumerable.Empty<OutputTypes.Coordinate>();
+
+		public IEnumerable<Tuple<OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate>> Bezier { get; set; } = new List<Tuple<OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate>>();
+	}
+
 	public class Edge
 	{
 		public string SourceId { get; set; } = string.Empty;
 
 		public string TargetId { get; set; } = string.Empty;
 
-		public IEnumerable<OutputTypes.Coordinate> Waypoints { get; set; } = Enumerable.Empty<OutputTypes.Coordinate>();
+		public Waypoints Waypoints { get; set; } = new ();
 
 		public bool Downwards { get; set; }
 
@@ -114,7 +123,12 @@ namespace Infrastructure.Models
 			{
 				SourceId = edge.SourceId,
 				TargetId = edge.TargetId,
-				Waypoints = edge.Waypoints,
+				Waypoints = new Waypoints
+				{
+					Coordinates = edge.Waypoints.Coordinates,
+					CatmullRom = edge.Waypoints.CatmullRom,
+					Bezier = edge.Waypoints.Bezier
+				},
 				Downwards = edge.Downwards,
 				TotalWeight = edge.TotalWeight,
 				TypeInfos = edge.TypeInfos.Select(x => new EdgeTypeInfo<EdgeInfo>

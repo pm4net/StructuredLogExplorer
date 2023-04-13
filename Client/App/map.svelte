@@ -82,7 +82,8 @@
                         fixUnforeseenEdges: $mapSettings[$activeProject ?? ""]?.fixUnforeseenEdges,
                         nodeSeparation: 25,
                         rankSeparation: 50,
-                        edgeSeparation: 10
+                        edgeSeparation: 10,
+                        tension: 0.5
                     })
             }));
         } catch (e: unknown) {

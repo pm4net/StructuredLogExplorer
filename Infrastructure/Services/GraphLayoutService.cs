@@ -38,7 +38,8 @@ namespace Infrastructure.Services
 			bool fixUnforeseenEdges, 
 			float nodeSep,
 			float rankSep, 
-			float edgeSep)
+			float edgeSep,
+			float tension)
 		{
 			var nodeCalculations = GetNodeCalculations(projectName);
 			if (nodeCalculations is null)
@@ -74,7 +75,8 @@ namespace Infrastructure.Services
 					model, 
 					nodeSep,
 					rankSep,
-					edgeSep)
+					edgeSep,
+					tension)
 					.FromFSharpGraphLayout();
 			}
 			else
@@ -95,7 +97,8 @@ namespace Infrastructure.Services
 					nodeSep,
 					rankSep,
 					edgeSep,
-					mergeEdges)
+					mergeEdges,
+					tension)
 					.FromFSharpGraphLayout();
 			}
 		}

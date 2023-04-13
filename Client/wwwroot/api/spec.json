@@ -904,10 +904,7 @@
           "type": "string"
         },
         "waypoints": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Coordinate"
-          }
+          "$ref": "#/definitions/Waypoints"
         },
         "downwards": {
           "type": "boolean"
@@ -921,6 +918,57 @@
           "items": {
             "$ref": "#/definitions/EdgeTypeInfoOfEdgeInfo"
           }
+        }
+      }
+    },
+    "Waypoints": {
+      "type": "object",
+      "required": [
+        "coordinates",
+        "catmullRom",
+        "bezier"
+      ],
+      "properties": {
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Coordinate"
+          }
+        },
+        "catmullRom": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Coordinate"
+          }
+        },
+        "bezier": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate"
+          }
+        }
+      }
+    },
+    "TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate": {
+      "type": "object",
+      "required": [
+        "item1",
+        "item2",
+        "item3",
+        "item4"
+      ],
+      "properties": {
+        "item1": {
+          "$ref": "#/definitions/Coordinate"
+        },
+        "item2": {
+          "$ref": "#/definitions/Coordinate"
+        },
+        "item3": {
+          "$ref": "#/definitions/Coordinate"
+        },
+        "item4": {
+          "$ref": "#/definitions/Coordinate"
         }
       }
     },
@@ -976,7 +1024,8 @@
         "fixUnforeseenEdges",
         "nodeSeparation",
         "rankSeparation",
-        "edgeSeparation"
+        "edgeSeparation",
+        "tension"
       ],
       "properties": {
         "mergeEdgesOfSameType": {
@@ -994,6 +1043,10 @@
           "format": "float"
         },
         "edgeSeparation": {
+          "type": "number",
+          "format": "float"
+        },
+        "tension": {
           "type": "number",
           "format": "float"
         }

@@ -1550,7 +1550,7 @@ export enum LogLevel {
 export class Edge implements IEdge {
     sourceId!: string;
     targetId!: string;
-    waypoints!: Coordinate[];
+    waypoints!: Waypoints;
     downwards!: boolean;
     totalWeight!: number;
     typeInfos!: EdgeTypeInfoOfEdgeInfo[];
@@ -1563,7 +1563,7 @@ export class Edge implements IEdge {
             }
         }
         if (!data) {
-            this.waypoints = [];
+            this.waypoints = new Waypoints();
             this.typeInfos = [];
         }
     }
@@ -1572,11 +1572,7 @@ export class Edge implements IEdge {
         if (_data) {
             this.sourceId = _data["sourceId"];
             this.targetId = _data["targetId"];
-            if (Array.isArray(_data["waypoints"])) {
-                this.waypoints = [] as any;
-                for (let item of _data["waypoints"])
-                    this.waypoints!.push(Coordinate.fromJS(item));
-            }
+            this.waypoints = _data["waypoints"] ? Waypoints.fromJS(_data["waypoints"]) : new Waypoints();
             this.downwards = _data["downwards"];
             this.totalWeight = _data["totalWeight"];
             if (Array.isArray(_data["typeInfos"])) {
@@ -1598,11 +1594,7 @@ export class Edge implements IEdge {
         data = typeof data === 'object' ? data : {};
         data["sourceId"] = this.sourceId;
         data["targetId"] = this.targetId;
-        if (Array.isArray(this.waypoints)) {
-            data["waypoints"] = [];
-            for (let item of this.waypoints)
-                data["waypoints"].push(item.toJSON());
-        }
+        data["waypoints"] = this.waypoints ? this.waypoints.toJSON() : <any>undefined;
         data["downwards"] = this.downwards;
         data["totalWeight"] = this.totalWeight;
         if (Array.isArray(this.typeInfos)) {
@@ -1617,10 +1609,137 @@ export class Edge implements IEdge {
 export interface IEdge {
     sourceId: string;
     targetId: string;
-    waypoints: Coordinate[];
+    waypoints: Waypoints;
     downwards: boolean;
     totalWeight: number;
     typeInfos: EdgeTypeInfoOfEdgeInfo[];
+}
+
+export class Waypoints implements IWaypoints {
+    coordinates!: Coordinate[];
+    catmullRom!: Coordinate[];
+    bezier!: TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate[];
+
+    constructor(data?: IWaypoints) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.coordinates = [];
+            this.catmullRom = [];
+            this.bezier = [];
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["coordinates"])) {
+                this.coordinates = [] as any;
+                for (let item of _data["coordinates"])
+                    this.coordinates!.push(Coordinate.fromJS(item));
+            }
+            if (Array.isArray(_data["catmullRom"])) {
+                this.catmullRom = [] as any;
+                for (let item of _data["catmullRom"])
+                    this.catmullRom!.push(Coordinate.fromJS(item));
+            }
+            if (Array.isArray(_data["bezier"])) {
+                this.bezier = [] as any;
+                for (let item of _data["bezier"])
+                    this.bezier!.push(TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Waypoints {
+        data = typeof data === 'object' ? data : {};
+        let result = new Waypoints();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.coordinates)) {
+            data["coordinates"] = [];
+            for (let item of this.coordinates)
+                data["coordinates"].push(item.toJSON());
+        }
+        if (Array.isArray(this.catmullRom)) {
+            data["catmullRom"] = [];
+            for (let item of this.catmullRom)
+                data["catmullRom"].push(item.toJSON());
+        }
+        if (Array.isArray(this.bezier)) {
+            data["bezier"] = [];
+            for (let item of this.bezier)
+                data["bezier"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IWaypoints {
+    coordinates: Coordinate[];
+    catmullRom: Coordinate[];
+    bezier: TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate[];
+}
+
+export class TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate implements ITupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate {
+    item1!: Coordinate;
+    item2!: Coordinate;
+    item3!: Coordinate;
+    item4!: Coordinate;
+
+    constructor(data?: ITupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.item1 = new Coordinate();
+            this.item2 = new Coordinate();
+            this.item3 = new Coordinate();
+            this.item4 = new Coordinate();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.item1 = _data["item1"] ? Coordinate.fromJS(_data["item1"]) : new Coordinate();
+            this.item2 = _data["item2"] ? Coordinate.fromJS(_data["item2"]) : new Coordinate();
+            this.item3 = _data["item3"] ? Coordinate.fromJS(_data["item3"]) : new Coordinate();
+            this.item4 = _data["item4"] ? Coordinate.fromJS(_data["item4"]) : new Coordinate();
+        }
+    }
+
+    static fromJS(data: any): TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate {
+        data = typeof data === 'object' ? data : {};
+        let result = new TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["item1"] = this.item1 ? this.item1.toJSON() : <any>undefined;
+        data["item2"] = this.item2 ? this.item2.toJSON() : <any>undefined;
+        data["item3"] = this.item3 ? this.item3.toJSON() : <any>undefined;
+        data["item4"] = this.item4 ? this.item4.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ITupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate {
+    item1: Coordinate;
+    item2: Coordinate;
+    item3: Coordinate;
+    item4: Coordinate;
 }
 
 export class EdgeTypeInfoOfEdgeInfo implements IEdgeTypeInfoOfEdgeInfo {
@@ -1761,6 +1880,7 @@ export class GraphLayoutOptions implements IGraphLayoutOptions {
     nodeSeparation!: number;
     rankSeparation!: number;
     edgeSeparation!: number;
+    tension!: number;
 
     constructor(data?: IGraphLayoutOptions) {
         if (data) {
@@ -1778,6 +1898,7 @@ export class GraphLayoutOptions implements IGraphLayoutOptions {
             this.nodeSeparation = _data["nodeSeparation"];
             this.rankSeparation = _data["rankSeparation"];
             this.edgeSeparation = _data["edgeSeparation"];
+            this.tension = _data["tension"];
         }
     }
 
@@ -1795,6 +1916,7 @@ export class GraphLayoutOptions implements IGraphLayoutOptions {
         data["nodeSeparation"] = this.nodeSeparation;
         data["rankSeparation"] = this.rankSeparation;
         data["edgeSeparation"] = this.edgeSeparation;
+        data["tension"] = this.tension;
         return data;
     }
 }
@@ -1805,6 +1927,7 @@ export interface IGraphLayoutOptions {
     nodeSeparation: number;
     rankSeparation: number;
     edgeSeparation: number;
+    tension: number;
 }
 
 export class OcDfgLayoutOptions implements IOcDfgLayoutOptions {

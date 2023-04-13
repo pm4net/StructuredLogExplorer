@@ -11,5 +11,7 @@
         public float RankSeparation { get; set; } = 2f;
 
         public float EdgeSeparation { get; set; } = 0.5f;
+
+        public float Tension { get; set; } = 0.5f;
     }
 }
