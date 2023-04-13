@@ -189,9 +189,22 @@
                 });
             } else {
                 elem.style({
-                    'curve-style': 'bezier', // TODO: make bezier curves with waypoints
                     'width': scaleBetween(e.totalWeight, 3, 10, minEdgeWeight, maxEdgeWeight),
                 });
+
+                if (e.waypoints.coordinates.length > 0) {
+                    elem.style({
+                        'curve-style': 'bezier'
+                        /*'curve-style': 'segments',
+                        'segment-weights': [40 -40],
+                        'segment-distances': [0.25, 0.75],*/
+                        
+                    });
+                } else {
+                    elem.style({
+                        'curve-style': 'straight'
+                    });
+                }
             }
 
             if (e.typeInfos.length > 0) {
