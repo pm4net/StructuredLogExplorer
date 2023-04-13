@@ -86,6 +86,22 @@
         // TODO: highlight nodes somehow
     }
 
+    // See https://github.com/cytoscape/cytoscape.js/issues/2579#issuecomment-562129322 and https://codepen.io/guillaumethomas/pen/xxbbBKO
+    let adjustEdgeCurve = function(edge: cytoscape.EdgeSingular) {
+        const x0 = edge.source().position("x");
+        const x1 = edge.target().position("x");
+        const y0 = edge.source().position("y");
+        const y1 = edge.target().position("y");
+        const x = x1 - x0;
+        const y = y1 - y0;
+        const z = Math.sqrt(x * x + y * y);
+        const costheta = x / z;
+        const alpha = 0.25;
+        const controlPointDistances = [-alpha * y * costheta, alpha * y * costheta];
+        edge.style("control-point-distances", controlPointDistances);
+        edge.style("control-point-weights", [alpha, 1-alpha]);
+    };
+
     onMount(() => {
         let nodes = createNodesFromLayout(layout);
         let edges = createEdgesFromLayout(layout);
@@ -189,7 +205,9 @@
                 });
             } else {
                 elem.style({
-                    'curve-style': 'bezier', // TODO: make bezier curves with waypoints
+                    'curve-style': 'unbundled-bezier',
+                    'control-point-distances': [],
+                    'control-point-weights': [],
                     'width': scaleBetween(e.totalWeight, 3, 10, minEdgeWeight, maxEdgeWeight),
                 });
             }
