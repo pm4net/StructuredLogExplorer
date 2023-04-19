@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { Edge, End, Event, GraphLayout, LogLevel, Start } from "../../shared/pm4net-client";
+    import { Coordinate, Edge, End, Event, GraphLayout, LogLevel, Start } from "../../shared/pm4net-client";
     import { getColor } from "../../helpers/color-helpers";
     import { onMount } from "svelte";
-    import cytoscape from "cytoscape";
+    import cytoscape, { type Position } from "cytoscape";
     import Color from "color";
     import { Search } from "carbon-components-svelte";
     import nodeHtmlLabel from "cytoscape-node-html-label";
@@ -78,6 +78,44 @@
       return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
     }
 
+    // Calculate perpendicular distance of point from line defined by two points (https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points)
+    function distanceToLine(p1: Position, p2: Position, point: Coordinate) {
+        let part1 = (p2.x - p1.x) * (p1.y - point.y);
+        let part2 = (p1.x - point.x) * (p2.y - p1.y);
+        let lower = (p2.x - p1.x)**2 + (p2.y - p1.y)**2;
+        let result = Math.abs(part1 - part2) / Math.sqrt(lower);
+        return result;
+    }
+
+    // https://stackoverflow.com/a/64122266/2102106
+    function pointOnLine(p1: Position, p2: Position, q: Coordinate) {
+        if (p1.x == p2.x && p1.y == p2.y) {
+            p1.x -= 0.00001;
+        } 
+
+        const Unumer = ((q.x - p1.x) * (p2.x - p1.x)) + ((q.y - p1.y) * (p2.y - p1.y));
+        const Udenom = Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2);
+        const U = Unumer / Udenom;
+
+        const r = {
+            x: p1.x + (U * (p2.x - p1.x)),
+            y: p1.y + (U * (p2.y - p1.y))
+        }
+
+        const minx = Math.min(p1.x, p2.x);
+        const maxx = Math.max(p1.x, p2.x);
+        const miny = Math.min(p1.y, p2.y);
+        const maxy = Math.max(p1.y, p2.y);
+
+        const isValid = (r.x >= minx && r.x <= maxx) && (r.y >= miny && r.y <= maxy);
+
+        return isValid ? r : null;
+    }
+
+    function distanceBetweenPoints(p1x: number, p1y: number, p2x: number, p2y: number) {
+        return Math.sqrt((p2x - p1x)**2 + (p2y - p1y)**2);
+    }
+
     function zoomToAndHighlightMatchingNodes(search: string) {
         let matchingNodes = cy.nodes().filter(function(el) {
             return el.data('text').join(' ').toLowerCase().includes(search.toLowerCase());
@@ -150,7 +188,6 @@
         layout.nodes?.forEach(n => {
             let elem = cy.$id(n.id!);
             elem.style({
-                //'label': n.text?.join('\n'),
                 'width': n.size!.width!,
                 'height': n.size!.height!
             });
@@ -189,9 +226,37 @@
                 });
             } else {
                 elem.style({
-                    'curve-style': 'bezier', // TODO: make bezier curves with waypoints
                     'width': scaleBetween(e.totalWeight, 3, 10, minEdgeWeight, maxEdgeWeight),
                 });
+
+                if (e.waypoints.coordinates.length > 0) {
+                    let startPos = cy.$id(e.sourceId).position();
+                    let endPos = cy.$id(e.targetId).position();
+                    let waypoints = e.waypoints.coordinates.sort(p => p.y);
+                    if (e.downwards) {
+                        waypoints.reverse();
+                    }
+
+                    elem.style({
+                        'curve-style': 'segments',
+                        'segment-distances': e.waypoints.coordinates.map(w => distanceToLine(startPos, endPos, w)),
+                        'segment-weights': e.waypoints.coordinates.map(w => {
+                            let point = pointOnLine(startPos, endPos, w);
+                            if (point) {
+                                let distBetweenPoints = distanceBetweenPoints(startPos.x, startPos.y, point.x, point.y);
+                                let distBetweenStartEnd = distanceBetweenPoints(startPos.x, startPos.y, endPos.x, endPos.y);
+                                return distBetweenPoints / distBetweenStartEnd;
+                            } else {
+                                return null;
+                            }
+                        }).flatMap(v => !!v ? [v] : []),
+                        'edge-distances': 'node-position',
+                    });
+                } else {
+                    elem.style({
+                        'curve-style': 'straight'
+                    });
+                }
             }
 
             if (e.typeInfos.length > 0) {
