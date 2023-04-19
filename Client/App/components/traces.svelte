@@ -6,11 +6,14 @@
 
     export let objectTypes : string[];
 
-    let selectedType : string;
+    let selectedType : string = "";
 
+    let tracesPromise = getTracesForObjectType(selectedType);
     async function getTracesForObjectType(objType: string) {
         try {
-            return await mapClient.getTracesForObjectType($activeProject, objType);
+            if (objType) {
+                return await mapClient.getTracesForObjectType($activeProject, objType);
+            }
         } catch (e: unknown) {
             console.error(e); // TODO
         }
@@ -32,29 +35,24 @@
             placeholder="Select an object type"
             items={objectTypes.map(o => {return { id: o, text: o }})}
             selectedId="0"
-            bind:value={selectedType}>
+            bind:value={selectedType}
+            on:select={(_) => tracesPromise = getTracesForObjectType(selectedType)}>
         </ComboBox>
 
-        {#key selectedType}
-            {#if selectedType}
-                {#await getTracesForObjectType(selectedType)}
-                    <InlineLoading description="Loading traces..."></InlineLoading>
-                {:then traces}
-                    {#if traces}
-                        {#each traces as t, i}
-                            <h4>Trace {i}</h4>
-                            <UnorderedList>
-                                {#each t as event}
-                                    <ListItem>{getStringValue(event.item2.vMap["pm4net_RenderedMessage"])}</ListItem>
-                                {/each}
-                            </UnorderedList>
+        {#await tracesPromise}
+            <InlineLoading description="Loading traces..."></InlineLoading>
+        {:then traces}
+            {#if traces}
+                {#each traces as t, i}
+                    <h4>Trace {i}</h4>
+                    <UnorderedList>
+                        {#each t as event}
+                            <ListItem>{getStringValue(event.item2.vMap["pm4net_RenderedMessage"])}</ListItem>
                         {/each}
-                    {/if}
-                {/await}
-            {:else}
-                <p>Please select an object type</p>
+                    </UnorderedList>
+                {/each}
             {/if}
-        {/key}
+        {/await}
     </AccordionItem>
 </Accordion>
 
