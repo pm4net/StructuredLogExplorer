@@ -232,6 +232,11 @@
                 if (e.waypoints.coordinates.length > 0) {
                     let startPos = cy.$id(e.sourceId).position();
                     let endPos = cy.$id(e.targetId).position();
+                    let waypoints = e.waypoints.coordinates.sort(p => p.y);
+                    if (e.downwards) {
+                        waypoints.reverse();
+                    }
+
                     elem.style({
                         'curve-style': 'segments',
                         'segment-distances': e.waypoints.coordinates.map(w => distanceToLine(startPos, endPos, w)),
