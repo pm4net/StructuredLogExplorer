@@ -88,31 +88,32 @@
     }
 
     // https://stackoverflow.com/a/64122266/2102106
-    function pointOnLine(p0: Position, p1: Position, q: Coordinate) {
-        if (p0.x == p1.x && p0.y == p1.y) 
-            p0.x -= 0.00001;
+    function pointOnLine(p1: Position, p2: Position, q: Coordinate) {
+        if (p1.x == p2.x && p1.y == p2.y) {
+            p1.x -= 0.00001;
+        } 
 
-            const Unumer = ((q.x - p0.x) * (p1.x - p0.x)) + ((q.y - p0.y) * (p1.y - p0.y));
-            const Udenom = Math.pow(p1.x - p0.x, 2) + Math.pow(p1.y - p0.y, 2);
-            const U = Unumer / Udenom;
+        const Unumer = ((q.x - p1.x) * (p2.x - p1.x)) + ((q.y - p1.y) * (p2.y - p1.y));
+        const Udenom = Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2);
+        const U = Unumer / Udenom;
 
-            const r = {
-                x: p0.x + (U * (p1.x - p0.x)),
-                y: p0.y + (U * (p1.y - p0.y))
-            }
+        const r = {
+            x: p1.x + (U * (p2.x - p1.x)),
+            y: p1.y + (U * (p2.y - p1.y))
+        }
 
-            const minx = Math.min(p0.x, p1.x);
-            const maxx = Math.max(p0.x, p1.x);
-            const miny = Math.min(p0.y, p1.y);
-            const maxy = Math.max(p0.y, p1.y);
+        const minx = Math.min(p1.x, p2.x);
+        const maxx = Math.max(p1.x, p2.x);
+        const miny = Math.min(p1.y, p2.y);
+        const maxy = Math.max(p1.y, p2.y);
 
-            const isValid = (r.x >= minx && r.x <= maxx) && (r.y >= miny && r.y <= maxy);
+        const isValid = (r.x >= minx && r.x <= maxx) && (r.y >= miny && r.y <= maxy);
 
-            return isValid ? r : null;
+        return isValid ? r : null;
     }
 
     function distanceBetweenPoints(p1x: number, p1y: number, p2x: number, p2y: number) {
-        return Math.sqrt((p2x - p1x) + (p2y - p1y));
+        return Math.sqrt((p2x - p1x)**2 + (p2y - p1y)**2);
     }
 
     function zoomToAndHighlightMatchingNodes(search: string) {
