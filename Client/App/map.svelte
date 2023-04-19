@@ -30,7 +30,7 @@
                     displayMethod: DisplayMethod.Dot,
                     groupByNamespace: true,
                     mergeEdges: true,
-                    objectTypes: [], //(await logInfoPromise).objectTypes,
+                    objectTypes: (await logInfoPromise).objectTypes,
                     fixUnforeseenEdges: false,
                     dfg: {
                         minEvents: 0,
@@ -136,6 +136,7 @@
                             <Filters availableObjectTypes={logInfo.objectTypes} />
                         </Column>
                         <Column class="maxScreenHeight relativePos" sm={4} md={4} lg={8} xlg={10} max={10}>
+                            <!-- Refresh whenever any of the map settings change -->
                             {#key $mapSettings[$activeProject ?? ""]}
                                 {#if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcDfg}
                                     {#if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Dot}
@@ -148,7 +149,7 @@
                                         {#await getNodesToPreCompute() then nodes}
                                             {#await preComputeNodeProperties(nodes) then _}
                                                 {#await getGraphLayout()}
-                                                    <Loading description="Loading..." />
+                                                    <Loading withOverlay={false} description="Loading..." />
                                                 {:then layout}
                                                     <Cytoscape layout={layout}></Cytoscape>
                                                 {/await}
