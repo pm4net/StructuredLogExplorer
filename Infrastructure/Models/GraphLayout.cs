@@ -30,6 +30,7 @@ namespace Infrastructure.Models
 		public NodeInfo? NodeInfo { get; set; }
 	}
 
+	// To allow NSwag to correctly generate subclasses (see https://github.com/RicoSuter/NSwag/issues/1766)
 	[KnownType(typeof(Event))]
 	[KnownType(typeof(Start))]
 	[KnownType(typeof(End))]

@@ -427,6 +427,48 @@
         }
       }
     },
+    "/api/Map/getTracesForObjectType": {
+      "get": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_GetTracesForObjectType",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": true
+          },
+          {
+            "type": "string",
+            "name": "objectType",
+            "in": "query",
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TupleOfStringAndOcelEvent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Map/namespaceTree": {
       "get": {
         "tags": [
@@ -1066,6 +1108,204 @@
           "$ref": "#/definitions/GraphLayoutOptions"
         }
       }
+    },
+    "TupleOfStringAndOcelEvent": {
+      "type": "object",
+      "required": [
+        "item1",
+        "item2"
+      ],
+      "properties": {
+        "item1": {
+          "type": "string"
+        },
+        "item2": {
+          "$ref": "#/definitions/OcelEvent"
+        }
+      }
+    },
+    "OcelEvent": {
+      "type": "object",
+      "required": [
+        "activity",
+        "timestamp",
+        "oMap",
+        "vMap"
+      ],
+      "properties": {
+        "activity": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "oMap": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/OcelObject"
+          }
+        },
+        "vMap": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/OcelValue"
+          }
+        }
+      }
+    },
+    "OcelObject": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "ovMap": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/OcelValue"
+          }
+        }
+      }
+    },
+    "OcelValue": {
+      "type": "object",
+      "discriminator": "discriminator",
+      "x-abstract": true,
+      "required": [
+        "discriminator"
+      ],
+      "properties": {
+        "discriminator": {
+          "type": "string"
+        }
+      }
+    },
+    "OcelString": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/OcelValue"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "OcelTimestamp": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/OcelValue"
+        },
+        {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      ]
+    },
+    "OcelInteger": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/OcelValue"
+        },
+        {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      ]
+    },
+    "OcelFloat": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/OcelValue"
+        },
+        {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        }
+      ]
+    },
+    "OcelBoolean": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/OcelValue"
+        },
+        {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "OcelList": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/OcelValue"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "values": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OcelValue"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "OcelMap": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/OcelValue"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "values": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/definitions/OcelValue"
+              }
+            }
+          }
+        }
+      ]
     },
     "ListTreeOfString": {
       "type": "object"

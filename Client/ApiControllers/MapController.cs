@@ -12,6 +12,7 @@ using pm4net.Types;
 using StructuredLogExplorer.Models;
 using StructuredLogExplorer.Models.ControllerOptions;
 using NodeInfo = pm4net.Types.NodeInfo;
+using OcelEvent = OCEL.Types.OcelEvent;
 
 namespace StructuredLogExplorer.ApiControllers
 {
@@ -110,6 +111,16 @@ namespace StructuredLogExplorer.ApiControllers
 	        var ocDfg = DiscoverOcDfg(projectName, options);
             var dot = pm4net.Visualization.Ocel.Graphviz.OcDfg2Dot(ocDfg, groupByNamespace);
             return dot;
+        }
+
+        [HttpGet]
+        [Route("getTracesForObjectType")]
+        public IEnumerable<IEnumerable<Tuple<string, Infrastructure.Models.OcelEvent>>> GetTracesForObjectType(string projectName, string objectType)
+        {
+	        var log = GetProjectLog(projectName);
+	        var flattened = OcelHelpers.Flatten(log.ToFSharpOcelLog(), objectType);
+	        var traces = OcelHelpers.OrderedTracesOfFlattenedLog(flattened);
+	        return traces.Select(t => t.Select(e => new Tuple<string, Infrastructure.Models.OcelEvent>(e.Item1, e.Item2.FromRegularOcelEvent(flattened))));
         }
 
         [HttpGet]

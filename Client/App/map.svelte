@@ -162,7 +162,7 @@
                             {/key}
                         </Column>
                         <Column class="maxScreenHeight" sm={4} md={2} lg={4} xlg={3} max={3}>
-                            <Traces />
+                            <Traces objectTypes={logInfo.objectTypes} />
                         </Column>
                     </Row>
                 </Grid>
