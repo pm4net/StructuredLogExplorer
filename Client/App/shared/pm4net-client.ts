@@ -214,7 +214,7 @@ export interface IMapClient {
 
     discoverOcDfgAndGenerateDot(projectName: string | null | undefined, groupByNamespace: boolean | undefined, options: OcDfgOptions): Promise<string>;
 
-    getTracesForObjectType(projectName: string | null | undefined, objectType: string | null | undefined): Promise<TupleOfStringAndOcelEvent[][]>;
+    getTracesForObjectType(projectName: string | null | undefined, objectType: string | null | undefined): Promise<ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]>;
 
     /**
      * @param projectName (optional) 
@@ -513,7 +513,7 @@ export class MapClient implements IMapClient {
         return Promise.resolve<string>(null as any);
     }
 
-    getTracesForObjectType(projectName: string | null | undefined, objectType: string | null | undefined): Promise<TupleOfStringAndOcelEvent[][]> {
+    getTracesForObjectType(projectName: string | null | undefined, objectType: string | null | undefined): Promise<ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]> {
         let url_ = this.baseUrl + "/api/Map/getTracesForObjectType?";
         if (projectName !== undefined && projectName !== null)
             url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
@@ -533,7 +533,7 @@ export class MapClient implements IMapClient {
         });
     }
 
-    protected processGetTracesForObjectType(response: Response): Promise<TupleOfStringAndOcelEvent[][]> {
+    protected processGetTracesForObjectType(response: Response): Promise<ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -543,7 +543,7 @@ export class MapClient implements IMapClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(item);
+                    result200!.push(ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent.fromJS(item));
             }
             else {
                 result200 = <any>null;
@@ -555,7 +555,7 @@ export class MapClient implements IMapClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<TupleOfStringAndOcelEvent[][]>(null as any);
+        return Promise.resolve<ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]>(null as any);
     }
 
     /**
@@ -2021,11 +2021,11 @@ export interface IOcDfgLayoutOptions {
     layoutOptions: GraphLayoutOptions;
 }
 
-export class TupleOfStringAndOcelEvent implements ITupleOfStringAndOcelEvent {
-    item1!: string;
-    item2!: OcelEvent;
+export class ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent implements IValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent {
+    item1!: OcelObject;
+    item2!: ValueTupleOfStringAndOcelEvent[];
 
-    constructor(data?: ITupleOfStringAndOcelEvent) {
+    constructor(data?: IValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2033,111 +2033,44 @@ export class TupleOfStringAndOcelEvent implements ITupleOfStringAndOcelEvent {
             }
         }
         if (!data) {
-            this.item2 = new OcelEvent();
+            this.item1 = new OcelObject();
+            this.item2 = [];
         }
     }
 
     init(_data?: any) {
         if (_data) {
-            this.item1 = _data["item1"];
-            this.item2 = _data["item2"] ? OcelEvent.fromJS(_data["item2"]) : new OcelEvent();
+            this.item1 = _data["item1"] ? OcelObject.fromJS(_data["item1"]) : new OcelObject();
+            if (Array.isArray(_data["item2"])) {
+                this.item2 = [] as any;
+                for (let item of _data["item2"])
+                    this.item2!.push(ValueTupleOfStringAndOcelEvent.fromJS(item));
+            }
         }
     }
 
-    static fromJS(data: any): TupleOfStringAndOcelEvent {
+    static fromJS(data: any): ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent {
         data = typeof data === 'object' ? data : {};
-        let result = new TupleOfStringAndOcelEvent();
+        let result = new ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["item1"] = this.item1;
-        data["item2"] = this.item2 ? this.item2.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface ITupleOfStringAndOcelEvent {
-    item1: string;
-    item2: OcelEvent;
-}
-
-export class OcelEvent implements IOcelEvent {
-    activity!: string;
-    timestamp!: Date;
-    oMap!: { [key: string]: OcelObject; };
-    vMap!: { [key: string]: OcelValue; };
-
-    constructor(data?: IOcelEvent) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        if (!data) {
-            this.oMap = {};
-            this.vMap = {};
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.activity = _data["activity"];
-            this.timestamp = _data["timestamp"] ? new Date(_data["timestamp"].toString()) : <any>undefined;
-            if (_data["oMap"]) {
-                this.oMap = {} as any;
-                for (let key in _data["oMap"]) {
-                    if (_data["oMap"].hasOwnProperty(key))
-                        (<any>this.oMap)![key] = _data["oMap"][key] ? OcelObject.fromJS(_data["oMap"][key]) : new OcelObject();
-                }
-            }
-            if (_data["vMap"]) {
-                this.vMap = {} as any;
-                for (let key in _data["vMap"]) {
-                    if (_data["vMap"].hasOwnProperty(key))
-                        (<any>this.vMap)![key] = _data["vMap"][key] ? OcelValue.fromJS(_data["vMap"][key]) : <any>undefined;
-                }
-            }
-        }
-    }
-
-    static fromJS(data: any): OcelEvent {
-        data = typeof data === 'object' ? data : {};
-        let result = new OcelEvent();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["activity"] = this.activity;
-        data["timestamp"] = this.timestamp ? this.timestamp.toISOString() : <any>undefined;
-        if (this.oMap) {
-            data["oMap"] = {};
-            for (let key in this.oMap) {
-                if (this.oMap.hasOwnProperty(key))
-                    (<any>data["oMap"])[key] = this.oMap[key] ? this.oMap[key].toJSON() : <any>undefined;
-            }
-        }
-        if (this.vMap) {
-            data["vMap"] = {};
-            for (let key in this.vMap) {
-                if (this.vMap.hasOwnProperty(key))
-                    (<any>data["vMap"])[key] = this.vMap[key] ? this.vMap[key].toJSON() : <any>undefined;
-            }
+        data["item1"] = this.item1 ? this.item1.toJSON() : <any>undefined;
+        if (Array.isArray(this.item2)) {
+            data["item2"] = [];
+            for (let item of this.item2)
+                data["item2"].push(item.toJSON());
         }
         return data;
     }
 }
 
-export interface IOcelEvent {
-    activity: string;
-    timestamp: Date;
-    oMap: { [key: string]: OcelObject; };
-    vMap: { [key: string]: OcelValue; };
+export interface IValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent {
+    item1: OcelObject;
+    item2: ValueTupleOfStringAndOcelEvent[];
 }
 
 export class OcelObject implements IOcelObject {
@@ -2515,6 +2448,125 @@ export class OcelMap extends OcelValue implements IOcelMap {
 
 export interface IOcelMap extends IOcelValue {
     values?: { [key: string]: OcelValue; } | undefined;
+}
+
+export class ValueTupleOfStringAndOcelEvent implements IValueTupleOfStringAndOcelEvent {
+    item1!: string;
+    item2!: OcelEvent;
+
+    constructor(data?: IValueTupleOfStringAndOcelEvent) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.item2 = new OcelEvent();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.item1 = _data["item1"];
+            this.item2 = _data["item2"] ? OcelEvent.fromJS(_data["item2"]) : new OcelEvent();
+        }
+    }
+
+    static fromJS(data: any): ValueTupleOfStringAndOcelEvent {
+        data = typeof data === 'object' ? data : {};
+        let result = new ValueTupleOfStringAndOcelEvent();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["item1"] = this.item1;
+        data["item2"] = this.item2 ? this.item2.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IValueTupleOfStringAndOcelEvent {
+    item1: string;
+    item2: OcelEvent;
+}
+
+export class OcelEvent implements IOcelEvent {
+    activity!: string;
+    timestamp!: Date;
+    oMap!: { [key: string]: OcelObject; };
+    vMap!: { [key: string]: OcelValue; };
+
+    constructor(data?: IOcelEvent) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.oMap = {};
+            this.vMap = {};
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.activity = _data["activity"];
+            this.timestamp = _data["timestamp"] ? new Date(_data["timestamp"].toString()) : <any>undefined;
+            if (_data["oMap"]) {
+                this.oMap = {} as any;
+                for (let key in _data["oMap"]) {
+                    if (_data["oMap"].hasOwnProperty(key))
+                        (<any>this.oMap)![key] = _data["oMap"][key] ? OcelObject.fromJS(_data["oMap"][key]) : new OcelObject();
+                }
+            }
+            if (_data["vMap"]) {
+                this.vMap = {} as any;
+                for (let key in _data["vMap"]) {
+                    if (_data["vMap"].hasOwnProperty(key))
+                        (<any>this.vMap)![key] = _data["vMap"][key] ? OcelValue.fromJS(_data["vMap"][key]) : <any>undefined;
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): OcelEvent {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcelEvent();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["activity"] = this.activity;
+        data["timestamp"] = this.timestamp ? this.timestamp.toISOString() : <any>undefined;
+        if (this.oMap) {
+            data["oMap"] = {};
+            for (let key in this.oMap) {
+                if (this.oMap.hasOwnProperty(key))
+                    (<any>data["oMap"])[key] = this.oMap[key] ? this.oMap[key].toJSON() : <any>undefined;
+            }
+        }
+        if (this.vMap) {
+            data["vMap"] = {};
+            for (let key in this.vMap) {
+                if (this.vMap.hasOwnProperty(key))
+                    (<any>data["vMap"])[key] = this.vMap[key] ? this.vMap[key].toJSON() : <any>undefined;
+            }
+        }
+        return data;
+    }
+}
+
+export interface IOcelEvent {
+    activity: string;
+    timestamp: Date;
+    oMap: { [key: string]: OcelObject; };
+    vMap: { [key: string]: OcelValue; };
 }
 
 export class ListTreeOfString implements IListTreeOfString {

@@ -115,19 +115,19 @@ namespace StructuredLogExplorer.ApiControllers
 
         [HttpGet]
         [Route("getTracesForObjectType")]
-        public IEnumerable<IEnumerable<Tuple<string, Infrastructure.Models.OcelEvent>>> GetTracesForObjectType(string projectName, string objectType)
-        {
+		public IEnumerable<(OcelObject, IEnumerable<(string, Infrastructure.Models.OcelEvent)>)> GetTracesForObjectType(string projectName, string objectType)
+		{
 	        var log = GetProjectLog(projectName);
 	        var flattened = OcelHelpers.Flatten(log.ToFSharpOcelLog(), objectType);
 	        var traces = OcelHelpers.OrderedTracesOfFlattenedLog(flattened);
-	        return traces.Select(t => t.Select(e => new Tuple<string, Infrastructure.Models.OcelEvent>(e.Item1, e.Item2.FromRegularOcelEvent(flattened))));
-        }
+			return traces.Select(t => (t.Item1.FromFSharpOcelObject(), t.Item2.Select(e => (e.Item1, e.Item2.FromRegularOcelEvent(flattened)))));
+		}
 
         [HttpGet]
         [Route("namespaceTree")]
         [OutputCache] // TODO: Invalidate in FileController when new log files are imported
-        [Obsolete]
-        public ListTree<string> GetNamespaceTree(string projectName)
+		[Obsolete("Not currently used")]
+		public ListTree<string> GetNamespaceTree(string projectName)
         {
             // TODO: Port ListTree type to C# type that NSwag can convert
             var log = GetProjectLog(projectName);

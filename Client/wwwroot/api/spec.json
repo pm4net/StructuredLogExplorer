@@ -459,10 +459,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/TupleOfStringAndOcelEvent"
-                }
+                "$ref": "#/definitions/ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent"
               }
             }
           }
@@ -1109,7 +1106,7 @@
         }
       }
     },
-    "TupleOfStringAndOcelEvent": {
+    "ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent": {
       "type": "object",
       "required": [
         "item1",
@@ -1117,39 +1114,12 @@
       ],
       "properties": {
         "item1": {
-          "type": "string"
+          "$ref": "#/definitions/OcelObject"
         },
         "item2": {
-          "$ref": "#/definitions/OcelEvent"
-        }
-      }
-    },
-    "OcelEvent": {
-      "type": "object",
-      "required": [
-        "activity",
-        "timestamp",
-        "oMap",
-        "vMap"
-      ],
-      "properties": {
-        "activity": {
-          "type": "string"
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "oMap": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/OcelObject"
-          }
-        },
-        "vMap": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/OcelValue"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ValueTupleOfStringAndOcelEvent"
           }
         }
       }
@@ -1306,6 +1276,51 @@
           }
         }
       ]
+    },
+    "ValueTupleOfStringAndOcelEvent": {
+      "type": "object",
+      "required": [
+        "item1",
+        "item2"
+      ],
+      "properties": {
+        "item1": {
+          "type": "string"
+        },
+        "item2": {
+          "$ref": "#/definitions/OcelEvent"
+        }
+      }
+    },
+    "OcelEvent": {
+      "type": "object",
+      "required": [
+        "activity",
+        "timestamp",
+        "oMap",
+        "vMap"
+      ],
+      "properties": {
+        "activity": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "oMap": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/OcelObject"
+          }
+        },
+        "vMap": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/OcelValue"
+          }
+        }
+      }
     },
     "ListTreeOfString": {
       "type": "object"

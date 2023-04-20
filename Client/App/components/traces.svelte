@@ -2,7 +2,7 @@
     import { Accordion, AccordionItem, ComboBox, InlineLoading, ListItem, UnorderedList } from "carbon-components-svelte";
     import { mapClient } from "../shared/pm4net-client-config";
     import { activeProject } from "../shared/stores";
-    import { OcelString, OcelValue } from "../shared/pm4net-client";
+    import type { OcelValue } from "../shared/pm4net-client";
 
     export let objectTypes : string[];
 
@@ -20,11 +20,14 @@
     }
 
     function getStringValue(ocelVal: OcelValue) {
-        if (ocelVal instanceof OcelString) {
+        // @ts-ignore
+        return ocelVal.value;
+
+        /*if (ocelVal instanceof OcelString) {
             return ocelVal.value;
         } else {
             return undefined;
-        }
+        }*/
     }
 </script>
 
@@ -46,7 +49,7 @@
                 {#each traces as t, i}
                     <h4>Trace {i}</h4>
                     <UnorderedList>
-                        {#each t as event}
+                        {#each t.item2 as event}
                             <ListItem>{getStringValue(event.item2.vMap["pm4net_RenderedMessage"])}</ListItem>
                         {/each}
                     </UnorderedList>
