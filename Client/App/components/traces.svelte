@@ -107,10 +107,12 @@
                     {#each t.item2 as event, idx_e}
                         <ExpandableTile>
                             <div slot="above">
-                                <strong>{getStringValue(event.item2.vMap["pm4net_RenderedMessage"])}</strong>
+                                <p><strong>{getStringValue(event.item2.vMap["pm4net_RenderedMessage"])}</strong></p>
                             </div>
                             <div slot="below">
-                                
+                                <strong>Activity: </strong>{event.item2.activity}
+                                <br />
+                                <strong>Timestamp: </strong>{DateTime.fromJSDate(event.item2.timestamp).toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS)}
                             </div>
                         </ExpandableTile>
                         {#if idx_e < t.item2.length - 1}
