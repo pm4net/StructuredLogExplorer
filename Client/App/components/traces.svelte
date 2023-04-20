@@ -110,9 +110,25 @@
                                 <p><strong>{getStringValue(event.item2.vMap["pm4net_RenderedMessage"])}</strong></p>
                             </div>
                             <div slot="below">
-                                <strong>Activity: </strong>{event.item2.activity}
+                                <strong>Template: </strong>{event.item2.activity}
                                 <br />
                                 <strong>Timestamp: </strong>{DateTime.fromJSDate(event.item2.timestamp).toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS)}
+                                {#if event.item2.vMap["pm4net_Level"] !== undefined}
+                                    <br />
+                                    <strong>Level: </strong>{getStringValue(event.item2.vMap["pm4net_Level"])}
+                                {/if}
+                                {#if event.item2.vMap["pm4net_Namespace"] !== undefined}
+                                    <br />
+                                    <strong>Namespace: </strong>{getStringValue(event.item2.vMap["pm4net_Namespace"])}
+                                {/if}
+                                {#if event.item2.vMap["pm4net_SourceFile"] !== undefined}
+                                    <br />
+                                    <strong>Source File: </strong>{getStringValue(event.item2.vMap["pm4net_SourceFile"])}
+                                {/if}
+                                {#if event.item2.vMap["pm4net_LineNumber"] !== undefined && event.item2.vMap["pm4net_ColumnNumber"] !== undefined}
+                                    <br />
+                                    <strong>Line number: </strong>{getStringValue(event.item2.vMap["pm4net_LineNumber"])}, Col. {getStringValue(event.item2.vMap["pm4net_ColumnNumber"])}
+                                {/if}
                             </div>
                         </ExpandableTile>
                         {#if idx_e < t.item2.length - 1}
