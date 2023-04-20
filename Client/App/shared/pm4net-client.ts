@@ -1270,8 +1270,8 @@ export interface IEnd extends INodeType {
 export class NodeCalculation implements INodeCalculation {
     nodeId!: string;
     textWrap!: string[];
-    size!: Size;
-    nodeType!: NodeType;
+    size?: Size | undefined;
+    nodeType?: NodeType | undefined;
 
     constructor(data?: INodeCalculation) {
         if (data) {
@@ -1282,7 +1282,6 @@ export class NodeCalculation implements INodeCalculation {
         }
         if (!data) {
             this.textWrap = [];
-            this.size = new Size();
         }
     }
 
@@ -1294,7 +1293,7 @@ export class NodeCalculation implements INodeCalculation {
                 for (let item of _data["textWrap"])
                     this.textWrap!.push(item);
             }
-            this.size = _data["size"] ? Size.fromJS(_data["size"]) : new Size();
+            this.size = _data["size"] ? Size.fromJS(_data["size"]) : <any>undefined;
             this.nodeType = _data["nodeType"] ? NodeType.fromJS(_data["nodeType"]) : <any>undefined;
         }
     }
@@ -1323,8 +1322,8 @@ export class NodeCalculation implements INodeCalculation {
 export interface INodeCalculation {
     nodeId: string;
     textWrap: string[];
-    size: Size;
-    nodeType: NodeType;
+    size?: Size | undefined;
+    nodeType?: NodeType | undefined;
 }
 
 export class Size implements ISize {

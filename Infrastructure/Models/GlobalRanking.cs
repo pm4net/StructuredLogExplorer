@@ -15,12 +15,12 @@ namespace Infrastructure.Models
 			Components = components;
 			LastUpdated = lastUpdated;
 		}
-		
-		public DirectedGraph<Tuple<string, int>, int> GlobalRankGraph { get; set; }
-		
-		public IEnumerable<IEnumerable<Tuple<SequenceElement<string>, int>>> Skeleton { get; set; }
 
-		public IEnumerable<ISet<string>> Components { get; set; }
+		public DirectedGraph<Tuple<string, int>, int> GlobalRankGraph { get; set; } = new();
+
+		public IEnumerable<IEnumerable<Tuple<SequenceElement<string>, int>>> Skeleton { get; set; } = new List<IEnumerable<Tuple<SequenceElement<string>, int>>>();
+
+		public IEnumerable<ISet<string>> Components { get; set; } = new List<ISet<string>>();
 
 		public DateTime LastUpdated { get; set; }
 	}

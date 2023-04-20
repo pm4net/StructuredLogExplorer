@@ -20,9 +20,9 @@ namespace Infrastructure.Models
 		{
 		}
 
-		public IEnumerable<TNode> Nodes { get; set; }
+		public IEnumerable<TNode> Nodes { get; set; } = new List<TNode>();
 
-		public IEnumerable<Tuple<TNode, TNode, TEdge>> Edges { get; set; }
+		public IEnumerable<Tuple<TNode, TNode, TEdge>> Edges { get; set; } = new List<Tuple<TNode, TNode, TEdge>>(); 
 	}
 
 	public static class DirectedGraphExtensions

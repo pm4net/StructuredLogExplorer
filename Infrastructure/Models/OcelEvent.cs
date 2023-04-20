@@ -5,13 +5,13 @@ namespace Infrastructure.Models
 {
 	public class OcelEvent
 	{
-		public string Activity { get; set; }
+		public string Activity { get; set; } = string.Empty;
 
 		public DateTimeOffset Timestamp { get; set; }
 
-		public IDictionary<string, OcelObject> OMap { get; set; }
+		public IDictionary<string, OcelObject> OMap { get; set; } = new Dictionary<string, OcelObject>();
 
-		public IDictionary<string, OcelValue> VMap { get; set; }
+		public IDictionary<string, OcelValue> VMap { get; set; } = new Dictionary<string, OcelValue>();
 	}
 
 	public static class OcelEventExtensions

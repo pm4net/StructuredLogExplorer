@@ -9,7 +9,7 @@ namespace Infrastructure.Models
 		{
 		}
 		
-		public NodeCalculation(string nodeId, IEnumerable<string> textWrap, OutputTypes.Size size, NodeType nodeType)
+		public NodeCalculation(string nodeId, IEnumerable<string> textWrap, OutputTypes.Size? size, NodeType? nodeType)
 		{
 			NodeId = nodeId;
 			TextWrap = textWrap;
@@ -21,12 +21,12 @@ namespace Infrastructure.Models
 		[JsonIgnore]
 		public int Id { get; set; }
 
-		public string NodeId { get; set; }
+		public string NodeId { get; set; } = string.Empty;
 
-		public IEnumerable<string> TextWrap { get; set; }
+		public IEnumerable<string> TextWrap { get; set; } = new List<string>();
 
-		public OutputTypes.Size Size { get; set; }
+		public OutputTypes.Size? Size { get; set; }
 
-		public NodeType NodeType { get; set; }
+		public NodeType? NodeType { get; set; }
 	}
 }
