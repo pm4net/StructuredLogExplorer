@@ -87,7 +87,12 @@
         let part2 = (p1.x - point.x) * (p2.y - p1.y);
         let lower = (p2.x - p1.x)**2 + (p2.y - p1.y)**2;
         let result = Math.abs(part1 - part2) / Math.sqrt(lower);
-        return result;
+        return isLeftOfLine(p1, p2, point) ? result : -result;
+    }
+
+    // Calculate whether a given point is left of the line (https://stackoverflow.com/a/3461533/2102106)
+    function isLeftOfLine(p1: Position, p2: Position, point: Coordinate) {
+        return ((p2.x - p1.x) * (point.y - p1.y) - (p2.y - p1.y) * (point.x - p1.x)) > 0;
     }
 
     // https://stackoverflow.com/a/64122266/2102106
