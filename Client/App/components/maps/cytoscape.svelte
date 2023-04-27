@@ -4,10 +4,13 @@
     import { onMount } from "svelte";
     import cytoscape, { type Position } from "cytoscape";
     import Color from "color";
-    import { Search } from "carbon-components-svelte";
+    import { Button, Search } from "carbon-components-svelte";
     import nodeHtmlLabel from "cytoscape-node-html-label";
     import viewUtilities from "cytoscape-view-utilities";
     import { placeAroundMatches } from "../../helpers/string-helpers";
+    import { WatsonHealthSaveImage } from "carbon-icons-svelte";
+    import { saveAs } from "file-saver";
+    import { activeProject } from "../../shared/stores";
 
     // Input to components
     export let layout : GraphLayout = new GraphLayout({ nodes: [], edges: [] });
@@ -145,6 +148,14 @@
         if (search !== "") {
             viewUtilitiesApi.highlight(eles); // Use first style in the list
         }
+    }
+
+    async function saveGraphAsImage() {
+        let pngBlob = await cy.png({
+            output: 'blob-promise',
+            full: true
+        });
+        saveAs(pngBlob, `${$activeProject}.png`);
     }
 
     onMount(() => {
@@ -331,6 +342,7 @@
 </script>
 
 <Search placeholder="Search nodes..." bind:value={searchVal} on:change={(_) => zoomToAndHighlightMatchingNodesAndEdges(searchVal)}></Search>
+<Button kind="secondary" iconDescription="Save image" icon={WatsonHealthSaveImage} tooltipPosition="left" on:click={((_) => saveGraphAsImage())}></Button>
 <div id="dfg"></div>
 
 <style lang="scss">
@@ -344,7 +356,14 @@
         z-index: 1;
         top: 1rem;
         left: 1rem;
-        width: calc(100% - 2rem);
+        width: calc(100% - 6rem);
+    }
+
+    :global(.bx--btn.bx--btn--icon-only.bx--tooltip__trigger) {
+        position: absolute;
+        z-index: 1;
+        top: 1rem;
+        right: 1rem;
     }
 
     :global(.cy-title) {
