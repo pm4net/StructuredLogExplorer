@@ -7,6 +7,7 @@
     import { Search } from "carbon-components-svelte";
     import nodeHtmlLabel from "cytoscape-node-html-label";
     import viewUtilities from "cytoscape-view-utilities";
+    import svg from "cytoscape-svg";
     import { placeAroundMatches } from "../../helpers/string-helpers";
 
     // Input to components
@@ -16,6 +17,8 @@
     let cy : cytoscape.Core;
     nodeHtmlLabel(cytoscape);
     viewUtilities(cytoscape);
+    //svg(cytoscape);
+    cytoscape.use(svg);
 
     // State values
     let searchVal : string;
@@ -145,6 +148,10 @@
         if (search !== "") {
             viewUtilitiesApi.highlight(eles); // Use first style in the list
         }
+        
+        // @ts-ignore
+        let svg = cy.svg("full");
+        console.log("svg", svg);
     }
 
     onMount(() => {
