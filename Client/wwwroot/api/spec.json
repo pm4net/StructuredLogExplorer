@@ -963,7 +963,8 @@
       "required": [
         "coordinates",
         "catmullRom",
-        "bezier"
+        "cubicBezier",
+        "quadraticBezier"
       ],
       "properties": {
         "coordinates": {
@@ -978,10 +979,16 @@
             "$ref": "#/definitions/Coordinate"
           }
         },
-        "bezier": {
+        "cubicBezier": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate"
+          }
+        },
+        "quadraticBezier": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TupleOfCoordinateAndCoordinateAndCoordinate"
           }
         }
       }
@@ -1005,6 +1012,25 @@
           "$ref": "#/definitions/Coordinate"
         },
         "item4": {
+          "$ref": "#/definitions/Coordinate"
+        }
+      }
+    },
+    "TupleOfCoordinateAndCoordinateAndCoordinate": {
+      "type": "object",
+      "required": [
+        "item1",
+        "item2",
+        "item3"
+      ],
+      "properties": {
+        "item1": {
+          "$ref": "#/definitions/Coordinate"
+        },
+        "item2": {
+          "$ref": "#/definitions/Coordinate"
+        },
+        "item3": {
           "$ref": "#/definitions/Coordinate"
         }
       }

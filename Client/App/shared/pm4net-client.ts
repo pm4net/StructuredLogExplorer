@@ -1664,7 +1664,8 @@ export interface IEdge {
 export class Waypoints implements IWaypoints {
     coordinates!: Coordinate[];
     catmullRom!: Coordinate[];
-    bezier!: TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate[];
+    cubicBezier!: TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate[];
+    quadraticBezier!: TupleOfCoordinateAndCoordinateAndCoordinate[];
 
     constructor(data?: IWaypoints) {
         if (data) {
@@ -1676,7 +1677,8 @@ export class Waypoints implements IWaypoints {
         if (!data) {
             this.coordinates = [];
             this.catmullRom = [];
-            this.bezier = [];
+            this.cubicBezier = [];
+            this.quadraticBezier = [];
         }
     }
 
@@ -1692,10 +1694,15 @@ export class Waypoints implements IWaypoints {
                 for (let item of _data["catmullRom"])
                     this.catmullRom!.push(Coordinate.fromJS(item));
             }
-            if (Array.isArray(_data["bezier"])) {
-                this.bezier = [] as any;
-                for (let item of _data["bezier"])
-                    this.bezier!.push(TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate.fromJS(item));
+            if (Array.isArray(_data["cubicBezier"])) {
+                this.cubicBezier = [] as any;
+                for (let item of _data["cubicBezier"])
+                    this.cubicBezier!.push(TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate.fromJS(item));
+            }
+            if (Array.isArray(_data["quadraticBezier"])) {
+                this.quadraticBezier = [] as any;
+                for (let item of _data["quadraticBezier"])
+                    this.quadraticBezier!.push(TupleOfCoordinateAndCoordinateAndCoordinate.fromJS(item));
             }
         }
     }
@@ -1719,10 +1726,15 @@ export class Waypoints implements IWaypoints {
             for (let item of this.catmullRom)
                 data["catmullRom"].push(item.toJSON());
         }
-        if (Array.isArray(this.bezier)) {
-            data["bezier"] = [];
-            for (let item of this.bezier)
-                data["bezier"].push(item.toJSON());
+        if (Array.isArray(this.cubicBezier)) {
+            data["cubicBezier"] = [];
+            for (let item of this.cubicBezier)
+                data["cubicBezier"].push(item.toJSON());
+        }
+        if (Array.isArray(this.quadraticBezier)) {
+            data["quadraticBezier"] = [];
+            for (let item of this.quadraticBezier)
+                data["quadraticBezier"].push(item.toJSON());
         }
         return data;
     }
@@ -1731,7 +1743,8 @@ export class Waypoints implements IWaypoints {
 export interface IWaypoints {
     coordinates: Coordinate[];
     catmullRom: Coordinate[];
-    bezier: TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate[];
+    cubicBezier: TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate[];
+    quadraticBezier: TupleOfCoordinateAndCoordinateAndCoordinate[];
 }
 
 export class TupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate implements ITupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate {
@@ -1786,6 +1799,55 @@ export interface ITupleOfCoordinateAndCoordinateAndCoordinateAndCoordinate {
     item2: Coordinate;
     item3: Coordinate;
     item4: Coordinate;
+}
+
+export class TupleOfCoordinateAndCoordinateAndCoordinate implements ITupleOfCoordinateAndCoordinateAndCoordinate {
+    item1!: Coordinate;
+    item2!: Coordinate;
+    item3!: Coordinate;
+
+    constructor(data?: ITupleOfCoordinateAndCoordinateAndCoordinate) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.item1 = new Coordinate();
+            this.item2 = new Coordinate();
+            this.item3 = new Coordinate();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.item1 = _data["item1"] ? Coordinate.fromJS(_data["item1"]) : new Coordinate();
+            this.item2 = _data["item2"] ? Coordinate.fromJS(_data["item2"]) : new Coordinate();
+            this.item3 = _data["item3"] ? Coordinate.fromJS(_data["item3"]) : new Coordinate();
+        }
+    }
+
+    static fromJS(data: any): TupleOfCoordinateAndCoordinateAndCoordinate {
+        data = typeof data === 'object' ? data : {};
+        let result = new TupleOfCoordinateAndCoordinateAndCoordinate();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["item1"] = this.item1 ? this.item1.toJSON() : <any>undefined;
+        data["item2"] = this.item2 ? this.item2.toJSON() : <any>undefined;
+        data["item3"] = this.item3 ? this.item3.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ITupleOfCoordinateAndCoordinateAndCoordinate {
+    item1: Coordinate;
+    item2: Coordinate;
+    item3: Coordinate;
 }
 
 export class EdgeTypeInfoOfEdgeInfo implements IEdgeTypeInfoOfEdgeInfo {

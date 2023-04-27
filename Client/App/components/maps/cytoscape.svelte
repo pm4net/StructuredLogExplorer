@@ -8,7 +8,7 @@
     import nodeHtmlLabel from "cytoscape-node-html-label";
     import viewUtilities from "cytoscape-view-utilities";
     import { placeAroundMatches } from "../../helpers/string-helpers";
-    import { WatsonHealthSaveImage } from "carbon-icons-svelte";
+    import { Save } from "carbon-icons-svelte";
     import { saveAs } from "file-saver";
     import { activeProject } from "../../shared/stores";
 
@@ -342,7 +342,7 @@
 </script>
 
 <Search placeholder="Search nodes..." bind:value={searchVal} on:change={(_) => zoomToAndHighlightMatchingNodesAndEdges(searchVal)}></Search>
-<Button kind="secondary" iconDescription="Save image" icon={WatsonHealthSaveImage} tooltipPosition="left" on:click={((_) => saveGraphAsImage())}></Button>
+<Button kind="secondary" iconDescription="Save image" icon={Save} tooltipPosition="left" on:click={((_) => saveGraphAsImage())}></Button>
 <div id="dfg"></div>
 
 <style lang="scss">

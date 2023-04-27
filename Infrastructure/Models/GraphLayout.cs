@@ -54,8 +54,10 @@ namespace Infrastructure.Models
 
 		public IEnumerable<OutputTypes.Coordinate> CatmullRom { get; set; } = Enumerable.Empty<OutputTypes.Coordinate>();
 
-		public IEnumerable<Tuple<OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate>> Bezier { get; set; } = new List<Tuple<OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate>>();
-	}
+		public IEnumerable<Tuple<OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate>> CubicBezier { get; set; } = new List<Tuple<OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate>>();
+
+        public IEnumerable<Tuple<OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate>> QuadraticBezier { get; set; } = new List<Tuple<OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate>>();
+    }
 
 	public class Edge
 	{
@@ -128,7 +130,8 @@ namespace Infrastructure.Models
 				{
 					Coordinates = edge.Waypoints.Coordinates,
 					CatmullRom = edge.Waypoints.CatmullRom,
-					Bezier = edge.Waypoints.Bezier
+					CubicBezier = edge.Waypoints.CubicBezier,
+					QuadraticBezier = edge.Waypoints.QuadraticBezier,
 				},
 				Downwards = edge.Downwards,
 				TotalWeight = edge.TotalWeight,
