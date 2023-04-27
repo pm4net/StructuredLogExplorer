@@ -35,6 +35,7 @@
         "color": "^4.2.3",
         "cytoscape": "^3.23.0",
         "cytoscape-node-html-label": "^1.2.2",
+        "cytoscape-view-utilities": "^6.0.0",
         "d3": "^7.8.2",
         "file-saver": "^2.0.5",
         "humanize-duration": "^3.28.0",

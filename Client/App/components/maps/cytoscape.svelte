@@ -6,6 +6,7 @@
     import Color from "color";
     import { Search } from "carbon-components-svelte";
     import nodeHtmlLabel from "cytoscape-node-html-label";
+    import viewUtilities from "cytoscape-view-utilities";
     import { placeAroundMatches } from "../../helpers/string-helpers";
 
     // Input to components
@@ -14,9 +15,11 @@
     // Create cytoscape instance and register extensions
     let cy : cytoscape.Core;
     nodeHtmlLabel(cytoscape);
+    viewUtilities(cytoscape);
 
     // State values
     let searchVal : string;
+    let viewUtilitiesApi : any;
 
     function getEdgeId(edge: Edge) {
         return edge.sourceId + "-" + edge.targetId;
@@ -116,12 +119,27 @@
         return Math.sqrt((p2x - p1x)**2 + (p2y - p1y)**2);
     }
 
-    function zoomToAndHighlightMatchingNodes(search: string) {
+    function zoomToAndHighlightMatchingNodesAndEdges(search: string) {
+        // Remove highlighting from all nodes and edges
+        viewUtilitiesApi.removeHighlights(cy.nodes());
+        viewUtilitiesApi.removeHighlights(cy.edges());
+
+        // Find nodes that match the search query
         let matchingNodes = cy.nodes().filter(function(el) {
             return el.data('text').join(' ').toLowerCase().includes(search.toLowerCase());
         });
-        cy.fit(matchingNodes, 50);
-        // TODO: highlight nodes somehow
+
+        // Find edges that connect the matching nodes and take the union with the nodes
+        let connectingEdges = matchingNodes.edgesWith(matchingNodes);
+        let eles = matchingNodes.union(connectingEdges);
+
+        // Zoom the matching nodes into view
+        viewUtilitiesApi.zoomToSelected(eles);
+
+        // Highlight nodes when the search query is non-empty
+        if (search !== "") {
+            viewUtilitiesApi.highlight(eles); // Use first style in the list
+        }
     }
 
     onMount(() => {
@@ -294,10 +312,20 @@
                 return `<span style="color: ${txtColor}">${text}</span>`
             }
         }]);
+
+        // Initialize view utilities extension
+        var options = {
+            highlightStyles: [
+                { node: { 'border-color': '#0b9bcd',  'border-width': 3 }, edge: {'line-color': '#0b9bcd', 'target-arrow-color': '#0b9bcd'} },
+            ],
+            selectStyles: {},
+            zoomAnimationDuration: 1000, // default duration for zoom animation speed
+        };
+        viewUtilitiesApi = cy.viewUtilities(options);
     });
 </script>
 
-<Search placeholder="Search nodes..." bind:value={searchVal} on:change={(_) => zoomToAndHighlightMatchingNodes(searchVal)}></Search>
+<Search placeholder="Search nodes..." bind:value={searchVal} on:change={(_) => zoomToAndHighlightMatchingNodesAndEdges(searchVal)}></Search>
 <div id="dfg"></div>
 
 <style lang="scss">
