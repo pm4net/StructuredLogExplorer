@@ -702,7 +702,7 @@
       }
     },
     "KeepCases": {
-      "type": "integer",
+      "type": "string",
       "description": "",
       "x-enumNames": [
         "ContainedInTimeFrame",
@@ -712,11 +712,11 @@
         "TrimToTimeFrame"
       ],
       "enum": [
-        0,
-        1,
-        2,
-        3,
-        4
+        "contained",
+        "intersecting",
+        "started",
+        "completed",
+        "trim"
       ]
     },
     "LogNode": {

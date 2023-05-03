@@ -1099,11 +1099,11 @@ export interface IOcDfgOptions {
 }
 
 export enum KeepCases {
-    ContainedInTimeFrame = 0,
-    IntersectingTimeFrame = 1,
-    StartedInTimeFrame = 2,
-    CompletedInTimeFrame = 3,
-    TrimToTimeFrame = 4,
+    ContainedInTimeFrame = "contained",
+    IntersectingTimeFrame = "intersecting",
+    StartedInTimeFrame = "started",
+    CompletedInTimeFrame = "completed",
+    TrimToTimeFrame = "trim",
 }
 
 export class LogNode implements ILogNode {

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Accordion, AccordionItem, Button, ButtonSet, Checkbox, DatePicker, DatePickerInput, FormGroup, NumberInput, RadioButton, RadioButtonGroup, Toggle } from "carbon-components-svelte";
+    import { Accordion, AccordionItem, Button, ButtonSet, Checkbox, DatePicker, DatePickerInput, FormGroup, NumberInput, RadioButton, RadioButtonGroup } from "carbon-components-svelte";
     import { activeProject, DisplayMethod, DisplayType, EdgeType, mapSettings } from "../shared/stores";
     import { getColor } from "../helpers/color-helpers";
     import { onMount } from "svelte";
@@ -21,7 +21,7 @@
     let minSuccessions = $mapSettings[$activeProject ?? ""].dfg.minSuccessions;
     let dateFrom = $mapSettings[$activeProject ?? ""].dfg.dateFrom ?? minDate;
     let dateTo = $mapSettings[$activeProject ?? ""].dfg.dateTo ?? maxDate;
-    let keepCases = $mapSettings[$activeProject ?? ""].dfg.keepCases.toString();
+    let keepCases = $mapSettings[$activeProject ?? ""].dfg.keepCases;
 
     $: {
         let settings = $mapSettings;
@@ -37,7 +37,7 @@
         settings[$activeProject ?? ""].dfg.minSuccessions = minSuccessions;
         settings[$activeProject ?? ""].dfg.dateFrom = dateFrom;
         settings[$activeProject ?? ""].dfg.dateTo = dateTo;
-        settings[$activeProject ?? ""].dfg.keepCases = KeepCases[keepCases as keyof typeof KeepCases];
+        settings[$activeProject ?? ""].dfg.keepCases = keepCases;
         mapSettings.set(settings);
     }
 
@@ -97,11 +97,11 @@
                 <DatePickerInput labelText="To" placeholder="dd/mm/yyyy"></DatePickerInput>
             </DatePicker>
             <RadioButtonGroup orientation="vertical" legendText="Keep cases" bind:selected={keepCases}>
-                <RadioButton labelText="Contained in timeframe" value="ContainedInTimeFrame"></RadioButton>
-                <RadioButton labelText="Intersecting timeframe" value="IntersectingTimeFrame"></RadioButton>
-                <RadioButton labelText="Started in timeframe" value="StartedInTimeFrame"></RadioButton>
-                <RadioButton labelText="Completed in timeframe" value="CompletedInTimeFrame"></RadioButton>
-                <RadioButton labelText="Trim to timeframe" value="TrimToTimeFrame"></RadioButton>
+                <RadioButton labelText="Contained in timeframe" value={KeepCases.ContainedInTimeFrame}></RadioButton>
+                <RadioButton labelText="Intersecting timeframe" value={KeepCases.IntersectingTimeFrame}></RadioButton>
+                <RadioButton labelText="Started in timeframe" value={KeepCases.StartedInTimeFrame}></RadioButton>
+                <RadioButton labelText="Completed in timeframe" value={KeepCases.CompletedInTimeFrame}></RadioButton>
+                <RadioButton labelText="Trim to timeframe" value={KeepCases.TrimToTimeFrame}></RadioButton>
             </RadioButtonGroup>
         </AccordionItem>
         <AccordionItem open>

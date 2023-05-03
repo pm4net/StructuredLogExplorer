@@ -7,7 +7,7 @@
     import Filters from "./components/filters.svelte";
     import Cytoscape from "./components/maps/cytoscape.svelte"
     import Dot from "./components/maps/dot.svelte";
-    import { GraphLayoutOptions, KeepCases, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size } from "./shared/pm4net-client";
+    import { GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size, KeepCases } from "./shared/pm4net-client";
     import wrapAnsi from "wrap-ansi";
     import Traces from "./components/traces.svelte";
 
@@ -38,7 +38,7 @@
                         minSuccessions: 0,
                         dateFrom: undefined,
                         dateTo: undefined,
-                        keepCases: KeepCases.CompletedInTimeFrame
+                        keepCases: KeepCases.ContainedInTimeFrame
                     }
                 };
             }

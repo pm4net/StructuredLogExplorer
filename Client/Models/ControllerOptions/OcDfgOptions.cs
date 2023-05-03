@@ -1,4 +1,7 @@
 ﻿using System.ComponentModel;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace StructuredLogExplorer.Models.ControllerOptions
 {
@@ -19,12 +22,18 @@ namespace StructuredLogExplorer.Models.ControllerOptions
         public IEnumerable<string> IncludedTypes { get; set; } = Enumerable.Empty<string>();
     }
 
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum KeepCases
     {
+        [EnumMember(Value = "contained")]
         ContainedInTimeFrame,
+        [EnumMember(Value = "intersecting")]
         IntersectingTimeFrame,
+        [EnumMember(Value = "started")]
         StartedInTimeFrame,
+        [EnumMember(Value = "completed")]
         CompletedInTimeFrame,
+        [EnumMember(Value = "trim")]
         TrimToTimeFrame
     }
 }
