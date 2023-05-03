@@ -127,10 +127,14 @@
         return Math.sqrt((p2x - p1x)**2 + (p2y - p1y)**2);
     }
 
-    function zoomToAndHighlightMatchingNodesAndEdges(search: string) {
-        // Remove highlighting from all nodes and edges
+    // Remove highlighting from all nodes and edges
+    function resetHighlights() {
         viewUtilitiesApi.removeHighlights(cy.nodes());
         viewUtilitiesApi.removeHighlights(cy.edges());
+    }
+
+    function zoomToAndHighlightMatchingNodesAndEdges(search: string) {
+        resetHighlights();
 
         // Find nodes that match the search query
         let matchingNodes = cy.nodes().filter(function(el) {
@@ -152,7 +156,22 @@
 
     // Highlight the nodes and edges that are present in a list of traces
     export function highlightTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
-        // TODO
+        resetHighlights();
+
+        // Get set of nodes that are present in the traces
+        let nodes = new Set(traces.flatMap(trace => trace.item2.map(event => event.item2.activity)));
+
+        // Find the nodes and edges that should be hidden
+        let nodesToHide = cy.nodes().filter(n => !nodes.has(n.id()));
+        let edgesToHide = nodesToHide.edgesWith(nodesToHide);
+        let elemsToHide = nodesToHide.union(edgesToHide);
+
+        // Find all nodes and edges that remain
+        let elemsToHighlight = cy.elements().absoluteComplement(); // TODO: Doesn't include start and end node for type. Also includes edges to nodes that aren't part of the elements.
+
+        // Hide the elements that aren't part of the traces, and zoom to the ones remaining
+        viewUtilitiesApi.highlight(elemsToHide, 1);
+        viewUtilitiesApi.zoomToSelected(elemsToHighlight);
     }
 
     async function saveGraphAsImage() {
@@ -338,7 +357,7 @@
         var options = {
             highlightStyles: [
                 { node: { 'border-color': '#0b9bcd',  'border-width': 3 }, edge: {'line-color': '#0b9bcd', 'target-arrow-color': '#0b9bcd'} }, // Active
-                { node: { 'opacity': 0.5 }, edge: { 'opacity': 0.5 } }, // Inactive
+                { node: { 'opacity': 0.1 }, edge: { 'opacity': 0.1 } }, // Inactive
             ],
             selectStyles: {},
             zoomAnimationDuration: 1000, // default duration for zoom animation speed
