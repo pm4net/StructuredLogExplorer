@@ -153,28 +153,32 @@
         resetHighlights();
         cy.nodes().forEach(n => { n.data('disabled', false) });
 
-        // Get set of nodes that are present in the traces
-        let nodes = new Set(traces.flatMap(trace => trace.item2.map(event => event.item2.activity)));
+        if (traces.length > 0) {
+            // Get set of nodes that are present in the traces
+            let nodes = new Set(traces.flatMap(trace => trace.item2.map(event => event.item2.activity)));
 
-        // Find start and end node
-        let type = traces.length > 0 ? traces[0].item1.type : undefined;
-        let startNode = cy.$id(`ProcessGraphLayout_Start-${type}`);
-        let endNode = cy.$id(`ProcessGraphLayout_End-${type}`);
+            // Find start and end node
+            let type = traces.length > 0 ? traces[0].item1.type : undefined;
+            let startNode = cy.$id(`ProcessGraphLayout_Start-${type}`);
+            let endNode = cy.$id(`ProcessGraphLayout_End-${type}`);
 
-        // Find the nodes and edges that should be hidden
-        let nodesToHide = cy.nodes().filter(n => !nodes.has(n.id())).subtract(startNode).subtract(endNode);
-        let edgesToHide = nodesToHide.connectedEdges().filter(e => !nodes.has(e.source().id()) || !nodes.has(e.target().id()));
-        let elemsToHide = nodesToHide.union(edgesToHide);
+            // Find the nodes and edges that should be hidden
+            let nodesToHide = cy.nodes().filter(n => !nodes.has(n.id())).subtract(startNode).subtract(endNode);
+            let edgesToHide = nodesToHide.connectedEdges().filter(e => !nodes.has(e.source().id()) || !nodes.has(e.target().id()));
+            let elemsToHide = nodesToHide.union(edgesToHide);
 
-        // Update disabled field on nodes to ensure style updating of HTML nodes
-        nodesToHide.forEach(n => { n.data('disabled', true) });
+            // Update disabled field on nodes to ensure style updating of HTML nodes
+            nodesToHide.forEach(n => { n.data('disabled', true) });
 
-        // Find all nodes and edges that remain
-        let elemsToHighlight = elemsToHide.absoluteComplement().union(startNode).union(endNode);
+            // Find all nodes and edges that remain
+            let elemsToHighlight = elemsToHide.absoluteComplement().union(startNode).union(endNode);
 
-        // Hide the elements that aren't part of the traces, and zoom to the ones remaining
-        viewUtilitiesApi.highlight(elemsToHide, 0);
-        viewUtilitiesApi.zoomToSelected(elemsToHighlight);
+            // Hide the elements that aren't part of the traces, and zoom to the ones remaining
+            viewUtilitiesApi.highlight(elemsToHide, 0);
+            viewUtilitiesApi.zoomToSelected(elemsToHighlight);
+        } else {
+            viewUtilitiesApi.zoomToSelected(cy.elements());
+        }
     }
 
     async function saveGraphAsImage() {
@@ -349,7 +353,7 @@
                 let txtColor = Color(bgColor).isDark() ? Color('#FFFFFF') : Color("#000000");
 
                 // Bold text calculations
-                let text = data.text.join('<br>');
+                let text = data.text.filter((l: string) => l).join('<br>');
                 text = placeAroundMatches(text, '{', '}', '<strong>', '</strong>');
                 
                 return `<span style="color: rgba(${txtColor.red()}, ${txtColor.green()}, ${txtColor.blue()}, ${data.disabled ? 0.1 : 1})">${text}</span>`

@@ -93,6 +93,7 @@
     items={objectTypes.map(o => {return { id: o, text: o }})}
     selectedId="0"
     bind:value={selectedType}
+    on:clear={(_) => dispatch("highlightTraces", [])}
     on:select={async (_) => {
         tracesPromise = getTracesForObjectType(selectedType);
         dispatch("highlightTraces", await tracesPromise);
