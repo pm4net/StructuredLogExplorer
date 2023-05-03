@@ -130,13 +130,10 @@
 
     // Remove highlighting from all nodes and edges
     function resetHighlights() {
-        viewUtilitiesApi.removeHighlights(cy.nodes());
-        viewUtilitiesApi.removeHighlights(cy.edges());
+        viewUtilitiesApi.removeHighlights(cy.elements());
     }
 
-    function zoomToAndHighlightMatchingNodesAndEdges(search: string) {
-        resetHighlights();
-
+    function zoomToNodes(search: string) {
         // Find nodes that match the search query
         let matchingNodes = cy.nodes().filter(function(el) {
             return el.data('text').join(' ').toLowerCase().includes(search.toLowerCase());
@@ -148,33 +145,35 @@
 
         // Zoom the matching nodes into view
         viewUtilitiesApi.zoomToSelected(eles);
-
-        // Highlight nodes when the search query is non-empty
-        if (search !== "") {
-            viewUtilitiesApi.highlight(eles); // Use first style in the list
-        }
     }
 
     // Highlight the nodes and edges that are present in a list of traces
     export function highlightTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
+        // First reset all highlights that were added previously
         resetHighlights();
+        cy.nodes().forEach(n => { n.data('disabled', false) });
 
         // Get set of nodes that are present in the traces
         let nodes = new Set(traces.flatMap(trace => trace.item2.map(event => event.item2.activity)));
 
+        // Find start and end node
+        let type = traces.length > 0 ? traces[0].item1.type : undefined;
+        let startNode = cy.$id(`ProcessGraphLayout_Start-${type}`);
+        let endNode = cy.$id(`ProcessGraphLayout_End-${type}`);
+
         // Find the nodes and edges that should be hidden
-        let nodesToHide = cy.nodes().filter(n => !nodes.has(n.id()));
-        let edgesToHide = nodesToHide.edgesWith(nodesToHide);
+        let nodesToHide = cy.nodes().filter(n => !nodes.has(n.id())).subtract(startNode).subtract(endNode);
+        let edgesToHide = nodesToHide.connectedEdges().filter(e => !nodes.has(e.source().id()) || !nodes.has(e.target().id()));
         let elemsToHide = nodesToHide.union(edgesToHide);
 
         // Update disabled field on nodes to ensure style updating of HTML nodes
-        nodesToHide.forEach(n => { n.data('disabled', true) })
+        nodesToHide.forEach(n => { n.data('disabled', true) });
 
         // Find all nodes and edges that remain
-        let elemsToHighlight = cy.elements().absoluteComplement(); // TODO: Doesn't include start and end node for type. Also includes edges to nodes that aren't part of the elements.
+        let elemsToHighlight = elemsToHide.absoluteComplement().union(startNode).union(endNode);
 
         // Hide the elements that aren't part of the traces, and zoom to the ones remaining
-        viewUtilitiesApi.highlight(elemsToHide, 1);
+        viewUtilitiesApi.highlight(elemsToHide, 0);
         viewUtilitiesApi.zoomToSelected(elemsToHighlight);
     }
 
@@ -360,7 +359,6 @@
         // Initialize view utilities extension
         var options = {
             highlightStyles: [
-                { node: { 'border-color': '#0b9bcd',  'border-width': 3 }, edge: {'line-color': '#0b9bcd', 'target-arrow-color': '#0b9bcd'} }, // Active
                 { node: { 'opacity': 0.1 }, edge: { 'opacity': 0.1 } }, // Inactive
             ],
             selectStyles: {},
@@ -370,7 +368,7 @@
     });
 </script>
 
-<Search placeholder="Search nodes..." bind:value={searchVal} on:change={(_) => zoomToAndHighlightMatchingNodesAndEdges(searchVal)}></Search>
+<Search placeholder="Search nodes..." bind:value={searchVal} on:change={(_) => zoomToNodes(searchVal)}></Search>
 <Button kind="secondary" iconDescription="Save image" icon={Save} tooltipPosition="left" on:click={((_) => saveGraphAsImage())}></Button>
 <div id="dfg"></div>
 

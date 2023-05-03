@@ -81,7 +81,7 @@
             <FormGroup legendText="Other" noMargin>
                 <Checkbox value="groupByNamespace" labelText="Group by namespace" bind:checked={groupByNamespace}></Checkbox>
                 <Checkbox value="fixUnforeseenEdges" labelText="Fix unforeseen edges" bind:checked={fixUnforeseenEdges}></Checkbox>
-                <Checkbox value="mergeEdges" labelText="Merge edges" bind:checked={mergeEdges}></Checkbox>
+                <Checkbox value="mergeEdges" labelText="Merge edges" bind:checked={mergeEdges} disabled></Checkbox>
             </FormGroup>
         </AccordionItem>
         <AccordionItem>
