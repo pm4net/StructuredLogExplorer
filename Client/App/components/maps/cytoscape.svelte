@@ -35,7 +35,8 @@
                     id: node.id,
                     text: node.text,
                     info: node.nodeInfo,
-                    type: node.nodeType
+                    type: node.nodeType,
+                    disabled: false
                 },
                 position: { 
                     x: node.position!.x, 
@@ -165,6 +166,9 @@
         let nodesToHide = cy.nodes().filter(n => !nodes.has(n.id()));
         let edgesToHide = nodesToHide.edgesWith(nodesToHide);
         let elemsToHide = nodesToHide.union(edgesToHide);
+
+        // Update disabled field on nodes to ensure style updating of HTML nodes
+        nodesToHide.forEach(n => { n.data('disabled', true) })
 
         // Find all nodes and edges that remain
         let elemsToHighlight = cy.elements().absoluteComplement(); // TODO: Doesn't include start and end node for type. Also includes edges to nodes that aren't part of the elements.
@@ -343,13 +347,13 @@
                 } else {
                     bgColor = getColor(data.type.objectType);
                 }
-                let txtColor = Color(bgColor).isDark() ? '#FFFFFF' : "#000000";
+                let txtColor = Color(bgColor).isDark() ? Color('#FFFFFF') : Color("#000000");
 
                 // Bold text calculations
                 let text = data.text.join('<br>');
                 text = placeAroundMatches(text, '{', '}', '<strong>', '</strong>');
                 
-                return `<span style="color: ${txtColor}">${text}</span>`
+                return `<span style="color: rgba(${txtColor.red()}, ${txtColor.green()}, ${txtColor.blue()}, ${data.disabled ? 0.1 : 1})">${text}</span>`
             }
         }]);
 
