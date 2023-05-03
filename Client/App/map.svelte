@@ -7,7 +7,7 @@
     import Filters from "./components/filters.svelte";
     import Cytoscape from "./components/maps/cytoscape.svelte"
     import Dot from "./components/maps/dot.svelte";
-    import { GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size } from "./shared/pm4net-client";
+    import { GraphLayoutOptions, KeepCases, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size } from "./shared/pm4net-client";
     import wrapAnsi from "wrap-ansi";
     import Traces from "./components/traces.svelte";
 
@@ -35,7 +35,10 @@
                     dfg: {
                         minEvents: 0,
                         minOccurrences: 0,
-                        minSuccessions: 0
+                        minSuccessions: 0,
+                        dateFrom: undefined,
+                        dateTo: undefined,
+                        keepCases: KeepCases.CompletedInTimeFrame
                     }
                 };
             }
@@ -75,7 +78,10 @@
                         minimumEvents: $mapSettings[$activeProject ?? ""]?.dfg.minEvents,
                         minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
                         minimumSuccessions: $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions,
-                        includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes
+                        includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes,
+                        dateFrom: $mapSettings[$activeProject ?? ""]?.dfg.dateFrom,
+                        dateTo: $mapSettings[$activeProject ?? ""]?.dfg.dateTo,
+                        keepCases: $mapSettings[$activeProject ?? ""]?.dfg.keepCases
                     }),
                     layoutOptions: new GraphLayoutOptions({
                         mergeEdgesOfSameType: $mapSettings[$activeProject ?? ""]?.mergeEdges,
@@ -102,7 +108,8 @@
                     minimumEvents: $mapSettings[$activeProject ?? ""]?.dfg.minEvents,
                     minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
                     minimumSuccessions: $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions,
-                    includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes
+                    includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes,
+                    keepCases: KeepCases.ContainedInTimeFrame
                 })
             );
         } catch (e: unknown) {
@@ -133,7 +140,7 @@
                     <Row>
                         <!-- https://carbondesignsystem.com/guidelines/2x-grid/overview/#breakpoints -->
                         <Column class="maxScreenHeight" sm={4} md={2} lg={4} xlg={3} max={3}>
-                            <Filters availableObjectTypes={logInfo.objectTypes} />
+                            <Filters availableObjectTypes={logInfo.objectTypes} minDate={"01/05/2023"} maxDate={"15/05/2023"} /> <!-- TODO: Retrieve min. and max. date of log -->
                         </Column>
                         <Column class="maxScreenHeight relativePos" sm={4} md={4} lg={8} xlg={10} max={10}>
                             <!-- Refresh whenever any of the map settings change -->

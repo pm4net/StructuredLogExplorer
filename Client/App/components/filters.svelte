@@ -1,10 +1,13 @@
 <script lang="ts">
-    import { Accordion, AccordionItem, Button, ButtonSet, Checkbox, FormGroup, NumberInput, RadioButton, RadioButtonGroup, Toggle } from "carbon-components-svelte";
+    import { Accordion, AccordionItem, Button, ButtonSet, Checkbox, DatePicker, DatePickerInput, FormGroup, NumberInput, RadioButton, RadioButtonGroup, Toggle } from "carbon-components-svelte";
     import { activeProject, DisplayMethod, DisplayType, EdgeType, mapSettings } from "../shared/stores";
     import { getColor } from "../helpers/color-helpers";
     import { onMount } from "svelte";
+    import { KeepCases } from "../shared/pm4net-client";
 
     export let availableObjectTypes = <string[]>[];
+    export let minDate : string;
+    export let maxDate : string;
     
     let displayType = $mapSettings[$activeProject ?? ""]?.displayType;
     let edgeType = $mapSettings[$activeProject ?? ""]?.edgeType;
@@ -16,6 +19,9 @@
     let minEvents = $mapSettings[$activeProject ?? ""].dfg.minEvents;
     let minOccurrences = $mapSettings[$activeProject ?? ""].dfg.minOccurrences;
     let minSuccessions = $mapSettings[$activeProject ?? ""].dfg.minSuccessions;
+    let dateFrom = $mapSettings[$activeProject ?? ""].dfg.dateFrom ?? minDate;
+    let dateTo = $mapSettings[$activeProject ?? ""].dfg.dateTo ?? maxDate;
+    let keepCases = $mapSettings[$activeProject ?? ""].dfg.keepCases.toString();
 
     $: {
         let settings = $mapSettings;
@@ -29,6 +35,9 @@
         settings[$activeProject ?? ""].dfg.minEvents = minEvents;
         settings[$activeProject ?? ""].dfg.minOccurrences = minOccurrences;
         settings[$activeProject ?? ""].dfg.minSuccessions = minSuccessions;
+        settings[$activeProject ?? ""].dfg.dateFrom = dateFrom;
+        settings[$activeProject ?? ""].dfg.dateTo = dateTo;
+        settings[$activeProject ?? ""].dfg.keepCases = KeepCases[keepCases as keyof typeof KeepCases];
         mapSettings.set(settings);
     }
 
@@ -45,7 +54,6 @@
         resizeObserver.observe(filterElem);
         return () => resizeObserver.unobserve(filterElem);
     });
-
 </script>
 
 <div bind:this={filterElem}>
@@ -76,11 +84,25 @@
                 <Checkbox value="mergeEdges" labelText="Merge edges" bind:checked={mergeEdges}></Checkbox>
             </FormGroup>
         </AccordionItem>
-        <AccordionItem open>
+        <AccordionItem>
             <svelte:fragment slot="title"><strong>Frequency</strong></svelte:fragment>
             <NumberInput label="Min. events in trace" min={0} bind:value={minEvents} />
             <NumberInput label="Min. occurrences" min={0} bind:value={minOccurrences} />
             <NumberInput label="Min. successions" min={0} bind:value={minSuccessions} />
+        </AccordionItem>
+        <AccordionItem>
+            <svelte:fragment slot="title"><strong>Timeframe</strong></svelte:fragment>
+            <DatePicker datePickerType="range" dateFormat="d/m/Y" minDate={minDate} maxDate={maxDate} bind:valueFrom={dateFrom} bind:valueTo={dateTo}>
+                <DatePickerInput labelText="From" placeholder="dd/mm/yyyy"></DatePickerInput>
+                <DatePickerInput labelText="To" placeholder="dd/mm/yyyy"></DatePickerInput>
+            </DatePicker>
+            <RadioButtonGroup orientation="vertical" legendText="Keep cases" bind:selected={keepCases}>
+                <RadioButton labelText="Contained in timeframe" value="ContainedInTimeFrame"></RadioButton>
+                <RadioButton labelText="Intersecting timeframe" value="IntersectingTimeFrame"></RadioButton>
+                <RadioButton labelText="Started in timeframe" value="StartedInTimeFrame"></RadioButton>
+                <RadioButton labelText="Completed in timeframe" value="CompletedInTimeFrame"></RadioButton>
+                <RadioButton labelText="Trim to timeframe" value="TrimToTimeFrame"></RadioButton>
+            </RadioButtonGroup>
         </AccordionItem>
         <AccordionItem open>
             <svelte:fragment slot="title"><strong>Object types</strong></svelte:fragment>

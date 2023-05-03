@@ -1,5 +1,5 @@
 {
-  "x-generator": "NSwag v13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))",
+  "x-generator": "NSwag v13.18.3.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))",
   "swagger": "2.0",
   "info": {
     "title": "My Title",
@@ -597,6 +597,7 @@
     },
     "DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo": {
       "type": "object",
+      "description": "Directed graph with edge information.",
       "properties": {
         "nodes": {
           "type": "array",
@@ -614,6 +615,7 @@
     },
     "NodeOfNodeInfo": {
       "type": "object",
+      "description": "A node type that can be a regular event node or a start/end node for a specific type.",
       "x-abstract": true
     },
     "TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo": {
@@ -637,6 +639,7 @@
     },
     "EdgeOfEdgeInfo": {
       "type": "object",
+      "description": "An edge is associated with a weight/frequency, and optionally a type, as well as any other arbitrary information.",
       "required": [
         "weight"
       ],
@@ -665,6 +668,7 @@
         "minimumEvents",
         "minimumOccurrence",
         "minimumSuccessions",
+        "keepCases",
         "includedTypes"
       ],
       "properties": {
@@ -680,6 +684,15 @@
           "type": "integer",
           "format": "int32"
         },
+        "dateFrom": {
+          "type": "string"
+        },
+        "dateTo": {
+          "type": "string"
+        },
+        "keepCases": {
+          "$ref": "#/definitions/KeepCases"
+        },
         "includedTypes": {
           "type": "array",
           "items": {
@@ -687,6 +700,24 @@
           }
         }
       }
+    },
+    "KeepCases": {
+      "type": "integer",
+      "description": "",
+      "x-enumNames": [
+        "ContainedInTimeFrame",
+        "IntersectingTimeFrame",
+        "StartedInTimeFrame",
+        "CompletedInTimeFrame",
+        "TrimToTimeFrame"
+      ],
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
     },
     "LogNode": {
       "type": "object",
@@ -792,6 +823,7 @@
     },
     "Size": {
       "type": "object",
+      "description": "The size of a node.",
       "required": [
         "width",
         "height"
@@ -868,6 +900,7 @@
     },
     "Coordinate": {
       "type": "object",
+      "description": "A point in a coordinate system.",
       "required": [
         "x",
         "y"
