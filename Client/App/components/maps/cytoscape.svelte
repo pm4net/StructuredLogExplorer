@@ -1,16 +1,17 @@
 <script lang="ts">
+    import { onMount } from "svelte";
+    import { Button, Search } from "carbon-components-svelte";
+    import { Save } from "carbon-icons-svelte";
+    import Color from "color";
+    import { saveAs } from "file-saver";
     import { Coordinate, Edge, End, Event, GraphLayout, LogLevel, Start, ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
     import { getColor } from "../../helpers/color-helpers";
-    import { onMount } from "svelte";
+    import { placeAroundMatches } from "../../helpers/string-helpers";
+    import { activeProject, mapSettings } from "../../shared/stores";
     import cytoscape, { type Position } from "cytoscape";
-    import Color from "color";
-    import { Button, Search } from "carbon-components-svelte";
     import nodeHtmlLabel from "cytoscape-node-html-label";
     import viewUtilities from "cytoscape-view-utilities";
-    import { placeAroundMatches } from "../../helpers/string-helpers";
-    import { Save } from "carbon-icons-svelte";
-    import { saveAs } from "file-saver";
-    import { activeProject } from "../../shared/stores";
+    import { BubbleSetsPlugin } from "cytoscape-bubblesets";
 
     // Input to components
     export let layout : GraphLayout = new GraphLayout({ nodes: [], edges: [] });
@@ -369,6 +370,29 @@
             zoomAnimationDuration: 1000, // default duration for zoom animation speed
         };
         viewUtilitiesApi = cy.viewUtilities(options);
+
+        // Initialize bubble sets
+        if ($mapSettings[$activeProject ?? ""].groupByNamespace) {
+            cy.ready(() => {
+                const bb = new BubbleSetsPlugin(cy); // Initialize plugin
+
+                // Group nodes by top-level namespace
+                let topLevelNamespaces = new Set<string>(cy.nodes().map(n => n.data('info')?.namespace?.split('.')[0]));
+                topLevelNamespaces.forEach(ns => {
+                    if (ns) {
+                        // TODO: not all of them showing up? Maybe due to overlaps?
+                        let matchingNodes = cy.nodes().filter(n => n.data('info')?.namespace?.split('.')[0] === ns);
+                        bb.addPath(matchingNodes, matchingNodes.connectedEdges(), null, {
+                            style: {
+                                'stroke': 'black',
+                                'fill': getColor(ns),
+                                'fillOpacity': '0.25'
+                            }
+                        });
+                    }
+                });
+            });
+        }
     });
 </script>
 

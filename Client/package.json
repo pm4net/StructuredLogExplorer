@@ -34,6 +34,8 @@
         "carbon-preprocess-svelte": "^0.9.1",
         "color": "^4.2.3",
         "cytoscape": "^3.23.0",
+        "cytoscape-bubblesets": "^3.2.0",
+        "cytoscape-layers": "^2.3.1",
         "cytoscape-node-html-label": "^1.2.2",
         "cytoscape-view-utilities": "^6.0.0",
         "d3": "^7.8.2",
