@@ -11,6 +11,8 @@
     import wrapAnsi from "wrap-ansi";
     import Traces from "./components/traces.svelte";
 
+    let cyComponent : Cytoscape;
+
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
         show: false,
@@ -117,6 +119,10 @@
             errorNotification.message = getErrorMessage(e);
         }
     }
+
+    function forwardHighlightTracesEvent(event: any) {
+        cyComponent.highlightTraces(event.detail);
+    }
 </script>
 
 <Layout>
@@ -158,7 +164,7 @@
                                                 {#await getGraphLayout()}
                                                     <Loading withOverlay={false} description="Loading..." />
                                                 {:then layout}
-                                                    <Cytoscape layout={layout}></Cytoscape>
+                                                    <Cytoscape bind:this={cyComponent} layout={layout}></Cytoscape>
                                                 {/await}
                                             {/await}
                                         {/await}
@@ -169,7 +175,7 @@
                             {/key}
                         </Column>
                         <Column class="maxScreenHeight" sm={4} md={2} lg={4} xlg={3} max={3}>
-                            <Traces objectTypes={logInfo.objectTypes} />
+                            <Traces objectTypes={logInfo.objectTypes} on:highlightTraces={forwardHighlightTracesEvent} />
                         </Column>
                     </Row>
                 </Grid>

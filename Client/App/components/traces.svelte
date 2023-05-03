@@ -5,9 +5,12 @@
     import type { OcelObject, OcelValue, ValueTupleOfStringAndOcelEvent } from "../shared/pm4net-client";
     import { DateTime } from "luxon";
     import humanizeDuration from "humanize-duration"
+    import { createEventDispatcher } from "svelte";
 
     // Props
     export let objectTypes : string[];
+
+    const dispatch = createEventDispatcher();
 
     // State variables
     let selectedType : string = "";
@@ -90,7 +93,10 @@
     items={objectTypes.map(o => {return { id: o, text: o }})}
     selectedId="0"
     bind:value={selectedType}
-    on:select={(_) => tracesPromise = getTracesForObjectType(selectedType)}>
+    on:select={async (_) => {
+        tracesPromise = getTracesForObjectType(selectedType);
+        dispatch("highlightTraces", await tracesPromise);
+    }}>
 </ComboBox>
 
 {#await tracesPromise}

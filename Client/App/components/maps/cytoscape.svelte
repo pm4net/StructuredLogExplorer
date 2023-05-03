@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Coordinate, Edge, End, Event, GraphLayout, LogLevel, Start } from "../../shared/pm4net-client";
+    import { Coordinate, Edge, End, Event, GraphLayout, LogLevel, Start, ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
     import { getColor } from "../../helpers/color-helpers";
     import { onMount } from "svelte";
     import cytoscape, { type Position } from "cytoscape";
@@ -148,6 +148,11 @@
         if (search !== "") {
             viewUtilitiesApi.highlight(eles); // Use first style in the list
         }
+    }
+
+    // Highlight the nodes and edges that are present in a list of traces
+    export function highlightTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
+        // TODO
     }
 
     async function saveGraphAsImage() {
@@ -332,7 +337,8 @@
         // Initialize view utilities extension
         var options = {
             highlightStyles: [
-                { node: { 'border-color': '#0b9bcd',  'border-width': 3 }, edge: {'line-color': '#0b9bcd', 'target-arrow-color': '#0b9bcd'} },
+                { node: { 'border-color': '#0b9bcd',  'border-width': 3 }, edge: {'line-color': '#0b9bcd', 'target-arrow-color': '#0b9bcd'} }, // Active
+                { node: { 'opacity': 0.5 }, edge: { 'opacity': 0.5 } }, // Inactive
             ],
             selectStyles: {},
             zoomAnimationDuration: 1000, // default duration for zoom animation speed
