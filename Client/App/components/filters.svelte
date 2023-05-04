@@ -13,7 +13,6 @@
     let edgeType = $mapSettings[$activeProject ?? ""]?.edgeType;
     let displayMethod = $mapSettings[$activeProject ?? ""]?.displayMethod;
     let groupByNamespace = $mapSettings[$activeProject ?? ""]?.groupByNamespace;
-    let mergeEdges = $mapSettings[$activeProject ?? ""]?.mergeEdges;
     let objectTypes = $mapSettings[$activeProject ?? ""]?.objectTypes ?? [];
     let fixUnforeseenEdges = $mapSettings[$activeProject ?? ""].fixUnforeseenEdges;
     let minEvents = $mapSettings[$activeProject ?? ""].dfg.minEvents;
@@ -29,7 +28,6 @@
         settings[$activeProject ?? ""].edgeType = edgeType;
         settings[$activeProject ?? ""].displayMethod = displayMethod;
         settings[$activeProject ?? ""].groupByNamespace = groupByNamespace;
-        settings[$activeProject ?? ""].mergeEdges = mergeEdges;
         settings[$activeProject ?? ""].objectTypes = objectTypes;
         settings[$activeProject ?? ""].fixUnforeseenEdges = fixUnforeseenEdges;
         settings[$activeProject ?? ""].dfg.minEvents = minEvents;
@@ -81,7 +79,6 @@
             <FormGroup legendText="Other" noMargin>
                 <Checkbox value="groupByNamespace" labelText="Group by namespace" bind:checked={groupByNamespace}></Checkbox>
                 <Checkbox value="fixUnforeseenEdges" labelText="Fix unforeseen edges" bind:checked={fixUnforeseenEdges}></Checkbox>
-                <Checkbox value="mergeEdges" labelText="Merge edges" bind:checked={mergeEdges} disabled></Checkbox>
             </FormGroup>
         </AccordionItem>
         <AccordionItem>

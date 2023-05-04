@@ -20,7 +20,7 @@
     }
 
     // Retrieve some basic information about the event log
-    let logInfoPromise = mapClient.getLogInfo($activeProject);
+    let logInfoPromise = mapClient.getLogInfo($activeProject ?? "");
 
     // Initialize the map settings for the currently active project if it isn't already.
     async function setMapSettingsToDefaultIfNotExists() {
@@ -31,7 +31,6 @@
                     edgeType: EdgeType.Frequency,
                     displayMethod: DisplayMethod.Dot,
                     groupByNamespace: true,
-                    mergeEdges: true,
                     objectTypes: (await logInfoPromise).objectTypes,
                     fixUnforeseenEdges: false,
                     dfg: {
@@ -49,7 +48,7 @@
 
     async function getNodesToPreCompute() {
         try {
-            return await mapClient.getAllNodesInLog($activeProject);
+            return await mapClient.getAllNodesInLog($activeProject ?? "");
         } catch (e: unknown) {
             errorNotification.show = true;
             errorNotification.message = getErrorMessage(e);
@@ -68,14 +67,14 @@
                     nodeType: n.nodeType
                 });
             });
-            await mapClient.saveNodeCalculations($activeProject, computedSizes);
+            await mapClient.saveNodeCalculations($activeProject ?? "", computedSizes);
         }
     }
 
     // Load the OC-DFG from the API, using the settings from local storage.
     async function getGraphLayout() {
         try {
-            return await mapClient.computeLayout($activeProject, new OcDfgLayoutOptions({
+            return await mapClient.computeLayout($activeProject ?? "", new OcDfgLayoutOptions({
                 ocDfgOptions: new OcDfgOptions({
                         minimumEvents: $mapSettings[$activeProject ?? ""]?.dfg.minEvents,
                         minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
@@ -86,7 +85,7 @@
                         keepCases: $mapSettings[$activeProject ?? ""]?.dfg.keepCases
                     }),
                     layoutOptions: new GraphLayoutOptions({
-                        mergeEdgesOfSameType: $mapSettings[$activeProject ?? ""]?.mergeEdges,
+                        mergeEdgesOfSameType: true,
                         fixUnforeseenEdges: $mapSettings[$activeProject ?? ""]?.fixUnforeseenEdges,
                         nodeSeparation: 50,
                         rankSeparation: 50,
@@ -104,7 +103,7 @@
     async function getOcDfgDot() {
         try {
             return await mapClient.discoverOcDfgAndGenerateDot(
-                $activeProject,
+                $activeProject ?? "",
                 $mapSettings[$activeProject ?? ""]?.groupByNamespace,
                 new OcDfgOptions({ 
                     minimumEvents: $mapSettings[$activeProject ?? ""]?.dfg.minEvents,

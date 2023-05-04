@@ -1,5 +1,5 @@
 {
-  "x-generator": "NSwag v13.18.3.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))",
+  "x-generator": "NSwag v13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))",
   "swagger": "2.0",
   "info": {
     "title": "My Title",
@@ -22,7 +22,7 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           }
         ],
         "responses": {
@@ -55,7 +55,7 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           }
         ],
         "responses": {
@@ -88,13 +88,13 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           },
           {
             "type": "string",
             "name": "fileName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           }
         ],
         "responses": {
@@ -119,13 +119,13 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           },
           {
             "type": "string",
             "name": "format",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           }
         ],
         "responses": {
@@ -155,7 +155,7 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           }
         ],
         "responses": {
@@ -191,7 +191,7 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           },
           {
             "name": "options",
@@ -230,7 +230,7 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           }
         ],
         "responses": {
@@ -264,7 +264,7 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           },
           {
             "name": "calculations",
@@ -308,7 +308,7 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           },
           {
             "name": "modelAndOptions",
@@ -353,7 +353,7 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           },
           {
             "name": "options",
@@ -398,7 +398,7 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           },
           {
             "type": "boolean",
@@ -443,13 +443,13 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           },
           {
             "type": "string",
             "name": "objectType",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           }
         ],
         "responses": {
@@ -482,7 +482,7 @@
             "type": "string",
             "name": "projectName",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           }
         ],
         "responses": {
@@ -508,13 +508,13 @@
             "type": "string",
             "name": "name",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           },
           {
             "type": "string",
             "name": "logDir",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           }
         ],
         "responses": {
@@ -535,7 +535,7 @@
             "type": "string",
             "name": "name",
             "in": "query",
-            "x-nullable": true
+            "x-nullable": false
           }
         ],
         "responses": {

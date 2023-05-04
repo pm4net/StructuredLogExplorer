@@ -333,6 +333,7 @@
             }
 
             if (e.typeInfos.length > 0) {
+                // TODO: Alternate between colors of types
                 let color = e.typeInfos[0].type ? getColor(e.typeInfos[0].type) : "#ccc";
                 elem.style({
                     'line-color': color,
