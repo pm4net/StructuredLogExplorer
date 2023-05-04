@@ -332,12 +332,40 @@
                 }
             }
 
-            if (e.typeInfos.length > 0) {
-                // TODO: Alternate between colors of types
+            if (e.typeInfos.length > 1) {
+                let start = cy.$id(e.sourceId).position();
+                let end = cy.$id(e.targetId).position();
+                var dist = distanceBetweenPoints(start.x, start.y, end.x, end.y); // TODO: Should count distances from waypoint to waypoint for more accurate results.
+                let noOfRepetitions = Math.floor(dist / 100); // How many times should we repeat the colors?
+
+                let colors = e.typeInfos.map(t => t.type ? getColor(t.type) : "#ccc");
+
+                let stopColors : string[] = [];
+                let stopPositions : string[] = [];
+                for (let i = 0; i < noOfRepetitions; i++) {
+                    let startOffset = i / noOfRepetitions * 100;
+                    for (let j = 0; j < colors.length; j++) {
+                        // Append color segment
+                        stopColors = stopColors.concat([colors[j], colors[j]]);
+
+                        // Calculate position pair for segment
+                        let start = j / colors.length * (startOffset > 0 ? startOffset : 100);
+                        let end = (j + 1) / colors.length * (startOffset > 0 ? startOffset : 100);
+                        stopPositions = stopPositions.concat([`${start}%`, `${end}%`]);
+                    }
+                }
+
+                elem.style({
+                    'target-arrow-color': stopColors.at(-1),
+                    'line-fill': 'linear-gradient',
+                    'line-gradient-stop-colors': stopColors,
+                    'line-gradient-stop-positions': stopPositions
+                });
+            } else {
                 let color = e.typeInfos[0].type ? getColor(e.typeInfos[0].type) : "#ccc";
                 elem.style({
-                    'line-color': color,
-                    'target-arrow-color': color,
+                   'line-color': color,
+                   'target-arrow-color': color,
                 });
             }
         });
