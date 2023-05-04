@@ -4,7 +4,7 @@
     import { Save } from "carbon-icons-svelte";
     import Color from "color";
     import { saveAs } from "file-saver";
-    import { Coordinate, Edge, End, Event, GraphLayout, LogLevel, Start, ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
+    import { Coordinate, Edge, EdgeTypeInfoOfEdgeInfo, End, Event, GraphLayout, LogLevel, Start, ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
     import { getColor } from "../../helpers/color-helpers";
     import { placeAroundMatches } from "../../helpers/string-helpers";
     import { activeProject, mapSettings } from "../../shared/stores";
@@ -55,7 +55,10 @@
                 data: {
                     id: getEdgeId(edge),
                     source: edge.sourceId!,
-                    target: edge.targetId!
+                    target: edge.targetId!,
+                    downwards: edge.downwards,
+                    typeInfos: edge.typeInfos,
+                    totalWeight: edge.totalWeight
                 }
             };
             return { elem: elem, e: edge };
@@ -165,7 +168,11 @@
 
             // Find the nodes and edges that should be hidden
             let nodesToHide = cy.nodes().filter(n => !nodes.has(n.id())).subtract(startNode).subtract(endNode);
-            let edgesToHide = nodesToHide.connectedEdges().filter(e => !nodes.has(e.source().id()) || !nodes.has(e.target().id()));
+            let edgesToHide = nodesToHide.connectedEdges().filter(e => {
+                let typeInfos : EdgeTypeInfoOfEdgeInfo[] = e.data('typeInfos');
+                let isCorrectType = typeInfos.some(t => t.type === type);
+                return !isCorrectType || !nodes.has(e.source().id()) || !nodes.has(e.target().id());
+            });
             let elemsToHide = nodesToHide.union(edgesToHide);
 
             // Update disabled field on nodes to ensure style updating of HTML nodes
