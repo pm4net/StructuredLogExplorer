@@ -35,6 +35,7 @@
     const links = [
         {href: urls.homeUrl, text: "Home", isSelected: title === "Home"},
         {href: urls.filesUrl, text: "Files", isSelected: title === "Files"},
+        {href: urls.objectsUrl, text: "Objects", isSelected: title === "Objects"},
         {href: urls.mapUrl, text: "Map", isSelected: title === "Map"},
         {href: urls.statisticsUrl, text: "Statistics", isSelected: title === "Statistics"},
         {href: urls.casesUrl, text: "Cases", isSelected: title === "Cases"},

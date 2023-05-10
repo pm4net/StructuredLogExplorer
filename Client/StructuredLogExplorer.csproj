@@ -77,6 +77,12 @@
 	<None Update="Pages\Files.entry.ts">
 	  <DependentUpon>Files.cshtml</DependentUpon>
 	</None>
+    <None Update="Pages\Objects.rollup.config.js">
+	  <DependentUpon>Objects.cshtml</DependentUpon>
+    </None>
+    <None Update="Pages\Objects.entry.ts">
+	  <DependentUpon>Objects.cshtml</DependentUpon>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

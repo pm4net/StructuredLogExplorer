@@ -1,0 +1,15 @@
+﻿@page
+@attribute [RazorCompiledItemMetadata("RouteTemplate", Urls.ObjectsUrl)]
+@using Microsoft.AspNetCore.Razor.Hosting
+@using StructuredLogExplorer
+@model StructuredLogExplorer.Pages.FilesModel
+@{
+    ViewData["Title"] = "Objects";
+}
+
+@section HeadSection {
+    <link href="~/build/objects.css" asp-append-version="true" rel="stylesheet" />
+    <script defer src="~/build/objects.js" asp-append-version="true"></script>
+}
+
+<input id="title" type="hidden" value="@ViewData["Title"]" />

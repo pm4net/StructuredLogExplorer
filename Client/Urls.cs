@@ -13,6 +13,9 @@ public class Urls
     public const string FilesUrl = "/files";
 
     [JsonProperty]
+    public const string ObjectsUrl = "/objects";
+
+    [JsonProperty]
     public const string MapUrl = "/map";
     
     [JsonProperty]

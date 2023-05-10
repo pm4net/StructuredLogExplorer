@@ -101,7 +101,7 @@
                 <RadioButton labelText="Trim to timeframe" value={KeepCases.TrimToTimeFrame}></RadioButton>
             </RadioButtonGroup>
         </AccordionItem>
-        <AccordionItem open>
+        <AccordionItem>
             <svelte:fragment slot="title"><strong>Object types</strong></svelte:fragment>
             <ButtonSet stacked={filterWidth < 425}>
                 <Button size="small" kind="tertiary" on:click={() => (objectTypes = availableObjectTypes)}>Select all</Button>
