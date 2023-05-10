@@ -497,6 +497,39 @@
         "deprecated": true
       }
     },
+    "/api/Objects": {
+      "get": {
+        "tags": [
+          "Objects"
+        ],
+        "operationId": "Objects_GetObjectTypeInfos",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ObjectInfo"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Project/create": {
       "get": {
         "tags": [
@@ -1389,6 +1422,22 @@
     },
     "ListTreeOfString": {
       "type": "object"
+    },
+    "ObjectInfo": {
+      "type": "object",
+      "required": [
+        "id",
+        "occurrences"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "occurrences": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
     }
   }
 }

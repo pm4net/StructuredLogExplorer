@@ -94,7 +94,6 @@
         {#await files}
             <DataTableSkeleton />
         {:then files}
-
             {#if errorNotification.show}
                 <ToastNotification
                     title="An error occurred"

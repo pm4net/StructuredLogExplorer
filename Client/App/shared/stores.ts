@@ -1,7 +1,7 @@
 import { persisted } from "svelte-local-storage-store";
 import type { KeepCases } from "./pm4net-client";
 
-export const activeProject = persisted<string | null>("activeProject", null);
+export const activeProject = persisted<string | undefined>("activeProject", undefined);
 export const mapSettings = persisted<ProjectMapSettings>("mapSettings", {});
 
 export type ProjectMapSettings = { [id: string] : MapSettings }
