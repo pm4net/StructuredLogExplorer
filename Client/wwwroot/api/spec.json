@@ -584,7 +584,9 @@
     "LogInfo": {
       "type": "object",
       "required": [
-        "objectTypes"
+        "objectTypes",
+        "firstEventTimestamp",
+        "lastEventTimestamp"
       ],
       "properties": {
         "objectTypes": {
@@ -592,6 +594,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "firstEventTimestamp": {
+          "type": "string"
+        },
+        "lastEventTimestamp": {
+          "type": "string"
         }
       }
     },

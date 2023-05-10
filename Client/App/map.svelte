@@ -145,7 +145,7 @@
                     <Row>
                         <!-- https://carbondesignsystem.com/guidelines/2x-grid/overview/#breakpoints -->
                         <Column class="maxScreenHeight" sm={4} md={2} lg={4} xlg={3} max={3}>
-                            <Filters availableObjectTypes={logInfo.objectTypes} minDate={"01/05/2023"} maxDate={"15/05/2023"} /> <!-- TODO: Retrieve min. and max. date of log -->
+                            <Filters availableObjectTypes={logInfo.objectTypes} minDate={logInfo.firstEventTimestamp} maxDate={logInfo.lastEventTimestamp} />
                         </Column>
                         <Column class="maxScreenHeight relativePos" sm={4} md={4} lg={8} xlg={10} max={10}>
                             <!-- Refresh whenever any of the map settings change -->

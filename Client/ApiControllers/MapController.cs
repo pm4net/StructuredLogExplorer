@@ -1,9 +1,11 @@
 ﻿using FSharpx;
+using Infrastructure.Helpers;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.FSharp.Core;
 using pm4net.Algorithms.Discovery.Ocel;
 using OCEL.CSharp;
 using pm4net.Types.Trees;
@@ -12,7 +14,6 @@ using pm4net.Types;
 using StructuredLogExplorer.Models;
 using StructuredLogExplorer.Models.ControllerOptions;
 using NodeInfo = pm4net.Types.NodeInfo;
-using OcelEvent = OCEL.Types.OcelEvent;
 
 namespace StructuredLogExplorer.ApiControllers
 {
@@ -51,11 +52,15 @@ namespace StructuredLogExplorer.ApiControllers
 
         [HttpGet]
         [Route("getLogInfo")]
-        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
         public LogInfo GetLogInfo(string projectName)
         {
             var log = GetProjectLog(projectName);
-            return new LogInfo { ObjectTypes = log.ObjectTypes.Order() };
+            return new LogInfo
+            {
+                ObjectTypes = log.ObjectTypes.Order(),
+                FirstEventTimestamp = log.OrderedEvents.FirstOrDefault().Value.Timestamp.ToString("dd/MM/yyyy"),
+                LastEventTimestamp = log.OrderedEvents.LastOrDefault().Value.Timestamp.ToString("dd/MM/yyyy")
+            };
         }
 
         [HttpPost]
@@ -63,7 +68,11 @@ namespace StructuredLogExplorer.ApiControllers
         public GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>> DiscoverOcDfg(string projectName, [FromBody] OcDfgOptions options)
         {
             var log = GetProjectLog(projectName);
-            return OcelDfg.Discover(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions, options.IncludedTypes, log);
+            return OcelDfg.Discover(new OcDfgFilter(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions,
+                    options.DateFrom != null && options.DateTo != null 
+                        ? FSharpOption<TimeframeFilter>.Some(new TimeframeFilter(options.DtoFrom!.Value.StartOfDay(), options.DtoTo!.Value.EndOfDay(), options.KeepCases.ToPm4Net()))
+                        : FSharpOption<TimeframeFilter>.None), 
+                options.IncludedTypes, log);
         }
 
         [HttpGet]

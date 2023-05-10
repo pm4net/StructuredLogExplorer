@@ -779,6 +779,8 @@ export interface ILogFileInfo {
 
 export class LogInfo implements ILogInfo {
     objectTypes!: string[];
+    firstEventTimestamp!: string;
+    lastEventTimestamp!: string;
 
     constructor(data?: ILogInfo) {
         if (data) {
@@ -799,6 +801,8 @@ export class LogInfo implements ILogInfo {
                 for (let item of _data["objectTypes"])
                     this.objectTypes!.push(item);
             }
+            this.firstEventTimestamp = _data["firstEventTimestamp"];
+            this.lastEventTimestamp = _data["lastEventTimestamp"];
         }
     }
 
@@ -816,12 +820,16 @@ export class LogInfo implements ILogInfo {
             for (let item of this.objectTypes)
                 data["objectTypes"].push(item);
         }
+        data["firstEventTimestamp"] = this.firstEventTimestamp;
+        data["lastEventTimestamp"] = this.lastEventTimestamp;
         return data;
     }
 }
 
 export interface ILogInfo {
     objectTypes: string[];
+    firstEventTimestamp: string;
+    lastEventTimestamp: string;
 }
 
 /** Directed graph with edge information. */
