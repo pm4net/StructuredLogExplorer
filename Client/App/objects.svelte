@@ -1,12 +1,11 @@
 <script lang="ts">
-    import { Button, DataTable, DataTableSkeleton, InlineNotification, Pagination, Row, ToastNotification, Toolbar, ToolbarBatchActions, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
+    import { Button, CodeSnippet, DataTable, DataTableSkeleton, ExpandableTile, InlineNotification, Pagination, ToastNotification, Toolbar, ToolbarBatchActions, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
     import Layout from "./shared/layout.svelte";
 
     import { activeProject } from "./shared/stores";
     import { objectsClient } from "./shared/pm4net-client-config";
     import type { DataTableRowId } from "carbon-components-svelte/types/DataTable/DataTable.svelte";
     import { Clean } from "carbon-icons-svelte";
-
     let pagination = { pageSize: 10, page: 1, filteredRowIds: <number[]>[] }
     let active = false;
     let selectedRowIds : DataTableRowId[];
@@ -85,7 +84,30 @@
                 </Toolbar>
 
                 <svelte:fragment slot="expanded-row" let:row>
-                    <pre>{JSON.stringify(row, null, 2)}</pre> <!-- TODO -->
+                    {#each row.objectOccurrences as occurrence}
+                        <ExpandableTile light tileExpandedLabel="Hide code snippet" tileCollapsedLabel="Show code snippet">
+                            <div slot="above">
+                                <p><strong>Activity: </strong>{occurrence.activity}</p>
+                                {#if occurrence.namespace}
+                                    <p><strong>Namespace: </strong>{occurrence.namespace}</p>
+                                {/if}
+                                {#if occurrence.sourceFile}
+                                    <p><strong>Source File: </strong>{occurrence.sourceFile}</p>
+                                {/if}
+                                {#if occurrence.lineNumber}
+                                    <p><strong>Source File: </strong>{occurrence.lineNumber}</p>
+                                {/if}
+                            </div>
+                            <div slot="below">
+                                {#if occurrence.codeSnippet}
+                                    <CodeSnippet 
+                                        type="multi" 
+                                        code={occurrence.codeSnippet} 
+                                    /> <!-- copy={(_) => window.open(`file:///${occurrence.sourceFile}`)} // TODO: Doesn't work due to security -->
+                                {/if}
+                            </div>
+                        </ExpandableTile>
+                    {/each}
                 </svelte:fragment>
 
             </DataTable>
@@ -113,3 +135,9 @@
         <DataTableSkeleton />
     {/if}
 </Layout>
+
+<style lang="scss">
+    :global(.bx--snippet) {
+        max-width: none;
+    }
+</style>
