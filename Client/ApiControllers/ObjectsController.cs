@@ -2,7 +2,6 @@
 using Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using OCEL.CSharp;
-using pm4net.Utilities;
 using StructuredLogExplorer.Models;
 
 namespace StructuredLogExplorer.ApiControllers
@@ -18,7 +17,7 @@ namespace StructuredLogExplorer.ApiControllers
             _projectService = projectService;
         }
 
-        public IEnumerable<ObjectInfo> GetObjectTypeInfos(string projectName)
+        public async Task<IEnumerable<ObjectInfo>> GetObjectTypeInfos(string projectName)
         {
             var db = _projectService.GetProjectDatabase(projectName);
             var log = OcelLiteDB.Deserialize(db);
@@ -35,15 +34,33 @@ namespace StructuredLogExplorer.ApiControllers
                     }
 
                     infos[obj.Type].ReferencingEvents++;
-                    infos[obj.Type].ObjectOccurrences.Add(new ObjectOccurrence
+
+                    var occurrence = new ObjectOccurrence
                     {
                         Activity = @event.Value.Activity,
-                        Namespace = @event.Value.Namespace(),
-                        SourceFile = @event.Value.SourceFile(),
-                        LineNumber = @event.Value.LineNumber()
-                    });
+                        Namespace = @event.Value.Namespace(log) is OcelString ns ? ns.Value : null,
+                        SourceFile = @event.Value.SourceFile(log) is OcelString sf ? sf.Value : null,
+                        LineNumber = @event.Value.LineNumber(log) is OcelInteger ln ? ln.Value : null
+                    };
 
-                    // TODO: Add code snippet if source file exists on local drive, and extract around line number if it exists
+                    if (!string.IsNullOrWhiteSpace(occurrence.SourceFile) && System.IO.File.Exists(occurrence.SourceFile))
+                    {
+                        var lines = await System.IO.File.ReadAllLinesAsync(occurrence.SourceFile);
+                        if (occurrence.LineNumber != null)
+                        {
+                            const int linesBeforeAndAfter = 3;
+                            var minIdx = (int) Math.Max(occurrence.LineNumber.Value - 1 - linesBeforeAndAfter, 0);
+                            var maxIdx = (int) Math.Min(occurrence.LineNumber.Value + linesBeforeAndAfter, lines.Length - 1);
+                            var linesToShow = lines[minIdx .. maxIdx];
+                            occurrence.CodeSnippet = string.Join(Environment.NewLine, linesToShow);
+                        }
+                        else
+                        {
+                            occurrence.CodeSnippet = string.Join(Environment.NewLine, lines);
+                        }
+                    }
+
+                    infos[obj.Type].ObjectOccurrences.Add(occurrence);
                 }
             }
 

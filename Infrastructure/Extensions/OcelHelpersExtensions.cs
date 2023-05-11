@@ -1,34 +1,51 @@
 ﻿using OCEL.CSharp;
-using pm4net.Utilities;
 
 namespace Infrastructure.Extensions
 {
     public static class OcelHelpersExtensions
     {
-        public static string? Namespace(this OcelEvent @event)
+        private static OcelValue? TryGetValue(OcelEvent @event, string? prefix, string name)
         {
-            var ns = OcelHelpers.GetNamespace(@event.ToFSharpOcelEvent());
-            return ns.IsSome() ? ns.Value : null;
-        }
-
-        public static string? SourceFile(this OcelEvent @event)
-        {
-            @event.VMap.TryGetValue("pm4net_SourceFile", out var val); // TODO: Read prefix from somewhere (perhaps the logger could add an attribute to the global section to indicate the prefix used)
-            if (val != null && val is OcelString str)
+            if (!string.IsNullOrWhiteSpace(prefix))
             {
-                return str.Value;
+                if (@event.VMap.TryGetValue($"{prefix}{name}", out var val))
+                {
+                    return val;
+                }
             }
+
             return null;
         }
 
-        public static long? LineNumber(this OcelEvent @event)
+        private static OcelValue? TryGetValueWithPrefixes(OcelEvent @event, IEnumerable<string> prefixes, string name, OcelLog log)
         {
-            @event.VMap.TryGetValue("pm4net_LineNumber", out var val); // TODO: Read prefix from somewhere (perhaps the logger could add an attribute to the global section to indicate the prefix used)
-            if (val != null && val is OcelInteger ln)
+            foreach (var prefix in prefixes)
             {
-                return ln.Value;
+                if (log.GlobalAttributes.TryGetValue(prefix, out var pf) && pf is OcelString pfStr)
+                {
+                    var val = TryGetValue(@event, pfStr.Value, name);
+                    if (val != null) return val;
+                }
             }
-            return null;
+
+            // Try to obtain value with default prefix, otherwise give up
+            var defaultVal = TryGetValue(@event, "pm4net_", name);
+            return defaultVal;
+        }
+
+        public static OcelValue? Namespace(this OcelEvent @event, OcelLog log)
+        {
+            return TryGetValueWithPrefixes(@event, new List<string> { "Serilog.Sinks.OCEL_Prefix", "Serilog.Enrichers.CallerInfo_Prefix" }, "Namespace", log);
+        }
+
+        public static OcelValue? SourceFile(this OcelEvent @event, OcelLog log)
+        {
+            return TryGetValueWithPrefixes(@event, new List<string> { "Serilog.Sinks.OCEL_Prefix", "Serilog.Enrichers.CallerInfo_Prefix" }, "SourceFile", log);
+        }
+
+        public static OcelValue? LineNumber(this OcelEvent @event, OcelLog log)
+        {
+            return TryGetValueWithPrefixes(@event, new List<string> { "Serilog.Sinks.OCEL_Prefix", "Serilog.Enrichers.CallerInfo_Prefix" }, "LineNumber", log);
         }
     }
 }
