@@ -50,25 +50,23 @@
                 rows={objects}
                 pageSize={pagination.pageSize}
                 page={pagination.page}
-                batchSelection
-                bind:selectedRowIds>
-
+                selectable
+                batchSelection={active}
+                bind:selectedRowIds
+                expandable>
+            
                 <Toolbar>
                     <ToolbarBatchActions 
-                        bind:active={active}
+                        bind:active
                         on:cancel={(e) => {
-                            e.preventDefault(); // Prevent items being unselected
+                            e.preventDefault();
                             active = false;
                         }}>
-                        <Button
-                            icon={Clean}
-                            disabled={selectedRowIds.length === 0}
-                            on:click={() => {
-                                // TODO
-                                selectedRowIds = [];
-                            }}>
-                            Convert to attributes
-                        </Button>
+                        <Button icon={Clean} on:click={() => {
+                            console.log("TODO");
+                            selectedRowIds = [];
+                            active = false;
+                        }}>Convert to attributes</Button>
                     </ToolbarBatchActions>
                     <ToolbarContent>
                         <ToolbarSearch
@@ -81,8 +79,13 @@
                                 return false;
                             }}
                         />
+                        <Button on:click={() => (active = true)}>Batch select</Button>
                     </ToolbarContent>
                 </Toolbar>
+
+                <svelte:fragment slot="expanded-row" let:row>
+                    <pre>{JSON.stringify(row, null, 2)}</pre> <!-- TODO -->
+                </svelte:fragment>
 
             </DataTable>
 
