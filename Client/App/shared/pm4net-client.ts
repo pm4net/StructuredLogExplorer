@@ -2799,7 +2799,9 @@ export interface IListTreeOfString {
 
 export class ObjectInfo implements IObjectInfo {
     id!: string;
-    occurrences!: number;
+    uniqueInstances!: number;
+    referencingEvents!: number;
+    objectOccurrences!: ObjectOccurrence[];
 
     constructor(data?: IObjectInfo) {
         if (data) {
@@ -2808,12 +2810,21 @@ export class ObjectInfo implements IObjectInfo {
                     (<any>this)[property] = (<any>data)[property];
             }
         }
+        if (!data) {
+            this.objectOccurrences = [];
+        }
     }
 
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.occurrences = _data["occurrences"];
+            this.uniqueInstances = _data["uniqueInstances"];
+            this.referencingEvents = _data["referencingEvents"];
+            if (Array.isArray(_data["objectOccurrences"])) {
+                this.objectOccurrences = [] as any;
+                for (let item of _data["objectOccurrences"])
+                    this.objectOccurrences!.push(ObjectOccurrence.fromJS(item));
+            }
         }
     }
 
@@ -2827,14 +2838,74 @@ export class ObjectInfo implements IObjectInfo {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["occurrences"] = this.occurrences;
+        data["uniqueInstances"] = this.uniqueInstances;
+        data["referencingEvents"] = this.referencingEvents;
+        if (Array.isArray(this.objectOccurrences)) {
+            data["objectOccurrences"] = [];
+            for (let item of this.objectOccurrences)
+                data["objectOccurrences"].push(item.toJSON());
+        }
         return data;
     }
 }
 
 export interface IObjectInfo {
     id: string;
-    occurrences: number;
+    uniqueInstances: number;
+    referencingEvents: number;
+    objectOccurrences: ObjectOccurrence[];
+}
+
+export class ObjectOccurrence implements IObjectOccurrence {
+    activity!: string;
+    namespace?: string | undefined;
+    sourceFile?: string | undefined;
+    lineNumber?: number | undefined;
+    codeSnippet?: string | undefined;
+
+    constructor(data?: IObjectOccurrence) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.activity = _data["activity"];
+            this.namespace = _data["namespace"];
+            this.sourceFile = _data["sourceFile"];
+            this.lineNumber = _data["lineNumber"];
+            this.codeSnippet = _data["codeSnippet"];
+        }
+    }
+
+    static fromJS(data: any): ObjectOccurrence {
+        data = typeof data === 'object' ? data : {};
+        let result = new ObjectOccurrence();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["activity"] = this.activity;
+        data["namespace"] = this.namespace;
+        data["sourceFile"] = this.sourceFile;
+        data["lineNumber"] = this.lineNumber;
+        data["codeSnippet"] = this.codeSnippet;
+        return data;
+    }
+}
+
+export interface IObjectOccurrence {
+    activity: string;
+    namespace?: string | undefined;
+    sourceFile?: string | undefined;
+    lineNumber?: number | undefined;
+    codeSnippet?: string | undefined;
 }
 
 export interface FileResponse {

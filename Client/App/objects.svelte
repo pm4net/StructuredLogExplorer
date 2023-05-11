@@ -39,13 +39,14 @@
 
             <DataTable
                 sortable
-                sortKey="occurrences"
+                sortKey="uniqueInstances"
                 sortDirection="descending"
                 title="Object types"
                 description="Overview of all object types in the log and how often they occur."
                 headers={[
                     { key: "id", value: "Name" },
-                    { key: "occurrences", value: "Occurrences" }
+                    { key: "uniqueInstances", value: "Unique instances" },
+                    { key: "referencingEvents", value: "Referencing events" }
                 ]}
                 rows={objects}
                 pageSize={pagination.pageSize}

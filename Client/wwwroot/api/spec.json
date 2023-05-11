@@ -1427,15 +1427,51 @@
       "type": "object",
       "required": [
         "id",
-        "occurrences"
+        "uniqueInstances",
+        "referencingEvents",
+        "objectOccurrences"
       ],
       "properties": {
         "id": {
           "type": "string"
         },
-        "occurrences": {
+        "uniqueInstances": {
           "type": "integer",
           "format": "int32"
+        },
+        "referencingEvents": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "objectOccurrences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ObjectOccurrence"
+          }
+        }
+      }
+    },
+    "ObjectOccurrence": {
+      "type": "object",
+      "required": [
+        "activity"
+      ],
+      "properties": {
+        "activity": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "sourceFile": {
+          "type": "string"
+        },
+        "lineNumber": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "codeSnippet": {
+          "type": "string"
         }
       }
     }
