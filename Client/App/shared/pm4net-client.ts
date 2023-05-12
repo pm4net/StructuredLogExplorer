@@ -634,6 +634,8 @@ export class MapClient implements IMapClient {
 export interface IObjectsClient {
 
     getObjectTypeInfos(projectName: string | undefined): Promise<ObjectInfo[]>;
+
+    convertObjectsToAttributes(projectName: string | undefined, objectTypes: string[]): Promise<void>;
 }
 
 export class ObjectsClient implements IObjectsClient {
@@ -647,7 +649,7 @@ export class ObjectsClient implements IObjectsClient {
     }
 
     getObjectTypeInfos(projectName: string | undefined): Promise<ObjectInfo[]> {
-        let url_ = this.baseUrl + "/api/Objects?";
+        let url_ = this.baseUrl + "/api/Objects/getObjectTypeInfos?";
         if (projectName === null)
             throw new Error("The parameter 'projectName' cannot be null.");
         else if (projectName !== undefined)
@@ -689,6 +691,44 @@ export class ObjectsClient implements IObjectsClient {
             });
         }
         return Promise.resolve<ObjectInfo[]>(null as any);
+    }
+
+    convertObjectsToAttributes(projectName: string | undefined, objectTypes: string[]): Promise<void> {
+        let url_ = this.baseUrl + "/api/Objects/convertObjectsToAttributes?";
+        if (projectName === null)
+            throw new Error("The parameter 'projectName' cannot be null.");
+        else if (projectName !== undefined)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(objectTypes);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processConvertObjectsToAttributes(_response);
+        });
+    }
+
+    protected processConvertObjectsToAttributes(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 

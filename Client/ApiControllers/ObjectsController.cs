@@ -17,6 +17,8 @@ namespace StructuredLogExplorer.ApiControllers
             _projectService = projectService;
         }
 
+        [HttpGet]
+        [Route("getObjectTypeInfos")]
         public async Task<IEnumerable<ObjectInfo>> GetObjectTypeInfos(string projectName)
         {
             var db = _projectService.GetProjectDatabase(projectName);
@@ -77,6 +79,25 @@ namespace StructuredLogExplorer.ApiControllers
             }
 
             return infos.Values.ToList();
+        }
+
+        [HttpPost]
+        [Route("convertObjectsToAttributes")]
+        public void ConvertObjectsToAttributes(string projectName, IEnumerable<string> objectTypes)
+        {
+            var db = _projectService.GetProjectDatabase(projectName);
+            var log = OcelLiteDB.Deserialize(db);
+
+            // Convert the object types to attributes
+            var modifiedLog = log.ConvertObjectsToAttributes(objectTypes);
+
+            // Clear existing log from database
+            db.GetCollection("events").DeleteAll();
+            db.GetCollection("objects").DeleteAll();
+            db.GetCollection("global_attributes").DeleteAll();
+            
+            // Write modified log to database
+            OcelLiteDB.Serialize(db, modifiedLog, false);
         }
     }
 }

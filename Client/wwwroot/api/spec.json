@@ -497,7 +497,7 @@
         "deprecated": true
       }
     },
-    "/api/Objects": {
+    "/api/Objects/getObjectTypeInfos": {
       "get": {
         "tags": [
           "Objects"
@@ -526,6 +526,45 @@
                 "$ref": "#/definitions/ObjectInfo"
               }
             }
+          }
+        }
+      }
+    },
+    "/api/Objects/convertObjectsToAttributes": {
+      "post": {
+        "tags": [
+          "Objects"
+        ],
+        "operationId": "Objects_ConvertObjectsToAttributes",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": false
+          },
+          {
+            "name": "objectTypes",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
           }
         }
       }

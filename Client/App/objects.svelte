@@ -1,11 +1,12 @@
 <script lang="ts">
-    import { Button, CodeSnippet, DataTable, DataTableSkeleton, ExpandableTile, InlineNotification, Pagination, ToastNotification, Toolbar, ToolbarBatchActions, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
+    import { Button, CodeSnippet, DataTable, DataTableSkeleton, ExpandableTile, InlineNotification, Pagination, Tile, ToastNotification, Toolbar, ToolbarBatchActions, ToolbarContent, ToolbarSearch } from "carbon-components-svelte";
     import Layout from "./shared/layout.svelte";
-
     import { activeProject } from "./shared/stores";
     import { objectsClient } from "./shared/pm4net-client-config";
     import type { DataTableRowId } from "carbon-components-svelte/types/DataTable/DataTable.svelte";
     import { Clean } from "carbon-icons-svelte";
+    import { getErrorMessage } from "./shared/helpers";
+    
     let pagination = { pageSize: 10, page: 1, filteredRowIds: <number[]>[] }
     let active = false;
     let selectedRowIds : DataTableRowId[];
@@ -17,6 +18,19 @@
     let errorNotification = {
         show: false,
         message: ""
+    }
+
+    async function convertObjectsToAttributes(objectTypes: string[]) {
+        try {
+            await objectsClient.convertObjectsToAttributes($activeProject, objectTypes);
+            selectedRowIds = [];
+            active = false;
+        } catch (e: unknown) {
+            errorNotification.show = true;
+            errorNotification.message = getErrorMessage(e);
+        } finally {
+            objects = objectsClient.getObjectTypeInfos($activeProject);
+        }
     }
 </script>
 
@@ -62,11 +76,7 @@
                             e.preventDefault();
                             active = false;
                         }}>
-                        <Button icon={Clean} on:click={() => {
-                            console.log("TODO");
-                            selectedRowIds = [];
-                            active = false;
-                        }}>Convert to attributes</Button>
+                        <Button icon={Clean} on:click={() => convertObjectsToAttributes(selectedRowIds)}>Convert to attributes</Button>
                     </ToolbarBatchActions>
                     <ToolbarContent>
                         <ToolbarSearch
@@ -85,8 +95,30 @@
 
                 <svelte:fragment slot="expanded-row" let:row>
                     {#each row.objectOccurrences as occurrence}
-                        <ExpandableTile light tileExpandedLabel="Hide code snippet" tileCollapsedLabel="Show code snippet">
-                            <div slot="above">
+                        {#if occurrence.codeSnippet}
+                            <ExpandableTile light tileExpandedLabel="Hide code snippet" tileCollapsedLabel="Show code snippet">
+                                <div slot="above">
+                                    <p><strong>Activity: </strong>{occurrence.activity}</p>
+                                    {#if occurrence.namespace}
+                                        <p><strong>Namespace: </strong>{occurrence.namespace}</p>
+                                    {/if}
+                                    {#if occurrence.sourceFile}
+                                        <p><strong>Source File: </strong>{occurrence.sourceFile}</p>
+                                    {/if}
+                                    {#if occurrence.lineNumber}
+                                        <p><strong>Line Number: </strong>{occurrence.lineNumber}</p>
+                                    {/if}
+                                </div>
+                                <!-- Would use if here to avoid code duplication, but it is currrently not supported: https://github.com/sveltejs/svelte/issues/5604 -->
+                                <div slot="below">
+                                    <CodeSnippet 
+                                        type="multi" 
+                                        code={occurrence.codeSnippet}
+                                    /> <!-- copy={(_) => window.open(`file:///${occurrence.sourceFile}`)} // TODO: Doesn't work due to security -->
+                                </div>
+                            </ExpandableTile>
+                        {:else}
+                            <Tile>
                                 <p><strong>Activity: </strong>{occurrence.activity}</p>
                                 {#if occurrence.namespace}
                                     <p><strong>Namespace: </strong>{occurrence.namespace}</p>
@@ -95,18 +127,11 @@
                                     <p><strong>Source File: </strong>{occurrence.sourceFile}</p>
                                 {/if}
                                 {#if occurrence.lineNumber}
-                                    <p><strong>Source File: </strong>{occurrence.lineNumber}</p>
+                                    <p><strong>Line Number: </strong>{occurrence.lineNumber}</p>
                                 {/if}
-                            </div>
-                            <div slot="below">
-                                {#if occurrence.codeSnippet}
-                                    <CodeSnippet 
-                                        type="multi" 
-                                        code={occurrence.codeSnippet} 
-                                    /> <!-- copy={(_) => window.open(`file:///${occurrence.sourceFile}`)} // TODO: Doesn't work due to security -->
-                                {/if}
-                            </div>
-                        </ExpandableTile>
+                            </Tile>
+                        {/if}
+                        
                     {/each}
                 </svelte:fragment>
 
