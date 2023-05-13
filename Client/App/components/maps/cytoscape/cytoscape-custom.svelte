@@ -4,10 +4,10 @@
     import { Save } from "carbon-icons-svelte";
     import Color from "color";
     import { saveAs } from "file-saver";
-    import { Coordinate, Edge, EdgeTypeInfoOfEdgeInfo, End, Event, GraphLayout, LogLevel, Start, ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
-    import { getColor } from "../../helpers/color-helpers";
-    import { placeAroundMatches } from "../../helpers/string-helpers";
-    import { activeProject, mapSettings } from "../../shared/stores";
+    import { Coordinate, Edge, EdgeTypeInfoOfEdgeInfo, End, Event, GraphLayout, LogLevel, Start, ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent } from "../../../shared/pm4net-client";
+    import { getColor } from "../../../helpers/color-helpers";
+    import { placeAroundMatches } from "../../../helpers/string-helpers";
+    import { activeProject, mapSettings } from "../../../shared/stores";
     import cytoscape, { type Position } from "cytoscape";
     import nodeHtmlLabel from "cytoscape-node-html-label";
     import viewUtilities from "cytoscape-view-utilities";

@@ -134,7 +134,6 @@
                         
                     {/each}
                 </svelte:fragment>
-
             </DataTable>
 
             <Pagination

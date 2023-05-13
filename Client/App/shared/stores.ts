@@ -34,5 +34,8 @@ export enum EdgeType {
 
 export enum DisplayMethod {
     Dot = "dot",
-    Cytoscape = "cytoscape"
+    Cytoscape = "cytoscape",
+    CytoscapeBfs = "cytoscape-bfs",
+    CytoscapeCose = "cytoscape-cose",
+    CytoscapeDagre = "cytoscape-dagre"
 }

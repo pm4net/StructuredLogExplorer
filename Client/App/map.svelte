@@ -5,13 +5,14 @@
     import { getErrorMessage, getTextSize } from "./shared/helpers";
     import { Column, Grid, InlineNotification, Loading, Row, ToastNotification } from "carbon-components-svelte";
     import Filters from "./components/filters.svelte";
-    import Cytoscape from "./components/maps/cytoscape.svelte"
     import Dot from "./components/maps/dot.svelte";
     import { GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size, KeepCases } from "./shared/pm4net-client";
     import wrapAnsi from "wrap-ansi";
     import Traces from "./components/traces.svelte";
+    import CytoscapeBfs from "./components/maps/cytoscape/cytoscape-bfs.svelte";
+    import CytoscapeCustom from "./components/maps/cytoscape/cytoscape-custom.svelte";
 
-    let cyComponent : Cytoscape;
+    let cyComponent : CytoscapeCustom;
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
@@ -29,7 +30,7 @@
                 $mapSettings[$activeProject] = {
                     displayType: DisplayType.OcDfg,
                     edgeType: EdgeType.Frequency,
-                    displayMethod: DisplayMethod.Dot,
+                    displayMethod: DisplayMethod.Cytoscape,
                     groupByNamespace: true,
                     objectTypes: (await logInfoPromise).objectTypes,
                     fixUnforeseenEdges: false,
@@ -110,7 +111,24 @@
                     minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
                     minimumSuccessions: $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions,
                     includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes,
-                    keepCases: KeepCases.ContainedInTimeFrame
+                    keepCases: $mapSettings[$activeProject ?? ""]?.dfg.keepCases
+                })
+            );
+        } catch (e: unknown) {
+            errorNotification.show = true;
+            errorNotification.message = getErrorMessage(e);
+        }
+    }
+
+    // Load the OC-DFG from the API, using the settings from local storage
+    async function getOcDfg() {
+        try {
+            return await mapClient.discoverOcDfg($activeProject ?? "", new OcDfgOptions({ 
+                    minimumEvents: $mapSettings[$activeProject ?? ""]?.dfg.minEvents,
+                    minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
+                    minimumSuccessions: $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions,
+                    includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes,
+                    keepCases: $mapSettings[$activeProject ?? ""]?.dfg.keepCases
                 })
             );
         } catch (e: unknown) {
@@ -127,8 +145,8 @@
 <Layout>
     {#if $activeProject}
         {#await logInfoPromise}
-            <Loading description="Loading..." />
-        {:then logInfo} 
+            <Loading withOverlay={false} description="Loading..." />
+        {:then logInfo}
             {#await setMapSettingsToDefaultIfNotExists() then _}
                 {#if errorNotification.show}
                     <ToastNotification
@@ -153,7 +171,7 @@
                                 {#if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcDfg}
                                     {#if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Dot}
                                         {#await getOcDfgDot()}
-                                            <Loading description="Loading..." />
+                                            <Loading withOverlay={false} description="Loading..." />
                                         {:then dot}
                                             <Dot dot={dot ?? ""}></Dot>
                                         {/await}
@@ -163,9 +181,15 @@
                                                 {#await getGraphLayout()}
                                                     <Loading withOverlay={false} description="Loading..." />
                                                 {:then layout}
-                                                    <Cytoscape bind:this={cyComponent} layout={layout}></Cytoscape>
+                                                    <CytoscapeCustom bind:this={cyComponent} layout={layout}></CytoscapeCustom>
                                                 {/await}
                                             {/await}
+                                        {/await}
+                                    {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.CytoscapeBfs}
+                                        {#await getOcDfg()}
+                                            <Loading withOverlay={false} description="Loading..." />
+                                        {:then ocdfg}
+                                            <CytoscapeBfs ocdfg={ocdfg}></CytoscapeBfs>
                                         {/await}
                                     {/if}
                                 {:else if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcPn}
