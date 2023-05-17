@@ -5,11 +5,11 @@
     import { getErrorMessage, getTextSize } from "./shared/helpers";
     import { Column, Grid, InlineNotification, Loading, Row, ToastNotification } from "carbon-components-svelte";
     import Filters from "./components/filters.svelte";
-    import Cytoscape from "./components/maps/cytoscape.svelte"
     import Dot from "./components/maps/dot.svelte";
     import { GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size, KeepCases } from "./shared/pm4net-client";
     import wrapAnsi from "wrap-ansi";
     import Traces from "./components/traces.svelte";
+    import Cytoscape from "./components/maps/cytoscape.svelte";
 
     let cyComponent : Cytoscape;
 
@@ -29,7 +29,7 @@
                 $mapSettings[$activeProject] = {
                     displayType: DisplayType.OcDfg,
                     edgeType: EdgeType.Frequency,
-                    displayMethod: DisplayMethod.Dot,
+                    displayMethod: DisplayMethod.Cytoscape,
                     groupByNamespace: true,
                     objectTypes: (await logInfoPromise).objectTypes,
                     fixUnforeseenEdges: false,
@@ -110,7 +110,24 @@
                     minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
                     minimumSuccessions: $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions,
                     includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes,
-                    keepCases: KeepCases.ContainedInTimeFrame
+                    keepCases: $mapSettings[$activeProject ?? ""]?.dfg.keepCases
+                })
+            );
+        } catch (e: unknown) {
+            errorNotification.show = true;
+            errorNotification.message = getErrorMessage(e);
+        }
+    }
+
+    // Load the OC-DFG from the API, using the settings from local storage
+    async function getOcDfg() {
+        try {
+            return await mapClient.discoverOcDfg($activeProject ?? "", new OcDfgOptions({ 
+                    minimumEvents: $mapSettings[$activeProject ?? ""]?.dfg.minEvents,
+                    minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
+                    minimumSuccessions: $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions,
+                    includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes,
+                    keepCases: $mapSettings[$activeProject ?? ""]?.dfg.keepCases
                 })
             );
         } catch (e: unknown) {
@@ -127,8 +144,8 @@
 <Layout>
     {#if $activeProject}
         {#await logInfoPromise}
-            <Loading description="Loading..." />
-        {:then logInfo} 
+            <Loading withOverlay={false} description="Loading..." />
+        {:then logInfo}
             {#await setMapSettingsToDefaultIfNotExists() then _}
                 {#if errorNotification.show}
                     <ToastNotification
@@ -153,9 +170,9 @@
                                 {#if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcDfg}
                                     {#if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Dot}
                                         {#await getOcDfgDot()}
-                                            <Loading description="Loading..." />
+                                            <Loading withOverlay={false} description="Loading..." />
                                         {:then dot}
-                                            <Dot dot={dot ?? ""}></Dot>
+                                            <Dot dot={dot ?? ""} />
                                         {/await}
                                     {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Cytoscape}
                                         {#await getNodesToPreCompute() then nodes}
@@ -163,9 +180,15 @@
                                                 {#await getGraphLayout()}
                                                     <Loading withOverlay={false} description="Loading..." />
                                                 {:then layout}
-                                                    <Cytoscape bind:this={cyComponent} layout={layout}></Cytoscape>
+                                                    <Cytoscape bind:this={cyComponent} layout={layout} />
                                                 {/await}
                                             {/await}
+                                        {/await}
+                                    {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.CytoscapeBfs}
+                                        {#await getOcDfg()}
+                                            <Loading withOverlay={false} description="Loading..." />
+                                        {:then ocdfg}
+                                            <Cytoscape bind:this={cyComponent} ocdfg={ocdfg} />
                                         {/await}
                                     {/if}
                                 {:else if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcPn}
