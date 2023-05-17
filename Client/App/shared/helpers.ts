@@ -15,8 +15,10 @@ export function getErrorMessage(e: unknown) : string {
         } else {
             return e.response;
         }
+    } else if (e instanceof Error) {
+        return e.message;
     } else {
-        return "Unknown error";
+        return "Unknown error.";
     }
 }
 
@@ -28,8 +30,7 @@ export function getErrorMessage(e: unknown) : string {
   * 
   * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
   */
-export function getTextSize(text: string, font?: string) {
-    const canvas = document.getElementsByTagName("canvas")?.[0] || document.createElement("canvas");
+export function getTextSize(canvas: any, text: string, font?: string) {
     const context = canvas.getContext("2d")!;
     if (font) {
         context.font = font;

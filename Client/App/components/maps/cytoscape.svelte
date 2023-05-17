@@ -12,7 +12,8 @@
     import { BubbleSetsPlugin } from "cytoscape-bubblesets";
     import { logLevelToColor, resetHighlights, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
     import { Event, type DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
-    import { initializeCytoscape } from "../../helpers/cytoscape-layout-helpers";
+    import { initializeCustomCytoscape } from "../../helpers/cytoscape-layout-helpers";
+    import { initializeBfsCytoscape } from "../../helpers/cytoscape-default-helpers";
 
     // Props to pass in either a fully defined graph layout or only an OC-DFG, in which case the default layout algorithm will be used.
     export let layout : GraphLayout | undefined = undefined;
@@ -66,11 +67,11 @@
     }
 
     onMount(() => {
+        let elem = document.getElementById("dfg");
         if (layout !== undefined) {
-            cy = initializeCytoscape(layout!, document.getElementById("dfg"));
+            cy = initializeCustomCytoscape(layout!, elem);
         } else {
-            // TODO
-            console.log("TODO init cytoscape with ocdfg", ocdfg);
+            cy = initializeBfsCytoscape(ocdfg!, elem);
         }
 
         // Add HTML labels to nodes

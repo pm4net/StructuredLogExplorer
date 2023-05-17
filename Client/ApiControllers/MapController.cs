@@ -63,16 +63,24 @@ namespace StructuredLogExplorer.ApiControllers
             };
         }
 
-        [HttpPost]
-        [Route("discoverOcDfg")]
-        public GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>> DiscoverOcDfg(string projectName, [FromBody] OcDfgOptions options)
+        private GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>> DiscoverOriginalOcDfg(string projectName, OcDfgOptions options)
         {
             var log = GetProjectLog(projectName);
             return OcelDfg.Discover(new OcDfgFilter(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions,
-                    options.DateFrom != null && options.DateTo != null 
+                    options.DateFrom != null && options.DateTo != null
                         ? FSharpOption<TimeframeFilter>.Some(new TimeframeFilter(options.DtoFrom!.Value.StartOfDay(), options.DtoTo!.Value.EndOfDay(), options.KeepCases.ToPm4Net()))
-                        : FSharpOption<TimeframeFilter>.None), 
+                        : FSharpOption<TimeframeFilter>.None),
                 options.IncludedTypes, log);
+        }
+
+        [HttpPost]
+        [Route("discoverOcDfg")]
+        public GraphTypes.DirectedGraph<NodeOfNodeInfo, InputTypes.Edge<EdgeInfo>> DiscoverOcDfg(string projectName, [FromBody] OcDfgOptions options)
+        {
+            var ocDfg = DiscoverOriginalOcDfg(projectName, options);
+            var convertedNodes = ocDfg.Nodes.Select(n => n.FromFSharpNodeOfNodeInfo()).ToFSharpList();
+            var convertedEdges = ocDfg.Edges.Select(e => Tuple.Create(e.Item1.FromFSharpNodeOfNodeInfo(), e.Item2.FromFSharpNodeOfNodeInfo(), e.Item3)).ToFSharpList();
+            return new GraphTypes.DirectedGraph<NodeOfNodeInfo, InputTypes.Edge<EdgeInfo>>(convertedNodes, convertedEdges);
         }
 
         [HttpGet]
@@ -109,7 +117,7 @@ namespace StructuredLogExplorer.ApiControllers
 		[Route("computeLayout")]
 		public GraphLayout ComputeLayout(string projectName, [FromBody] OcDfgLayoutOptions options)
 		{
-			var model = DiscoverOcDfg(projectName, options.OcDfgOptions);
+			var model = DiscoverOriginalOcDfg(projectName, options.OcDfgOptions);
 			return ComputeLayoutWithModel(projectName, (model, options.LayoutOptions));
 		}
 
@@ -117,7 +125,7 @@ namespace StructuredLogExplorer.ApiControllers
         [Route("discoverOcDfgAndDot")]
         public string DiscoverOcDfgAndGenerateDot(string projectName, bool groupByNamespace, [FromBody] OcDfgOptions options)
         {
-	        var ocDfg = DiscoverOcDfg(projectName, options);
+	        var ocDfg = DiscoverOriginalOcDfg(projectName, options);
             var dot = pm4net.Visualization.Ocel.Graphviz.OcDfg2Dot(ocDfg, groupByNamespace);
             return dot;
         }

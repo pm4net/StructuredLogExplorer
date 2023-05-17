@@ -991,10 +991,165 @@ export interface IDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo {
     edges?: TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo[] | undefined;
 }
 
-/** A node type that can be a regular event node or a start/end node for a specific type. */
 export abstract class NodeOfNodeInfo implements INodeOfNodeInfo {
 
+    protected _discriminator: string;
+
     constructor(data?: INodeOfNodeInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "NodeOfNodeInfo";
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): NodeOfNodeInfo {
+        data = typeof data === 'object' ? data : {};
+        if (data["discriminator"] === "StartNode") {
+            let result = new StartNode();
+            result.init(data);
+            return result;
+        }
+        if (data["discriminator"] === "EndNode") {
+            let result = new EndNode();
+            result.init(data);
+            return result;
+        }
+        if (data["discriminator"] === "EventNode") {
+            let result = new EventNode();
+            result.init(data);
+            return result;
+        }
+        throw new Error("The abstract class 'NodeOfNodeInfo' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["discriminator"] = this._discriminator;
+        return data;
+    }
+}
+
+export interface INodeOfNodeInfo {
+}
+
+export class StartNode extends NodeOfNodeInfo implements IStartNode {
+    type!: string;
+
+    constructor(data?: IStartNode) {
+        super(data);
+        this._discriminator = "StartNode";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.type = _data["type"];
+        }
+    }
+
+    static override fromJS(data: any): StartNode {
+        data = typeof data === 'object' ? data : {};
+        let result = new StartNode();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["type"] = this.type;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IStartNode extends INodeOfNodeInfo {
+    type: string;
+}
+
+export class EndNode extends NodeOfNodeInfo implements IEndNode {
+    type!: string;
+
+    constructor(data?: IEndNode) {
+        super(data);
+        this._discriminator = "EndNode";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.type = _data["type"];
+        }
+    }
+
+    static override fromJS(data: any): EndNode {
+        data = typeof data === 'object' ? data : {};
+        let result = new EndNode();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["type"] = this.type;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IEndNode extends INodeOfNodeInfo {
+    type: string;
+}
+
+export class EventNode extends NodeOfNodeInfo implements IEventNode {
+    name!: string;
+    nodeInfo?: NodeInfo | undefined;
+
+    constructor(data?: IEventNode) {
+        super(data);
+        this._discriminator = "EventNode";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.name = _data["name"];
+            this.nodeInfo = _data["nodeInfo"] ? NodeInfo.fromJS(_data["nodeInfo"]) : <any>undefined;
+        }
+    }
+
+    static override fromJS(data: any): EventNode {
+        data = typeof data === 'object' ? data : {};
+        let result = new EventNode();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["nodeInfo"] = this.nodeInfo ? this.nodeInfo.toJSON() : <any>undefined;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IEventNode extends INodeOfNodeInfo {
+    name: string;
+    nodeInfo?: NodeInfo | undefined;
+}
+
+export class NodeInfo implements INodeInfo {
+    frequency!: number;
+    namespace?: string | undefined;
+    logLevel?: LogLevel | undefined;
+
+    constructor(data?: INodeInfo) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1004,21 +1159,43 @@ export abstract class NodeOfNodeInfo implements INodeOfNodeInfo {
     }
 
     init(_data?: any) {
+        if (_data) {
+            this.frequency = _data["frequency"];
+            this.namespace = _data["namespace"];
+            this.logLevel = _data["logLevel"];
+        }
     }
 
-    static fromJS(data: any): NodeOfNodeInfo {
+    static fromJS(data: any): NodeInfo {
         data = typeof data === 'object' ? data : {};
-        throw new Error("The abstract class 'NodeOfNodeInfo' cannot be instantiated.");
+        let result = new NodeInfo();
+        result.init(data);
+        return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["frequency"] = this.frequency;
+        data["namespace"] = this.namespace;
+        data["logLevel"] = this.logLevel;
         return data;
     }
 }
 
-/** A node type that can be a regular event node or a start/end node for a specific type. */
-export interface INodeOfNodeInfo {
+export interface INodeInfo {
+    frequency: number;
+    namespace?: string | undefined;
+    logLevel?: LogLevel | undefined;
+}
+
+export enum LogLevel {
+    Verbose = 0,
+    Debug = 1,
+    Information = 2,
+    Warning = 3,
+    Error = 4,
+    Fatal = 5,
+    Unknown = 6,
 }
 
 export class TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo implements ITupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo {
@@ -1716,60 +1893,6 @@ export interface ICoordinate {
     y: number;
 }
 
-export class NodeInfo implements INodeInfo {
-    frequency!: number;
-    namespace?: string | undefined;
-    logLevel?: LogLevel | undefined;
-
-    constructor(data?: INodeInfo) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.frequency = _data["frequency"];
-            this.namespace = _data["namespace"];
-            this.logLevel = _data["logLevel"];
-        }
-    }
-
-    static fromJS(data: any): NodeInfo {
-        data = typeof data === 'object' ? data : {};
-        let result = new NodeInfo();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["frequency"] = this.frequency;
-        data["namespace"] = this.namespace;
-        data["logLevel"] = this.logLevel;
-        return data;
-    }
-}
-
-export interface INodeInfo {
-    frequency: number;
-    namespace?: string | undefined;
-    logLevel?: LogLevel | undefined;
-}
-
-export enum LogLevel {
-    Verbose = 0,
-    Debug = 1,
-    Information = 2,
-    Warning = 3,
-    Error = 4,
-    Fatal = 5,
-    Unknown = 6,
-}
-
 export class Edge implements IEdge {
     sourceId!: string;
     targetId!: string;
@@ -2116,7 +2239,7 @@ export interface IEdgeInfo {
 }
 
 export class ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions implements IValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions {
-    item1!: DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo;
+    item1!: DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2;
     item2!: GraphLayoutOptions;
 
     constructor(data?: IValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions) {
@@ -2127,14 +2250,14 @@ export class ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphL
             }
         }
         if (!data) {
-            this.item1 = new DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo();
+            this.item1 = new DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2();
             this.item2 = new GraphLayoutOptions();
         }
     }
 
     init(_data?: any) {
         if (_data) {
-            this.item1 = _data["item1"] ? DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo.fromJS(_data["item1"]) : new DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo();
+            this.item1 = _data["item1"] ? DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2.fromJS(_data["item1"]) : new DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2();
             this.item2 = _data["item2"] ? GraphLayoutOptions.fromJS(_data["item2"]) : new GraphLayoutOptions();
         }
     }
@@ -2155,8 +2278,143 @@ export class ValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphL
 }
 
 export interface IValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndGraphLayoutOptions {
-    item1: DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo;
+    item1: DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2;
     item2: GraphLayoutOptions;
+}
+
+/** Directed graph with edge information. */
+export class DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2 implements IDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2 {
+    nodes?: NodeOfNodeInfo2[] | undefined;
+    edges?: TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2[] | undefined;
+
+    constructor(data?: IDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["nodes"])) {
+                this.nodes = [] as any;
+                for (let item of _data["nodes"])
+                    this.nodes!.push(NodeOfNodeInfo2.fromJS(item));
+            }
+            if (Array.isArray(_data["edges"])) {
+                this.edges = [] as any;
+                for (let item of _data["edges"])
+                    this.edges!.push(TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.nodes)) {
+            data["nodes"] = [];
+            for (let item of this.nodes)
+                data["nodes"].push(item.toJSON());
+        }
+        if (Array.isArray(this.edges)) {
+            data["edges"] = [];
+            for (let item of this.edges)
+                data["edges"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** Directed graph with edge information. */
+export interface IDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2 {
+    nodes?: NodeOfNodeInfo2[] | undefined;
+    edges?: TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2[] | undefined;
+}
+
+/** A node type that can be a regular event node or a start/end node for a specific type. */
+export abstract class NodeOfNodeInfo2 implements INodeOfNodeInfo2 {
+
+    constructor(data?: INodeOfNodeInfo2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): NodeOfNodeInfo2 {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'NodeOfNodeInfo2' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
+}
+
+/** A node type that can be a regular event node or a start/end node for a specific type. */
+export interface INodeOfNodeInfo2 {
+}
+
+export class TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2 implements ITupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2 {
+    item1!: NodeOfNodeInfo2;
+    item2!: NodeOfNodeInfo2;
+    item3!: EdgeOfEdgeInfo;
+
+    constructor(data?: ITupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.item3 = new EdgeOfEdgeInfo();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.item1 = _data["item1"] ? NodeOfNodeInfo2.fromJS(_data["item1"]) : <any>undefined;
+            this.item2 = _data["item2"] ? NodeOfNodeInfo2.fromJS(_data["item2"]) : <any>undefined;
+            this.item3 = _data["item3"] ? EdgeOfEdgeInfo.fromJS(_data["item3"]) : new EdgeOfEdgeInfo();
+        }
+    }
+
+    static fromJS(data: any): TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2 {
+        data = typeof data === 'object' ? data : {};
+        let result = new TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["item1"] = this.item1 ? this.item1.toJSON() : <any>undefined;
+        data["item2"] = this.item2 ? this.item2.toJSON() : <any>undefined;
+        data["item3"] = this.item3 ? this.item3.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ITupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2 {
+    item1: NodeOfNodeInfo2;
+    item2: NodeOfNodeInfo2;
+    item3: EdgeOfEdgeInfo;
 }
 
 export class GraphLayoutOptions implements IGraphLayoutOptions {

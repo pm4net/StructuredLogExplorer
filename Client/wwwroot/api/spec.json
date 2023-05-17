@@ -695,8 +695,113 @@
     },
     "NodeOfNodeInfo": {
       "type": "object",
-      "description": "A node type that can be a regular event node or a start/end node for a specific type.",
-      "x-abstract": true
+      "discriminator": "discriminator",
+      "x-abstract": true,
+      "required": [
+        "discriminator"
+      ],
+      "properties": {
+        "discriminator": {
+          "type": "string"
+        }
+      }
+    },
+    "StartNode": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/NodeOfNodeInfo"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "EndNode": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/NodeOfNodeInfo"
+        },
+        {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "EventNode": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/NodeOfNodeInfo"
+        },
+        {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "nodeInfo": {
+              "$ref": "#/definitions/NodeInfo"
+            }
+          }
+        }
+      ]
+    },
+    "NodeInfo": {
+      "type": "object",
+      "required": [
+        "frequency"
+      ],
+      "properties": {
+        "frequency": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "logLevel": {
+          "$ref": "#/definitions/LogLevel"
+        }
+      }
+    },
+    "LogLevel": {
+      "type": "integer",
+      "description": "",
+      "x-enumNames": [
+        "Verbose",
+        "Debug",
+        "Information",
+        "Warning",
+        "Error",
+        "Fatal",
+        "Unknown"
+      ],
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
     },
     "TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo": {
       "type": "object",
@@ -996,46 +1101,6 @@
         }
       }
     },
-    "NodeInfo": {
-      "type": "object",
-      "required": [
-        "frequency"
-      ],
-      "properties": {
-        "frequency": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "namespace": {
-          "type": "string"
-        },
-        "logLevel": {
-          "$ref": "#/definitions/LogLevel"
-        }
-      }
-    },
-    "LogLevel": {
-      "type": "integer",
-      "description": "",
-      "x-enumNames": [
-        "Verbose",
-        "Debug",
-        "Information",
-        "Warning",
-        "Error",
-        "Fatal",
-        "Unknown"
-      ],
-      "enum": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ]
-    },
     "Edge": {
       "type": "object",
       "required": [
@@ -1186,10 +1251,52 @@
       ],
       "properties": {
         "item1": {
-          "$ref": "#/definitions/DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo"
+          "$ref": "#/definitions/DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2"
         },
         "item2": {
           "$ref": "#/definitions/GraphLayoutOptions"
+        }
+      }
+    },
+    "DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2": {
+      "type": "object",
+      "description": "Directed graph with edge information.",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NodeOfNodeInfo2"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2"
+          }
+        }
+      }
+    },
+    "NodeOfNodeInfo2": {
+      "type": "object",
+      "description": "A node type that can be a regular event node or a start/end node for a specific type.",
+      "x-abstract": true
+    },
+    "TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2": {
+      "type": "object",
+      "required": [
+        "item1",
+        "item2",
+        "item3"
+      ],
+      "properties": {
+        "item1": {
+          "$ref": "#/definitions/NodeOfNodeInfo2"
+        },
+        "item2": {
+          "$ref": "#/definitions/NodeOfNodeInfo2"
+        },
+        "item3": {
+          "$ref": "#/definitions/EdgeOfEdgeInfo"
         }
       }
     },

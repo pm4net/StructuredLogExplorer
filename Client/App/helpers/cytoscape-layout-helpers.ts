@@ -92,7 +92,7 @@ function distanceBetweenPoints(p1x: number, p1y: number, p2x: number, p2y: numbe
     return Math.sqrt((p2x - p1x)**2 + (p2y - p1y)**2);
 }
 
-export function initializeCytoscape(layout: GraphLayout, container: any) {
+export function initializeCustomCytoscape(layout: GraphLayout, container: any) {
     let nodes = createNodesFromLayout(layout);
     let edges = createEdgesFromLayout(layout);
     
