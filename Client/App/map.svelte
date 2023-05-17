@@ -9,10 +9,9 @@
     import { GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size, KeepCases } from "./shared/pm4net-client";
     import wrapAnsi from "wrap-ansi";
     import Traces from "./components/traces.svelte";
-    import CytoscapeBfs from "./components/maps/cytoscape/cytoscape-bfs.svelte";
-    import CytoscapeCustom from "./components/maps/cytoscape/cytoscape-custom.svelte";
+    import Cytoscape from "./components/maps/cytoscape.svelte";
 
-    let cyComponent : CytoscapeCustom;
+    let cyComponent : Cytoscape;
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
@@ -173,7 +172,7 @@
                                         {#await getOcDfgDot()}
                                             <Loading withOverlay={false} description="Loading..." />
                                         {:then dot}
-                                            <Dot dot={dot ?? ""}></Dot>
+                                            <Dot dot={dot ?? ""} />
                                         {/await}
                                     {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Cytoscape}
                                         {#await getNodesToPreCompute() then nodes}
@@ -181,7 +180,7 @@
                                                 {#await getGraphLayout()}
                                                     <Loading withOverlay={false} description="Loading..." />
                                                 {:then layout}
-                                                    <CytoscapeCustom bind:this={cyComponent} layout={layout}></CytoscapeCustom>
+                                                    <Cytoscape bind:this={cyComponent} layout={layout} />
                                                 {/await}
                                             {/await}
                                         {/await}
@@ -189,7 +188,7 @@
                                         {#await getOcDfg()}
                                             <Loading withOverlay={false} description="Loading..." />
                                         {:then ocdfg}
-                                            <CytoscapeBfs ocdfg={ocdfg}></CytoscapeBfs>
+                                            <Cytoscape bind:this={cyComponent} ocdfg={ocdfg} />
                                         {/await}
                                     {/if}
                                 {:else if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcPn}
