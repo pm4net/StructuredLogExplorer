@@ -117,7 +117,13 @@ namespace StructuredLogExplorer.ApiControllers
         public GraphLayout DiscoverOcDfg(string projectName, [FromBody] OcDfgOptions options)
         {
             var ocDfg = DiscoverOriginalOcDfg(projectName, options);
-            return ocDfg.FromOcDfg();
+            var nodeCalculations = _graphLayoutService.GetNodeCalculations(projectName)?.ToList();
+            if (nodeCalculations is null)
+            {
+                throw new ArgumentNullException(nameof(nodeCalculations), "Node calculations have not been made yet.");
+            }
+
+            return ocDfg.FromOcDfg(nodeCalculations);
         }
 
         [HttpPost]

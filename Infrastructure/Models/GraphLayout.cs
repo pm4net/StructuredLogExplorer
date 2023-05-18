@@ -153,7 +153,7 @@ namespace Infrastructure.Models
 			};
 		}
 
-        public static GraphLayout FromOcDfg(this GraphTypes.DirectedGraph<InputTypes.Node<pm4net.Types.NodeInfo>, InputTypes.Edge<EdgeInfo>> graph)
+        public static GraphLayout FromOcDfg(this GraphTypes.DirectedGraph<InputTypes.Node<pm4net.Types.NodeInfo>, InputTypes.Edge<EdgeInfo>> graph, IList<NodeCalculation> nodeCalculations)
         {
             return new GraphLayout
             {
@@ -184,13 +184,15 @@ namespace Infrastructure.Models
                             ObjectType = objType
                         };
                     }
-					
+
+                    var nodeId = GetNodeId(n);
                     return new Node
                     {
 						Id = GetNodeId(n),
-						Text = new List<string> { eventNode != null ? eventNode.Name : objType ?? string.Empty },
+						Text = nodeCalculations.First(x => x.NodeId == nodeId).TextWrap,
 						NodeType = nodeType,
-						NodeInfo = nodeInfo
+						NodeInfo = nodeInfo,
+						Size = nodeCalculations.First(x => x.NodeId == nodeId).Size
                     };
                 }),
 				Edges = graph.Edges.Select(e => new Edge

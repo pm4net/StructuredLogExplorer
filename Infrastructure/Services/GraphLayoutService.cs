@@ -120,7 +120,7 @@ namespace Infrastructure.Services
 		/// Get the pre-calculated node sizes from the database.
 		/// </summary>
 		/// <param name="projectName">The name of the project.</param>
-		private IEnumerable<NodeCalculation> GetNodeCalculations(string projectName)
+		public IEnumerable<NodeCalculation> GetNodeCalculations(string projectName)
 		{
 			var db = _projectService.GetProjectDatabase(projectName);
 			var sizeColl = db.GetCollection<NodeCalculation>(Identifiers.NodeCalculations);

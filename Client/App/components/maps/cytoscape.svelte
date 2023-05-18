@@ -13,7 +13,6 @@
     import { logLevelToColor, resetHighlights, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
     import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
     import { initializeCustomCytoscape } from "../../helpers/cytoscape-layout-helpers";
-    import { initializeBfsCytoscape } from "../../helpers/cytoscape-default-helpers";
 
     // Props to pass in either a fully defined graph layout or only an OC-DFG, in which case the default layout algorithm will be used.
     export let layout : GraphLayout | undefined = undefined;
@@ -68,12 +67,7 @@
     }
 
     onMount(() => {
-        let elem = document.getElementById("dfg");
-        if (hasLayout) {
-            cy = initializeCustomCytoscape(layout!, elem);
-        } else {
-            cy = initializeBfsCytoscape(ocdfg!, elem);
-        }
+        cy = initializeCustomCytoscape(hasLayout ? layout! : ocdfg!, hasLayout, document.getElementById("dfg"));
 
         // Add HTML labels to nodes
         cy.nodeHtmlLabel([{

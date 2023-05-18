@@ -19,5 +19,7 @@ namespace Infrastructure.Interfaces
 			float tension);
 
 		void SaveNodeCalculations(string projectName, IEnumerable<NodeCalculation> nodes);
-	}
+
+        IEnumerable<NodeCalculation> GetNodeCalculations(string projectName);
+    }
 }

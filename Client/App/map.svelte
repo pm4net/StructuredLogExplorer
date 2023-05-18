@@ -185,10 +185,14 @@
                                             {/await}
                                         {/await}
                                     {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.CytoscapeBfs}
-                                        {#await getOcDfg()}
-                                            <Loading withOverlay={false} description="Loading..." />
-                                        {:then ocdfg}
-                                            <Cytoscape bind:this={cyComponent} ocdfg={ocdfg} />
+                                        {#await getNodesToPreCompute() then nodes}
+                                            {#await preComputeNodeProperties(nodes) then _}
+                                                {#await getOcDfg()}
+                                                    <Loading withOverlay={false} description="Loading..." />
+                                                {:then ocdfg}
+                                                    <Cytoscape bind:this={cyComponent} ocdfg={ocdfg} />
+                                                {/await}
+                                            {/await}
                                         {/await}
                                     {/if}
                                 {:else if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcPn}
