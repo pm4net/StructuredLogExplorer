@@ -1398,6 +1398,8 @@ export class NodeInfo implements INodeInfo {
     frequency!: number;
     namespace?: string | undefined;
     logLevel?: LogLevel | undefined;
+    attributes!: { [key: string]: OcelValue; };
+    objects!: OcelObject[];
 
     constructor(data?: INodeInfo) {
         if (data) {
@@ -1406,6 +1408,10 @@ export class NodeInfo implements INodeInfo {
                     (<any>this)[property] = (<any>data)[property];
             }
         }
+        if (!data) {
+            this.attributes = {};
+            this.objects = [];
+        }
     }
 
     init(_data?: any) {
@@ -1413,6 +1419,18 @@ export class NodeInfo implements INodeInfo {
             this.frequency = _data["frequency"];
             this.namespace = _data["namespace"];
             this.logLevel = _data["logLevel"];
+            if (_data["attributes"]) {
+                this.attributes = {} as any;
+                for (let key in _data["attributes"]) {
+                    if (_data["attributes"].hasOwnProperty(key))
+                        (<any>this.attributes)![key] = _data["attributes"][key] ? OcelValue.fromJS(_data["attributes"][key]) : <any>undefined;
+                }
+            }
+            if (Array.isArray(_data["objects"])) {
+                this.objects = [] as any;
+                for (let item of _data["objects"])
+                    this.objects!.push(OcelObject.fromJS(item));
+            }
         }
     }
 
@@ -1428,6 +1446,18 @@ export class NodeInfo implements INodeInfo {
         data["frequency"] = this.frequency;
         data["namespace"] = this.namespace;
         data["logLevel"] = this.logLevel;
+        if (this.attributes) {
+            data["attributes"] = {};
+            for (let key in this.attributes) {
+                if (this.attributes.hasOwnProperty(key))
+                    (<any>data["attributes"])[key] = this.attributes[key] ? this.attributes[key].toJSON() : <any>undefined;
+            }
+        }
+        if (Array.isArray(this.objects)) {
+            data["objects"] = [];
+            for (let item of this.objects)
+                data["objects"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -1436,6 +1466,8 @@ export interface INodeInfo {
     frequency: number;
     namespace?: string | undefined;
     logLevel?: LogLevel | undefined;
+    attributes: { [key: string]: OcelValue; };
+    objects: OcelObject[];
 }
 
 export enum LogLevel {
@@ -1446,6 +1478,383 @@ export enum LogLevel {
     Error = 4,
     Fatal = 5,
     Unknown = 6,
+}
+
+export abstract class OcelValue implements IOcelValue {
+
+    protected _discriminator: string;
+
+    constructor(data?: IOcelValue) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "OcelValue";
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): OcelValue {
+        data = typeof data === 'object' ? data : {};
+        if (data["discriminator"] === "OcelString") {
+            let result = new OcelString();
+            result.init(data);
+            return result;
+        }
+        if (data["discriminator"] === "OcelTimestamp") {
+            let result = new OcelTimestamp();
+            result.init(data);
+            return result;
+        }
+        if (data["discriminator"] === "OcelInteger") {
+            let result = new OcelInteger();
+            result.init(data);
+            return result;
+        }
+        if (data["discriminator"] === "OcelFloat") {
+            let result = new OcelFloat();
+            result.init(data);
+            return result;
+        }
+        if (data["discriminator"] === "OcelBoolean") {
+            let result = new OcelBoolean();
+            result.init(data);
+            return result;
+        }
+        if (data["discriminator"] === "OcelList") {
+            let result = new OcelList();
+            result.init(data);
+            return result;
+        }
+        if (data["discriminator"] === "OcelMap") {
+            let result = new OcelMap();
+            result.init(data);
+            return result;
+        }
+        throw new Error("The abstract class 'OcelValue' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["discriminator"] = this._discriminator;
+        return data;
+    }
+}
+
+export interface IOcelValue {
+}
+
+export class OcelString extends OcelValue implements IOcelString {
+    value?: string | undefined;
+
+    constructor(data?: IOcelString) {
+        super(data);
+        this._discriminator = "OcelString";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.value = _data["value"];
+        }
+    }
+
+    static override fromJS(data: any): OcelString {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcelString();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IOcelString extends IOcelValue {
+    value?: string | undefined;
+}
+
+export class OcelTimestamp extends OcelValue implements IOcelTimestamp {
+    value!: Date;
+
+    constructor(data?: IOcelTimestamp) {
+        super(data);
+        this._discriminator = "OcelTimestamp";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.value = _data["value"] ? new Date(_data["value"].toString()) : <any>undefined;
+        }
+    }
+
+    static override fromJS(data: any): OcelTimestamp {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcelTimestamp();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value ? this.value.toISOString() : <any>undefined;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IOcelTimestamp extends IOcelValue {
+    value: Date;
+}
+
+export class OcelInteger extends OcelValue implements IOcelInteger {
+    value!: number;
+
+    constructor(data?: IOcelInteger) {
+        super(data);
+        this._discriminator = "OcelInteger";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.value = _data["value"];
+        }
+    }
+
+    static override fromJS(data: any): OcelInteger {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcelInteger();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IOcelInteger extends IOcelValue {
+    value: number;
+}
+
+export class OcelFloat extends OcelValue implements IOcelFloat {
+    value!: number;
+
+    constructor(data?: IOcelFloat) {
+        super(data);
+        this._discriminator = "OcelFloat";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.value = _data["value"];
+        }
+    }
+
+    static override fromJS(data: any): OcelFloat {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcelFloat();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IOcelFloat extends IOcelValue {
+    value: number;
+}
+
+export class OcelBoolean extends OcelValue implements IOcelBoolean {
+    value!: boolean;
+
+    constructor(data?: IOcelBoolean) {
+        super(data);
+        this._discriminator = "OcelBoolean";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.value = _data["value"];
+        }
+    }
+
+    static override fromJS(data: any): OcelBoolean {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcelBoolean();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["value"] = this.value;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IOcelBoolean extends IOcelValue {
+    value: boolean;
+}
+
+export class OcelList extends OcelValue implements IOcelList {
+    values?: OcelValue[] | undefined;
+
+    constructor(data?: IOcelList) {
+        super(data);
+        this._discriminator = "OcelList";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            if (Array.isArray(_data["values"])) {
+                this.values = [] as any;
+                for (let item of _data["values"])
+                    this.values!.push(OcelValue.fromJS(item));
+            }
+        }
+    }
+
+    static override fromJS(data: any): OcelList {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcelList();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.values)) {
+            data["values"] = [];
+            for (let item of this.values)
+                data["values"].push(item.toJSON());
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IOcelList extends IOcelValue {
+    values?: OcelValue[] | undefined;
+}
+
+export class OcelMap extends OcelValue implements IOcelMap {
+    values?: { [key: string]: OcelValue; } | undefined;
+
+    constructor(data?: IOcelMap) {
+        super(data);
+        this._discriminator = "OcelMap";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            if (_data["values"]) {
+                this.values = {} as any;
+                for (let key in _data["values"]) {
+                    if (_data["values"].hasOwnProperty(key))
+                        (<any>this.values)![key] = _data["values"][key] ? OcelValue.fromJS(_data["values"][key]) : <any>undefined;
+                }
+            }
+        }
+    }
+
+    static override fromJS(data: any): OcelMap {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcelMap();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (this.values) {
+            data["values"] = {};
+            for (let key in this.values) {
+                if (this.values.hasOwnProperty(key))
+                    (<any>data["values"])[key] = this.values[key] ? this.values[key].toJSON() : <any>undefined;
+            }
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IOcelMap extends IOcelValue {
+    values?: { [key: string]: OcelValue; } | undefined;
+}
+
+export class OcelObject implements IOcelObject {
+    type?: string | undefined;
+    ovMap?: { [key: string]: OcelValue; } | undefined;
+
+    constructor(data?: IOcelObject) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.type = _data["type"];
+            if (_data["ovMap"]) {
+                this.ovMap = {} as any;
+                for (let key in _data["ovMap"]) {
+                    if (_data["ovMap"].hasOwnProperty(key))
+                        (<any>this.ovMap)![key] = _data["ovMap"][key] ? OcelValue.fromJS(_data["ovMap"][key]) : <any>undefined;
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): OcelObject {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcelObject();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["type"] = this.type;
+        if (this.ovMap) {
+            data["ovMap"] = {};
+            for (let key in this.ovMap) {
+                if (this.ovMap.hasOwnProperty(key))
+                    (<any>data["ovMap"])[key] = this.ovMap[key] ? this.ovMap[key].toJSON() : <any>undefined;
+            }
+        }
+        return data;
+    }
+}
+
+export interface IOcelObject {
+    type?: string | undefined;
+    ovMap?: { [key: string]: OcelValue; } | undefined;
 }
 
 export class Edge implements IEdge {
@@ -2306,383 +2715,6 @@ export class ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEven
 export interface IValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent {
     item1: OcelObject;
     item2: ValueTupleOfStringAndOcelEvent[];
-}
-
-export class OcelObject implements IOcelObject {
-    type?: string | undefined;
-    ovMap?: { [key: string]: OcelValue; } | undefined;
-
-    constructor(data?: IOcelObject) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.type = _data["type"];
-            if (_data["ovMap"]) {
-                this.ovMap = {} as any;
-                for (let key in _data["ovMap"]) {
-                    if (_data["ovMap"].hasOwnProperty(key))
-                        (<any>this.ovMap)![key] = _data["ovMap"][key] ? OcelValue.fromJS(_data["ovMap"][key]) : <any>undefined;
-                }
-            }
-        }
-    }
-
-    static fromJS(data: any): OcelObject {
-        data = typeof data === 'object' ? data : {};
-        let result = new OcelObject();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["type"] = this.type;
-        if (this.ovMap) {
-            data["ovMap"] = {};
-            for (let key in this.ovMap) {
-                if (this.ovMap.hasOwnProperty(key))
-                    (<any>data["ovMap"])[key] = this.ovMap[key] ? this.ovMap[key].toJSON() : <any>undefined;
-            }
-        }
-        return data;
-    }
-}
-
-export interface IOcelObject {
-    type?: string | undefined;
-    ovMap?: { [key: string]: OcelValue; } | undefined;
-}
-
-export abstract class OcelValue implements IOcelValue {
-
-    protected _discriminator: string;
-
-    constructor(data?: IOcelValue) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-        this._discriminator = "OcelValue";
-    }
-
-    init(_data?: any) {
-    }
-
-    static fromJS(data: any): OcelValue {
-        data = typeof data === 'object' ? data : {};
-        if (data["discriminator"] === "OcelString") {
-            let result = new OcelString();
-            result.init(data);
-            return result;
-        }
-        if (data["discriminator"] === "OcelTimestamp") {
-            let result = new OcelTimestamp();
-            result.init(data);
-            return result;
-        }
-        if (data["discriminator"] === "OcelInteger") {
-            let result = new OcelInteger();
-            result.init(data);
-            return result;
-        }
-        if (data["discriminator"] === "OcelFloat") {
-            let result = new OcelFloat();
-            result.init(data);
-            return result;
-        }
-        if (data["discriminator"] === "OcelBoolean") {
-            let result = new OcelBoolean();
-            result.init(data);
-            return result;
-        }
-        if (data["discriminator"] === "OcelList") {
-            let result = new OcelList();
-            result.init(data);
-            return result;
-        }
-        if (data["discriminator"] === "OcelMap") {
-            let result = new OcelMap();
-            result.init(data);
-            return result;
-        }
-        throw new Error("The abstract class 'OcelValue' cannot be instantiated.");
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["discriminator"] = this._discriminator;
-        return data;
-    }
-}
-
-export interface IOcelValue {
-}
-
-export class OcelString extends OcelValue implements IOcelString {
-    value?: string | undefined;
-
-    constructor(data?: IOcelString) {
-        super(data);
-        this._discriminator = "OcelString";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.value = _data["value"];
-        }
-    }
-
-    static override fromJS(data: any): OcelString {
-        data = typeof data === 'object' ? data : {};
-        let result = new OcelString();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IOcelString extends IOcelValue {
-    value?: string | undefined;
-}
-
-export class OcelTimestamp extends OcelValue implements IOcelTimestamp {
-    value!: Date;
-
-    constructor(data?: IOcelTimestamp) {
-        super(data);
-        this._discriminator = "OcelTimestamp";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.value = _data["value"] ? new Date(_data["value"].toString()) : <any>undefined;
-        }
-    }
-
-    static override fromJS(data: any): OcelTimestamp {
-        data = typeof data === 'object' ? data : {};
-        let result = new OcelTimestamp();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value ? this.value.toISOString() : <any>undefined;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IOcelTimestamp extends IOcelValue {
-    value: Date;
-}
-
-export class OcelInteger extends OcelValue implements IOcelInteger {
-    value!: number;
-
-    constructor(data?: IOcelInteger) {
-        super(data);
-        this._discriminator = "OcelInteger";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.value = _data["value"];
-        }
-    }
-
-    static override fromJS(data: any): OcelInteger {
-        data = typeof data === 'object' ? data : {};
-        let result = new OcelInteger();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IOcelInteger extends IOcelValue {
-    value: number;
-}
-
-export class OcelFloat extends OcelValue implements IOcelFloat {
-    value!: number;
-
-    constructor(data?: IOcelFloat) {
-        super(data);
-        this._discriminator = "OcelFloat";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.value = _data["value"];
-        }
-    }
-
-    static override fromJS(data: any): OcelFloat {
-        data = typeof data === 'object' ? data : {};
-        let result = new OcelFloat();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IOcelFloat extends IOcelValue {
-    value: number;
-}
-
-export class OcelBoolean extends OcelValue implements IOcelBoolean {
-    value!: boolean;
-
-    constructor(data?: IOcelBoolean) {
-        super(data);
-        this._discriminator = "OcelBoolean";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.value = _data["value"];
-        }
-    }
-
-    static override fromJS(data: any): OcelBoolean {
-        data = typeof data === 'object' ? data : {};
-        let result = new OcelBoolean();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["value"] = this.value;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IOcelBoolean extends IOcelValue {
-    value: boolean;
-}
-
-export class OcelList extends OcelValue implements IOcelList {
-    values?: OcelValue[] | undefined;
-
-    constructor(data?: IOcelList) {
-        super(data);
-        this._discriminator = "OcelList";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            if (Array.isArray(_data["values"])) {
-                this.values = [] as any;
-                for (let item of _data["values"])
-                    this.values!.push(OcelValue.fromJS(item));
-            }
-        }
-    }
-
-    static override fromJS(data: any): OcelList {
-        data = typeof data === 'object' ? data : {};
-        let result = new OcelList();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.values)) {
-            data["values"] = [];
-            for (let item of this.values)
-                data["values"].push(item.toJSON());
-        }
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IOcelList extends IOcelValue {
-    values?: OcelValue[] | undefined;
-}
-
-export class OcelMap extends OcelValue implements IOcelMap {
-    values?: { [key: string]: OcelValue; } | undefined;
-
-    constructor(data?: IOcelMap) {
-        super(data);
-        this._discriminator = "OcelMap";
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            if (_data["values"]) {
-                this.values = {} as any;
-                for (let key in _data["values"]) {
-                    if (_data["values"].hasOwnProperty(key))
-                        (<any>this.values)![key] = _data["values"][key] ? OcelValue.fromJS(_data["values"][key]) : <any>undefined;
-                }
-            }
-        }
-    }
-
-    static override fromJS(data: any): OcelMap {
-        data = typeof data === 'object' ? data : {};
-        let result = new OcelMap();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (this.values) {
-            data["values"] = {};
-            for (let key in this.values) {
-                if (this.values.hasOwnProperty(key))
-                    (<any>data["values"])[key] = this.values[key] ? this.values[key].toJSON() : <any>undefined;
-            }
-        }
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IOcelMap extends IOcelValue {
-    values?: { [key: string]: OcelValue; } | undefined;
 }
 
 export class ValueTupleOfStringAndOcelEvent implements IValueTupleOfStringAndOcelEvent {

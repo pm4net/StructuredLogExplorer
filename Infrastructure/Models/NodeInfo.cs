@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Extensions;
+using OCEL.CSharp;
 using pm4net.Types;
 
 namespace Infrastructure.Models
@@ -10,7 +11,11 @@ namespace Infrastructure.Models
 		public string? Namespace { get; set; }
 
 		public LogLevel? LogLevel { get; set; }
-	}
+
+        public IDictionary<string, OcelValue> Attributes { get; set; } = new Dictionary<string, OcelValue>();
+
+        public IEnumerable<OcelObject> Objects { get; set; } = new List<OcelObject>();
+    }
 
 	public static class NodeInfoExtensions
 	{
@@ -20,7 +25,9 @@ namespace Infrastructure.Models
 			{
 				Frequency = nodeInfo.Frequency,
 				Namespace = nodeInfo.Namespace.TryGetValue(),
-				LogLevel = nodeInfo.Level.TryGetValue()?.FromFSharpLogLevel()
+				LogLevel = nodeInfo.Level.TryGetValue()?.FromFSharpLogLevel(),
+				Attributes = nodeInfo.Attributes.ToDictionary(x => x.Key, x => x.Value.FromFSharpOcelValue()),
+				Objects = nodeInfo.Objects.Select(o => o.FromFSharpOcelObject())
 			};
 		}
 	}
