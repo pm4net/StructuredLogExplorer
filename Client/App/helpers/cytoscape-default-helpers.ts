@@ -1,50 +1,38 @@
-import cytoscape, { type NodeDataDefinition } from "cytoscape";
-import { EventNode, type DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo, StartNode, EndNode } from "../shared/pm4net-client";
+import cytoscape from "cytoscape";
+import type { GraphLayout } from "../shared/pm4net-client";
+import { getEdgeId } from "./cytoscape-helpers";
 
-function createNodesFromGraph(graph: DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo) {
+function createNodesFromGraph(graph: GraphLayout) {
     return graph.nodes!.map(node => {
-        let data : NodeDataDefinition = {};
-        if (node instanceof EventNode) {
-            data = {
-                id: node.name,
-                text: node.name,
-                info: node.nodeInfo,
-                disabled: false
-            };
-        } else if (node instanceof StartNode) {
-            data = {
-                id: "start_" + node.type,
-                text: node.type
-            };
-        } else if (node instanceof EndNode) {
-            data = {
-                id: "end_" + node.type,
-                text: node.type
-            };
-        }
-
         let elem : cytoscape.NodeDefinition = {
-            data: data
+            data: {
+                id: node.id,
+                text: node.text,
+                info: node.nodeInfo,
+                type: node.nodeType,
+                disabled: false
+            }
         };
         return { elem: elem, n: node };
     });
 }
 
-function createEdgesFromGraph(graph: DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo) {
+function createEdgesFromGraph(graph: GraphLayout) {
     return graph.edges!.map(edge => {
         let elem : cytoscape.EdgeDefinition = {
             data: {
-                id: "", // TODO
-                source: "",
-                target: "",
-                edgeInfo: edge.item3
+                id: getEdgeId(edge),
+                source: edge.sourceId,
+                target: edge.targetId,
+                typeInfos: edge.typeInfos,
+                totalWeight: edge.totalWeight
             }
         };
         return { elem: elem, e: edge };
     });
 }
 
-export function initializeBfsCytoscape(graph: DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo, container: any) {
+export function initializeBfsCytoscape(graph: GraphLayout, container: any) {
     let nodes = createNodesFromGraph(graph);
     let edges = createEdgesFromGraph(graph);
 

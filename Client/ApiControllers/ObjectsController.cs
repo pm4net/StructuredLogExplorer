@@ -1,8 +1,8 @@
 ﻿using Infrastructure.Extensions;
 using Infrastructure.Interfaces;
+using Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc;
 using OCEL.CSharp;
-using StructuredLogExplorer.Models;
 
 namespace StructuredLogExplorer.ApiControllers
 {

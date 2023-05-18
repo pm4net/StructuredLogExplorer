@@ -1,5 +1,5 @@
 import { saveAs } from "file-saver";
-import { LogLevel } from "../shared/pm4net-client";
+import { Edge, LogLevel } from "../shared/pm4net-client";
 
 export function resetHighlights(cy: cytoscape.Core, viewUtilitiesApi: any) {
     viewUtilitiesApi.removeHighlights(cy.elements());
@@ -44,4 +44,8 @@ export function logLevelToColor(level: LogLevel) {
         default:
             return "#FFFFFF";
     }
+}
+
+export function getEdgeId(edge: Edge) {
+    return edge.sourceId + "-" + edge.targetId;
 }

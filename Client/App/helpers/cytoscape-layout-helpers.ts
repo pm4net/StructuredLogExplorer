@@ -2,11 +2,7 @@ import cytoscape from "cytoscape";
 import type { Position } from "cytoscape";
 import { Coordinate, Edge, End, Event, GraphLayout, Start } from "../shared/pm4net-client";
 import { getColor } from "./color-helpers";
-import { logLevelToColor } from "./cytoscape-helpers";
-
-function getEdgeId(edge: Edge) {
-    return edge.sourceId + "-" + edge.targetId;
-}
+import { getEdgeId, logLevelToColor } from "./cytoscape-helpers";
 
 function createNodesFromLayout(graph: GraphLayout) {
     return graph.nodes!.map(node => {
@@ -33,8 +29,8 @@ function createEdgesFromLayout(graph: GraphLayout) {
         let elem : cytoscape.EdgeDefinition = {
             data: {
                 id: getEdgeId(edge),
-                source: edge.sourceId!,
-                target: edge.targetId!,
+                source: edge.sourceId,
+                target: edge.targetId,
                 downwards: edge.downwards,
                 typeInfos: edge.typeInfos,
                 totalWeight: edge.totalWeight
@@ -197,18 +193,18 @@ export function initializeCustomCytoscape(layout: GraphLayout, container: any) {
                 'width': scaleBetween(e.totalWeight, 3, 10, minEdgeWeight, maxEdgeWeight),
             });
 
-            if (e.waypoints.coordinates.length > 0) {
+            if (e.waypoints!.coordinates.length > 0) {
                 let startPos = cy.$id(e.sourceId).position();
                 let endPos = cy.$id(e.targetId).position();
-                let waypoints = e.waypoints.coordinates.sort(p => p.y);
+                let waypoints = e.waypoints!.coordinates.sort(p => p.y);
                 if (e.downwards) {
                     waypoints.reverse();
                 }
 
                 elem.style({
                     'curve-style': 'segments',
-                    'segment-distances': e.waypoints.coordinates.map(w => distanceToLine(startPos, endPos, w)),
-                    'segment-weights': e.waypoints.coordinates.map(w => {
+                    'segment-distances': e.waypoints!.coordinates.map(w => distanceToLine(startPos, endPos, w)),
+                    'segment-weights': e.waypoints!.coordinates.map(w => {
                         let point = pointOnLine(startPos, endPos, w);
                         if (point) {
                             let distBetweenPoints = distanceBetweenPoints(startPos.x, startPos.y, point.x, point.y);

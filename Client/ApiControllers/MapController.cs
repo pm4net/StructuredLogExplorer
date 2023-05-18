@@ -2,7 +2,6 @@
 using Infrastructure.Helpers;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
-using Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.FSharp.Core;
@@ -11,7 +10,6 @@ using OCEL.CSharp;
 using pm4net.Types.Trees;
 using pm4net.Utilities;
 using pm4net.Types;
-using StructuredLogExplorer.Models;
 using StructuredLogExplorer.Models.ControllerOptions;
 using NodeInfo = pm4net.Types.NodeInfo;
 
@@ -50,6 +48,19 @@ namespace StructuredLogExplorer.ApiControllers
             return log;
         }
 
+        /// <summary>
+        /// Discover an object-centric directly-follows-graph (OC-DFG) from a project's event log, applying the given options.
+        /// </summary>
+        private GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>> DiscoverOriginalOcDfg(string projectName, OcDfgOptions options)
+        {
+            var log = GetProjectLog(projectName);
+            return OcelDfg.Discover(new OcDfgFilter(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions,
+                    options.DateFrom != null && options.DateTo != null
+                        ? FSharpOption<TimeframeFilter>.Some(new TimeframeFilter(options.DtoFrom!.Value.StartOfDay(), options.DtoTo!.Value.EndOfDay(), options.KeepCases.ToPm4Net()))
+                        : FSharpOption<TimeframeFilter>.None),
+                options.IncludedTypes, log);
+        }
+
         [HttpGet]
         [Route("getLogInfo")]
         public LogInfo GetLogInfo(string projectName)
@@ -61,26 +72,6 @@ namespace StructuredLogExplorer.ApiControllers
                 FirstEventTimestamp = log.OrderedEvents.FirstOrDefault().Value.Timestamp.ToString("dd/MM/yyyy"),
                 LastEventTimestamp = log.OrderedEvents.LastOrDefault().Value.Timestamp.ToString("dd/MM/yyyy")
             };
-        }
-
-        private GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>> DiscoverOriginalOcDfg(string projectName, OcDfgOptions options)
-        {
-            var log = GetProjectLog(projectName);
-            return OcelDfg.Discover(new OcDfgFilter(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions,
-                    options.DateFrom != null && options.DateTo != null
-                        ? FSharpOption<TimeframeFilter>.Some(new TimeframeFilter(options.DtoFrom!.Value.StartOfDay(), options.DtoTo!.Value.EndOfDay(), options.KeepCases.ToPm4Net()))
-                        : FSharpOption<TimeframeFilter>.None),
-                options.IncludedTypes, log);
-        }
-
-        [HttpPost]
-        [Route("discoverOcDfg")]
-        public GraphTypes.DirectedGraph<NodeOfNodeInfo, InputTypes.Edge<EdgeInfo>> DiscoverOcDfg(string projectName, [FromBody] OcDfgOptions options)
-        {
-            var ocDfg = DiscoverOriginalOcDfg(projectName, options);
-            var convertedNodes = ocDfg.Nodes.Select(n => n.FromFSharpNodeOfNodeInfo()).ToFSharpList();
-            var convertedEdges = ocDfg.Edges.Select(e => Tuple.Create(e.Item1.FromFSharpNodeOfNodeInfo(), e.Item2.FromFSharpNodeOfNodeInfo(), e.Item3)).ToFSharpList();
-            return new GraphTypes.DirectedGraph<NodeOfNodeInfo, InputTypes.Edge<EdgeInfo>>(convertedNodes, convertedEdges);
         }
 
         [HttpGet]
@@ -121,7 +112,15 @@ namespace StructuredLogExplorer.ApiControllers
 			return ComputeLayoutWithModel(projectName, (model, options.LayoutOptions));
 		}
 
-		[HttpPost]
+        [HttpPost]
+        [Route("discoverOcDfg")]
+        public GraphLayout DiscoverOcDfg(string projectName, [FromBody] OcDfgOptions options)
+        {
+            var ocDfg = DiscoverOriginalOcDfg(projectName, options);
+            return ocDfg.FromOcDfg();
+        }
+
+        [HttpPost]
         [Route("discoverOcDfgAndDot")]
         public string DiscoverOcDfgAndGenerateDot(string projectName, bool groupByNamespace, [FromBody] OcDfgOptions options)
         {

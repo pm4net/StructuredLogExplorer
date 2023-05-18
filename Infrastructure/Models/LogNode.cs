@@ -1,6 +1,4 @@
-﻿using Infrastructure.Models;
-
-namespace StructuredLogExplorer.Models
+﻿namespace Infrastructure.Models
 {
 	public class LogNode
 	{

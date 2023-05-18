@@ -1,4 +1,4 @@
-﻿namespace StructuredLogExplorer.Models
+﻿namespace Infrastructure.Models
 {
     public class LogInfo
     {

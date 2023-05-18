@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace StructuredLogExplorer.Models
+namespace Infrastructure.Models
 {
     public class ObjectInfo
     {

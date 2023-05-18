@@ -11,13 +11,14 @@
     import viewUtilities from "cytoscape-view-utilities";
     import { BubbleSetsPlugin } from "cytoscape-bubblesets";
     import { logLevelToColor, resetHighlights, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
-    import { Event, type DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
+    import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
     import { initializeCustomCytoscape } from "../../helpers/cytoscape-layout-helpers";
     import { initializeBfsCytoscape } from "../../helpers/cytoscape-default-helpers";
 
     // Props to pass in either a fully defined graph layout or only an OC-DFG, in which case the default layout algorithm will be used.
     export let layout : GraphLayout | undefined = undefined;
-    export let ocdfg : DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo | undefined = undefined;
+    export let ocdfg : GraphLayout | undefined = undefined;
+    $: hasLayout = layout !== undefined;
 
     // Create cytoscape instance and register extensions
     let cy : cytoscape.Core;
@@ -68,7 +69,7 @@
 
     onMount(() => {
         let elem = document.getElementById("dfg");
-        if (layout !== undefined) {
+        if (hasLayout) {
             cy = initializeCustomCytoscape(layout!, elem);
         } else {
             cy = initializeBfsCytoscape(ocdfg!, elem);

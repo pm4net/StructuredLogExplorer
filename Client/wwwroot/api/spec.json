@@ -169,51 +169,6 @@
         }
       }
     },
-    "/api/Map/discoverOcDfg": {
-      "post": {
-        "tags": [
-          "Map"
-        ],
-        "operationId": "Map_DiscoverOcDfg",
-        "consumes": [
-          "application/json-patch+json",
-          "application/json",
-          "text/json",
-          "application/*+json"
-        ],
-        "produces": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "parameters": [
-          {
-            "type": "string",
-            "name": "projectName",
-            "in": "query",
-            "x-nullable": false
-          },
-          {
-            "name": "options",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/OcDfgOptions"
-            },
-            "x-nullable": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "x-nullable": false,
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo"
-            }
-          }
-        }
-      }
-    },
     "/api/Map/getAllNodesInLog": {
       "get": {
         "tags": [
@@ -361,6 +316,51 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/OcDfgLayoutOptions"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/GraphLayout"
+            }
+          }
+        }
+      }
+    },
+    "/api/Map/discoverOcDfg": {
+      "post": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_DiscoverOcDfg",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": false
+          },
+          {
+            "name": "options",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OcDfgOptions"
             },
             "x-nullable": false
           }
@@ -675,235 +675,6 @@
         }
       }
     },
-    "DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo": {
-      "type": "object",
-      "description": "Directed graph with edge information.",
-      "properties": {
-        "nodes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/NodeOfNodeInfo"
-          }
-        },
-        "edges": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo"
-          }
-        }
-      }
-    },
-    "NodeOfNodeInfo": {
-      "type": "object",
-      "discriminator": "discriminator",
-      "x-abstract": true,
-      "required": [
-        "discriminator"
-      ],
-      "properties": {
-        "discriminator": {
-          "type": "string"
-        }
-      }
-    },
-    "StartNode": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/NodeOfNodeInfo"
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string"
-            }
-          }
-        }
-      ]
-    },
-    "EndNode": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/NodeOfNodeInfo"
-        },
-        {
-          "type": "object",
-          "required": [
-            "type"
-          ],
-          "properties": {
-            "type": {
-              "type": "string"
-            }
-          }
-        }
-      ]
-    },
-    "EventNode": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/NodeOfNodeInfo"
-        },
-        {
-          "type": "object",
-          "required": [
-            "name"
-          ],
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "nodeInfo": {
-              "$ref": "#/definitions/NodeInfo"
-            }
-          }
-        }
-      ]
-    },
-    "NodeInfo": {
-      "type": "object",
-      "required": [
-        "frequency"
-      ],
-      "properties": {
-        "frequency": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "namespace": {
-          "type": "string"
-        },
-        "logLevel": {
-          "$ref": "#/definitions/LogLevel"
-        }
-      }
-    },
-    "LogLevel": {
-      "type": "integer",
-      "description": "",
-      "x-enumNames": [
-        "Verbose",
-        "Debug",
-        "Information",
-        "Warning",
-        "Error",
-        "Fatal",
-        "Unknown"
-      ],
-      "enum": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ]
-    },
-    "TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo": {
-      "type": "object",
-      "required": [
-        "item1",
-        "item2",
-        "item3"
-      ],
-      "properties": {
-        "item1": {
-          "$ref": "#/definitions/NodeOfNodeInfo"
-        },
-        "item2": {
-          "$ref": "#/definitions/NodeOfNodeInfo"
-        },
-        "item3": {
-          "$ref": "#/definitions/EdgeOfEdgeInfo"
-        }
-      }
-    },
-    "EdgeOfEdgeInfo": {
-      "type": "object",
-      "description": "An edge is associated with a weight/frequency, and optionally a type, as well as any other arbitrary information.",
-      "required": [
-        "weight"
-      ],
-      "properties": {
-        "weight": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "type": {
-          "$ref": "#/definitions/FSharpOptionOfString"
-        },
-        "info": {
-          "$ref": "#/definitions/FSharpOptionOfEdgeInfo"
-        }
-      }
-    },
-    "FSharpOptionOfString": {
-      "type": "object"
-    },
-    "FSharpOptionOfEdgeInfo": {
-      "type": "object"
-    },
-    "OcDfgOptions": {
-      "type": "object",
-      "required": [
-        "minimumEvents",
-        "minimumOccurrence",
-        "minimumSuccessions",
-        "keepCases",
-        "includedTypes"
-      ],
-      "properties": {
-        "minimumEvents": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "minimumOccurrence": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "minimumSuccessions": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "dateFrom": {
-          "type": "string"
-        },
-        "dateTo": {
-          "type": "string"
-        },
-        "keepCases": {
-          "$ref": "#/definitions/KeepCases"
-        },
-        "includedTypes": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "KeepCases": {
-      "type": "string",
-      "description": "",
-      "x-enumNames": [
-        "ContainedInTimeFrame",
-        "IntersectingTimeFrame",
-        "StartedInTimeFrame",
-        "CompletedInTimeFrame",
-        "TrimToTimeFrame"
-      ],
-      "enum": [
-        "contained",
-        "intersecting",
-        "started",
-        "completed",
-        "trim"
-      ]
-    },
     "LogNode": {
       "type": "object",
       "required": [
@@ -1050,10 +821,7 @@
       "required": [
         "id",
         "text",
-        "nodeType",
-        "position",
-        "size",
-        "rank"
+        "nodeType"
       ],
       "properties": {
         "id": {
@@ -1101,13 +869,51 @@
         }
       }
     },
+    "NodeInfo": {
+      "type": "object",
+      "required": [
+        "frequency"
+      ],
+      "properties": {
+        "frequency": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "logLevel": {
+          "$ref": "#/definitions/LogLevel"
+        }
+      }
+    },
+    "LogLevel": {
+      "type": "integer",
+      "description": "",
+      "x-enumNames": [
+        "Verbose",
+        "Debug",
+        "Information",
+        "Warning",
+        "Error",
+        "Fatal",
+        "Unknown"
+      ],
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
     "Edge": {
       "type": "object",
       "required": [
         "sourceId",
         "targetId",
-        "waypoints",
-        "downwards",
         "totalWeight",
         "typeInfos"
       ],
@@ -1251,37 +1057,37 @@
       ],
       "properties": {
         "item1": {
-          "$ref": "#/definitions/DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2"
+          "$ref": "#/definitions/DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo"
         },
         "item2": {
           "$ref": "#/definitions/GraphLayoutOptions"
         }
       }
     },
-    "DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo2": {
+    "DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo": {
       "type": "object",
       "description": "Directed graph with edge information.",
       "properties": {
         "nodes": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/NodeOfNodeInfo2"
+            "$ref": "#/definitions/NodeOfNodeInfo"
           }
         },
         "edges": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2"
+            "$ref": "#/definitions/TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo"
           }
         }
       }
     },
-    "NodeOfNodeInfo2": {
+    "NodeOfNodeInfo": {
       "type": "object",
       "description": "A node type that can be a regular event node or a start/end node for a specific type.",
       "x-abstract": true
     },
-    "TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo2": {
+    "TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo": {
       "type": "object",
       "required": [
         "item1",
@@ -1290,15 +1096,40 @@
       ],
       "properties": {
         "item1": {
-          "$ref": "#/definitions/NodeOfNodeInfo2"
+          "$ref": "#/definitions/NodeOfNodeInfo"
         },
         "item2": {
-          "$ref": "#/definitions/NodeOfNodeInfo2"
+          "$ref": "#/definitions/NodeOfNodeInfo"
         },
         "item3": {
           "$ref": "#/definitions/EdgeOfEdgeInfo"
         }
       }
+    },
+    "EdgeOfEdgeInfo": {
+      "type": "object",
+      "description": "An edge is associated with a weight/frequency, and optionally a type, as well as any other arbitrary information.",
+      "required": [
+        "weight"
+      ],
+      "properties": {
+        "weight": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "type": {
+          "$ref": "#/definitions/FSharpOptionOfString"
+        },
+        "info": {
+          "$ref": "#/definitions/FSharpOptionOfEdgeInfo"
+        }
+      }
+    },
+    "FSharpOptionOfString": {
+      "type": "object"
+    },
+    "FSharpOptionOfEdgeInfo": {
+      "type": "object"
     },
     "GraphLayoutOptions": {
       "type": "object",
@@ -1349,6 +1180,63 @@
           "$ref": "#/definitions/GraphLayoutOptions"
         }
       }
+    },
+    "OcDfgOptions": {
+      "type": "object",
+      "required": [
+        "minimumEvents",
+        "minimumOccurrence",
+        "minimumSuccessions",
+        "keepCases",
+        "includedTypes"
+      ],
+      "properties": {
+        "minimumEvents": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "minimumOccurrence": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "minimumSuccessions": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "dateFrom": {
+          "type": "string"
+        },
+        "dateTo": {
+          "type": "string"
+        },
+        "keepCases": {
+          "$ref": "#/definitions/KeepCases"
+        },
+        "includedTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "KeepCases": {
+      "type": "string",
+      "description": "",
+      "x-enumNames": [
+        "ContainedInTimeFrame",
+        "IntersectingTimeFrame",
+        "StartedInTimeFrame",
+        "CompletedInTimeFrame",
+        "TrimToTimeFrame"
+      ],
+      "enum": [
+        "contained",
+        "intersecting",
+        "started",
+        "completed",
+        "trim"
+      ]
     },
     "ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent": {
       "type": "object",
