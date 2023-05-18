@@ -4,6 +4,8 @@ namespace Infrastructure.Extensions
 {
     public static class OcelHelpersExtensions
     {
+        private static readonly IEnumerable<string> Prefixes = new List<string> { "Serilog.Sinks.OCEL_Prefix", "Serilog.Enrichers.CallerInfo_Prefix" };
+
         private static OcelValue? TryGetValue(OcelEvent @event, string? prefix, string name)
         {
             if (!string.IsNullOrWhiteSpace(prefix))
@@ -35,17 +37,17 @@ namespace Infrastructure.Extensions
 
         public static OcelValue? Namespace(this OcelEvent @event, OcelLog log)
         {
-            return TryGetValueWithPrefixes(@event, new List<string> { "Serilog.Sinks.OCEL_Prefix", "Serilog.Enrichers.CallerInfo_Prefix" }, "Namespace", log);
+            return TryGetValueWithPrefixes(@event, Prefixes, "Namespace", log);
         }
 
         public static OcelValue? SourceFile(this OcelEvent @event, OcelLog log)
         {
-            return TryGetValueWithPrefixes(@event, new List<string> { "Serilog.Sinks.OCEL_Prefix", "Serilog.Enrichers.CallerInfo_Prefix" }, "SourceFile", log);
+            return TryGetValueWithPrefixes(@event, Prefixes, "SourceFile", log);
         }
 
         public static OcelValue? LineNumber(this OcelEvent @event, OcelLog log)
         {
-            return TryGetValueWithPrefixes(@event, new List<string> { "Serilog.Sinks.OCEL_Prefix", "Serilog.Enrichers.CallerInfo_Prefix" }, "LineNumber", log);
+            return TryGetValueWithPrefixes(@event, Prefixes, "LineNumber", log);
         }
     }
 }

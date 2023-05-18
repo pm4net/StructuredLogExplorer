@@ -1,19 +1,18 @@
 <script lang="ts">
     import { Accordion, AccordionItem, ComboBox, ExpandableTile, InlineLoading } from "carbon-components-svelte";
     import { mapClient } from "../shared/pm4net-client-config";
-    import { activeProject } from "../shared/stores";
-    import type { OcelObject, OcelValue, ValueTupleOfStringAndOcelEvent } from "../shared/pm4net-client";
+    import { activeProject, mapSettings } from "../shared/stores";
     import { DateTime } from "luxon";
     import humanizeDuration from "humanize-duration"
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
+    import { createOcDfgOptionsFromStore } from "../shared/helpers";
+    import type { OcelObject, OcelValue, ValueTupleOfStringAndOcelEvent } from "../shared/pm4net-client";
 
     // Props
     export let objectTypes : string[];
+    export let selectedType = ""; // $mapSettings[$activeProject ?? ""]?.selectedTypeForTraces ?? "";
 
     const dispatch = createEventDispatcher();
-
-    // State variables
-    let selectedType : string = "";
 
     // Humanizer
     const shortEnglishHumanizer = humanizeDuration.humanizer({
@@ -37,7 +36,7 @@
     async function getTracesForObjectType(objType: string) {
         try {
             if (objType) {
-                return await mapClient.getTracesForObjectType($activeProject, objType);
+                return await mapClient.getTracesForObjectType($activeProject, objType, createOcDfgOptionsFromStore());
             }
         } catch (e: unknown) {
             console.error(e); // TODO
@@ -85,19 +84,20 @@
             return undefined;
         }
     }
+
+    async function loadAndHighlightTraces() {
+        tracesPromise = getTracesForObjectType(selectedType);
+        dispatch("highlightTraces", await tracesPromise);
+    }
 </script>
 
 <strong>Traces</strong>
 <ComboBox 
     placeholder="Select an object type"
     items={objectTypes.map(o => {return { id: o, text: o }})}
-    selectedId="0"
     bind:value={selectedType}
-    on:clear={(_) => dispatch("highlightTraces", [])}
-    on:select={async (_) => {
-        tracesPromise = getTracesForObjectType(selectedType);
-        dispatch("highlightTraces", await tracesPromise);
-    }}>
+    on:clear={() => dispatch("highlightTraces", [])}
+    on:select={loadAndHighlightTraces}>
 </ComboBox>
 
 {#await tracesPromise}

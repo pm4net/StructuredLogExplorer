@@ -226,7 +226,7 @@ export interface IMapClient {
 
     discoverOcDfgAndGenerateDot(projectName: string | undefined, groupByNamespace: boolean | undefined, options: OcDfgOptions): Promise<string>;
 
-    getTracesForObjectType(projectName: string | undefined, objectType: string | undefined): Promise<ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]>;
+    getTracesForObjectType(projectName: string | undefined, objectType: string | undefined, options: OcDfgOptions): Promise<ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]>;
 
     /**
      * @param projectName (optional) 
@@ -539,7 +539,7 @@ export class MapClient implements IMapClient {
         return Promise.resolve<string>(null as any);
     }
 
-    getTracesForObjectType(projectName: string | undefined, objectType: string | undefined): Promise<ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]> {
+    getTracesForObjectType(projectName: string | undefined, objectType: string | undefined, options: OcDfgOptions): Promise<ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]> {
         let url_ = this.baseUrl + "/api/Map/getTracesForObjectType?";
         if (projectName === null)
             throw new Error("The parameter 'projectName' cannot be null.");
@@ -551,9 +551,13 @@ export class MapClient implements IMapClient {
             url_ += "objectType=" + encodeURIComponent("" + objectType) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(options);
+
         let options_: RequestInit = {
-            method: "GET",
+            body: content_,
+            method: "POST",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             }
         };

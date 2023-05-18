@@ -2,11 +2,11 @@
     import Layout from "./shared/layout.svelte";
     import { activeProject, mapSettings, DisplayType, DisplayMethod, EdgeType } from "./shared/stores";
     import { mapClient } from "./shared/pm4net-client-config";
-    import { getErrorMessage, getTextSize } from "./shared/helpers";
+    import { createOcDfgOptionsFromStore, getErrorMessage, getTextSize } from "./shared/helpers";
     import { Column, Grid, InlineNotification, Loading, Row, ToastNotification } from "carbon-components-svelte";
     import Filters from "./components/filters.svelte";
     import Dot from "./components/maps/dot.svelte";
-    import { GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, OcDfgOptions, Size, KeepCases } from "./shared/pm4net-client";
+    import { GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, Size, KeepCases } from "./shared/pm4net-client";
     import wrapAnsi from "wrap-ansi";
     import Traces from "./components/traces.svelte";
     import Cytoscape from "./components/maps/cytoscape.svelte";
@@ -75,23 +75,15 @@
     async function getGraphLayout() {
         try {
             return await mapClient.computeLayout($activeProject ?? "", new OcDfgLayoutOptions({
-                ocDfgOptions: new OcDfgOptions({
-                        minimumEvents: $mapSettings[$activeProject ?? ""]?.dfg.minEvents,
-                        minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
-                        minimumSuccessions: $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions,
-                        includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes,
-                        dateFrom: $mapSettings[$activeProject ?? ""]?.dfg.dateFrom,
-                        dateTo: $mapSettings[$activeProject ?? ""]?.dfg.dateTo,
-                        keepCases: $mapSettings[$activeProject ?? ""]?.dfg.keepCases
-                    }),
-                    layoutOptions: new GraphLayoutOptions({
-                        mergeEdgesOfSameType: true,
-                        fixUnforeseenEdges: $mapSettings[$activeProject ?? ""]?.fixUnforeseenEdges,
-                        nodeSeparation: 50,
-                        rankSeparation: 50,
-                        edgeSeparation: 50,
-                        tension: 0.5
-                    })
+                ocDfgOptions: createOcDfgOptionsFromStore(),
+                layoutOptions: new GraphLayoutOptions({
+                    mergeEdgesOfSameType: true,
+                    fixUnforeseenEdges: $mapSettings[$activeProject ?? ""]?.fixUnforeseenEdges,
+                    nodeSeparation: 50,
+                    rankSeparation: 50,
+                    edgeSeparation: 50,
+                    tension: 0.5
+                })
             }));
         } catch (e: unknown) {
             errorNotification.show = true;
@@ -105,14 +97,7 @@
             return await mapClient.discoverOcDfgAndGenerateDot(
                 $activeProject ?? "",
                 $mapSettings[$activeProject ?? ""]?.groupByNamespace,
-                new OcDfgOptions({ 
-                    minimumEvents: $mapSettings[$activeProject ?? ""]?.dfg.minEvents,
-                    minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
-                    minimumSuccessions: $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions,
-                    includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes,
-                    keepCases: $mapSettings[$activeProject ?? ""]?.dfg.keepCases
-                })
-            );
+                createOcDfgOptionsFromStore());
         } catch (e: unknown) {
             errorNotification.show = true;
             errorNotification.message = getErrorMessage(e);
@@ -122,14 +107,7 @@
     // Load the OC-DFG from the API, using the settings from local storage
     async function getOcDfg() {
         try {
-            return await mapClient.discoverOcDfg($activeProject ?? "", new OcDfgOptions({ 
-                    minimumEvents: $mapSettings[$activeProject ?? ""]?.dfg.minEvents,
-                    minimumOccurrence: $mapSettings[$activeProject ?? ""]?.dfg.minOccurrences,
-                    minimumSuccessions: $mapSettings[$activeProject ?? ""]?.dfg.minSuccessions,
-                    includedTypes: $mapSettings[$activeProject ?? ""]?.objectTypes,
-                    keepCases: $mapSettings[$activeProject ?? ""]?.dfg.keepCases
-                })
-            );
+            return await mapClient.discoverOcDfg($activeProject ?? "", createOcDfgOptionsFromStore());
         } catch (e: unknown) {
             errorNotification.show = true;
             errorNotification.message = getErrorMessage(e);
@@ -137,7 +115,7 @@
     }
 
     function forwardHighlightTracesEvent(event: any) {
-        cyComponent.highlightTraces(event.detail);
+        cyComponent?.highlightTraces(event.detail);
     }
 </script>
 
@@ -199,7 +177,11 @@
                             {/key}
                         </Column>
                         <Column class="maxScreenHeight" sm={4} md={2} lg={4} xlg={3} max={3}>
-                            <Traces objectTypes={logInfo.objectTypes} on:highlightTraces={forwardHighlightTracesEvent} />
+                            <!-- Refresh traces window when filters change too, so that the traces can be reloaded according to the applied filters, and re-highlighted -->
+                            {#key $mapSettings[$activeProject ?? ""]}
+                                <!-- When it changes, we can pass in the selected type as a prop (have to somehow know what was selected before though) -->
+                                <Traces objectTypes={logInfo.objectTypes} on:highlightTraces={forwardHighlightTracesEvent} />
+                            {/key}
                         </Column>
                     </Row>
                 </Grid>

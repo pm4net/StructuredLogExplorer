@@ -428,11 +428,17 @@
       }
     },
     "/api/Map/getTracesForObjectType": {
-      "get": {
+      "post": {
         "tags": [
           "Map"
         ],
         "operationId": "Map_GetTracesForObjectType",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
         "produces": [
           "text/plain",
           "application/json",
@@ -449,6 +455,15 @@
             "type": "string",
             "name": "objectType",
             "in": "query",
+            "x-nullable": false
+          },
+          {
+            "name": "options",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OcDfgOptions"
+            },
             "x-nullable": false
           }
         ],

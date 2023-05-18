@@ -1,4 +1,6 @@
-import { SwaggerException } from "./pm4net-client";
+import { get } from "svelte/store";
+import { OcDfgOptions, SwaggerException } from "./pm4net-client";
+import { activeProject, mapSettings } from "./stores";
 
 export function getErrorMessage(e: unknown) : string {
     if (e instanceof SwaggerException) {
@@ -42,4 +44,16 @@ export function getTextSize(canvas: any, text: string, font?: string) {
         width: Math.max(...measured.map(m => m.width)), 
         height: measured.map(m => m.actualBoundingBoxAscent + m.actualBoundingBoxDescent).reduce((acc, height) => acc + height)
     };
+}
+
+export function createOcDfgOptionsFromStore() {
+    return new OcDfgOptions({
+        minimumEvents: get(mapSettings)[get(activeProject) ?? ""]?.dfg.minEvents,
+        minimumOccurrence: get(mapSettings)[get(activeProject) ?? ""]?.dfg.minOccurrences,
+        minimumSuccessions: get(mapSettings)[get(activeProject) ?? ""]?.dfg.minSuccessions,
+        includedTypes: get(mapSettings)[get(activeProject) ?? ""]?.objectTypes,
+        dateFrom: get(mapSettings)[get(activeProject) ?? ""]?.dfg.dateFrom,
+        dateTo: get(mapSettings)[get(activeProject) ?? ""]?.dfg.dateTo,
+        keepCases: get(mapSettings)[get(activeProject) ?? ""]?.dfg.keepCases
+    });
 }

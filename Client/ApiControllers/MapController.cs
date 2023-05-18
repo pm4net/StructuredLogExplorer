@@ -12,6 +12,7 @@ using pm4net.Utilities;
 using pm4net.Types;
 using StructuredLogExplorer.Models.ControllerOptions;
 using NodeInfo = pm4net.Types.NodeInfo;
+using OcelEvent = Infrastructure.Models.OcelEvent;
 
 namespace StructuredLogExplorer.ApiControllers
 {
@@ -135,15 +136,20 @@ namespace StructuredLogExplorer.ApiControllers
             return dot;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("getTracesForObjectType")]
-		public IEnumerable<(OcelObject, IEnumerable<(string, Infrastructure.Models.OcelEvent)>)> GetTracesForObjectType(string projectName, string objectType)
+		public IEnumerable<(OcelObject, IEnumerable<(string, OcelEvent)>)> GetTracesForObjectType(string projectName, string objectType, [FromBody] OcDfgOptions options) // TODO: Actually use options to perform filtering on traces
 		{
-	        var log = GetProjectLog(projectName);
-	        var flattened = OcelHelpers.Flatten(log.ToFSharpOcelLog(), objectType);
-	        var traces = OcelHelpers.OrderedTracesOfFlattenedLog(flattened);
-			return traces.Select(t => (t.Item1.FromFSharpOcelObject(), t.Item2.Select(e => (e.Item1, e.Item2.FromRegularOcelEvent(flattened)))));
-		}
+            if (!string.IsNullOrWhiteSpace(projectName) && !string.IsNullOrWhiteSpace(objectType))
+            {
+                var log = GetProjectLog(projectName);
+                var flattened = OcelHelpers.Flatten(log.ToFSharpOcelLog(), objectType);
+                var traces = OcelHelpers.OrderedTracesOfFlattenedLog(flattened);
+                return traces.Select(t => (t.Item1.FromFSharpOcelObject(), t.Item2.Select(e => (e.Item1, e.Item2.FromRegularOcelEvent(flattened)))));
+            }
+
+            return new List<(OcelObject, IEnumerable<(string, OcelEvent)>)>();
+        }
 
         [HttpGet]
         [Route("namespaceTree")]
