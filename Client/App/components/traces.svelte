@@ -91,7 +91,6 @@
     }
 </script>
 
-<strong>Traces</strong>
 <ComboBox 
     placeholder="Select an object type"
     items={objectTypes.map(o => {return { id: o, text: o }})}
@@ -158,5 +157,9 @@
         flex-direction: row;
         justify-content: center;
         align-items: center;
+    }
+
+    :global(.bx--list-box__wrapper) {
+        padding: 1rem;
     }
 </style>

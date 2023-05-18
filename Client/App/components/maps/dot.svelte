@@ -1,16 +1,22 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { Loading } from "carbon-components-svelte";
     import { Graphviz } from "@hpcc-js/wasm";
-    
+
     export let dot : string;
 
-    let svg : string;
-    onMount(async () => {
-        const graphviz = await Graphviz.load();
-        svg = graphviz.dot(dot);
-    });
+    let graphviz = Graphviz.load();
+
+    // TODO: Doesn't work because the SVG isn't rendered when this is called, and there seems to be no good way to await its rendering that actually works :/
+    /*let svgViewer = svgPanZoom("#graph", {
+        panEnabled: true,
+        zoomEnabled: true
+    });*/
 </script>
 
-{@html svg}
-
-<div id="#graph" style="text-align: center;"></div>
+{#await graphviz}
+    <Loading withOverlay={false} description="Loading..." />
+{:then graphviz}
+    <div id="graph">
+        {@html graphviz.dot(dot)}
+    </div>
+{/await}
