@@ -11,6 +11,7 @@ using pm4net.Types.Trees;
 using pm4net.Utilities;
 using pm4net.Types;
 using StructuredLogExplorer.Models.ControllerOptions;
+using KeepCases = StructuredLogExplorer.Models.ControllerOptions.KeepCases;
 using NodeInfo = pm4net.Types.NodeInfo;
 using OcelEvent = Infrastructure.Models.OcelEvent;
 
@@ -145,6 +146,41 @@ namespace StructuredLogExplorer.ApiControllers
                 var log = GetProjectLog(projectName);
                 var flattened = OcelHelpers.Flatten(log.ToFSharpOcelLog(), objectType);
                 var traces = OcelHelpers.OrderedTracesOfFlattenedLog(flattened);
+
+                // Apply min. events filter
+                traces = traces.Where(t => t.Item2.Count() >= options.MinimumEvents);
+
+                // Apply time-frame filter
+                if (options.DtoFrom.HasValue && options.DtoTo.HasValue)
+                {
+                    var from = options.DtoFrom.Value.StartOfDay();
+                    var to = options.DtoTo.Value.EndOfDay();
+
+                    traces = traces.Select(t =>
+                    {
+                        var f = t.Item2.First().Item2.Timestamp;
+                        var l = t.Item2.Last().Item2.Timestamp;
+
+                        return options.KeepCases switch
+                        {
+                            KeepCases.ContainedInTimeFrame => f > from && l < to ? t : null,
+                            KeepCases.IntersectingTimeFrame => (f < from && l >= to) || (f >= from && f <= to) ? t : null,
+                            KeepCases.StartedInTimeFrame => f >= from && f <= to ? t : null,
+                            KeepCases.CompletedInTimeFrame => l >= from && l <= to ? t : null,
+                            KeepCases.TrimToTimeFrame => TrimToTimeFrame(t),
+                            _ => throw new ArgumentOutOfRangeException(nameof(options.KeepCases), $"{options.KeepCases} is not a valid case of {nameof(KeepCases)}.")
+                        };
+
+                        Tuple<OCEL.Types.OcelObject, IEnumerable<Tuple<string, OCEL.Types.OcelEvent>>>? TrimToTimeFrame(Tuple<OCEL.Types.OcelObject, IEnumerable<Tuple<string, OCEL.Types.OcelEvent>>> trace)
+                        {
+                            var trimmed = trace.Item2.Where(e => e.Item2.Timestamp >= from && e.Item2.Timestamp <= to).ToList();
+                            return trimmed.Any() ? new Tuple<OCEL.Types.OcelObject, IEnumerable<Tuple<string, OCEL.Types.OcelEvent>>>(t.Item1, trimmed) : null;
+                        }
+                    }).Where(t => t is not null);
+                }
+
+                // TODO: Apply min. occurrence and min. successions filter
+
                 return traces.Select(t => (t.Item1.FromFSharpOcelObject(), t.Item2.Select(e => (e.Item1, e.Item2.FromRegularOcelEvent(flattened)))));
             }
 
