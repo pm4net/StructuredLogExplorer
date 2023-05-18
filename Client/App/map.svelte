@@ -174,24 +174,22 @@
                                         {:then dot}
                                             <Dot dot={dot ?? ""} />
                                         {/await}
-                                    {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Cytoscape}
+                                    {:else}
                                         {#await getNodesToPreCompute() then nodes}
                                             {#await preComputeNodeProperties(nodes) then _}
-                                                {#await getGraphLayout()}
-                                                    <Loading withOverlay={false} description="Loading..." />
-                                                {:then layout}
-                                                    <Cytoscape bind:this={cyComponent} layout={layout} />
-                                                {/await}
-                                            {/await}
-                                        {/await}
-                                    {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.CytoscapeBfs}
-                                        {#await getNodesToPreCompute() then nodes}
-                                            {#await preComputeNodeProperties(nodes) then _}
-                                                {#await getOcDfg()}
-                                                    <Loading withOverlay={false} description="Loading..." />
-                                                {:then ocdfg}
-                                                    <Cytoscape bind:this={cyComponent} ocdfg={ocdfg} />
-                                                {/await}
+                                                {#if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Cytoscape}
+                                                    {#await getGraphLayout()}
+                                                        <Loading withOverlay={false} description="Loading..." />
+                                                    {:then layout}
+                                                        <Cytoscape bind:this={cyComponent} layout={layout} />
+                                                    {/await}
+                                                {:else}
+                                                    {#await getOcDfg()}
+                                                        <Loading withOverlay={false} description="Loading..." />
+                                                    {:then ocdfg}
+                                                        <Cytoscape bind:this={cyComponent} ocdfg={ocdfg} layoutEngine={$mapSettings[$activeProject ?? ""]?.displayMethod} />
+                                                    {/await}
+                                                {/if}
                                             {/await}
                                         {/await}
                                     {/if}

@@ -36,6 +36,5 @@ export enum DisplayMethod {
     Dot = "dot",
     Cytoscape = "cytoscape",
     CytoscapeBfs = "cytoscape-bfs",
-    CytoscapeCose = "cytoscape-cose",
-    CytoscapeDagre = "cytoscape-dagre"
+    CytoscapeCose = "cytoscape-cose"
 }

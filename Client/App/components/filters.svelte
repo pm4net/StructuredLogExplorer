@@ -75,6 +75,7 @@
                     <RadioButton labelText="DOT" value={DisplayMethod.Dot} />
                     <RadioButton labelText="Cytoscape" value={DisplayMethod.Cytoscape} />
                     <RadioButton labelText="Cytoscape BFS" value={DisplayMethod.CytoscapeBfs} />
+                    <RadioButton labelText="Cytoscape Cose" value={DisplayMethod.CytoscapeCose} />
                 </RadioButtonGroup>
             </FormGroup>
             <FormGroup legendText="Other" noMargin>

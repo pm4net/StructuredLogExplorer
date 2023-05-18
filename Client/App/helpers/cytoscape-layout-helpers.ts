@@ -3,6 +3,7 @@ import { End, Event, GraphLayout, Start } from "../shared/pm4net-client";
 import { getColor } from "./color-helpers";
 import { getEdgeId, logLevelToColor } from "./cytoscape-helpers";
 import { distanceBetweenPoints, distanceToLine, pointOnLine, scaleBetween } from "./math-helpers";
+import { DisplayMethod } from "../shared/stores";
 
 function createNodesFromLayout(graph: GraphLayout) {
     return graph.nodes.map(node => {
@@ -40,7 +41,7 @@ function createEdgesFromLayout(graph: GraphLayout) {
     });
 }
 
-export function initializeCustomCytoscape(layout: GraphLayout, customLayout: boolean, container: any) {
+export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, displayMethod: DisplayMethod | undefined, container: any) {
     let nodes = createNodesFromLayout(layout);
     let edges = createEdgesFromLayout(layout);
     
@@ -57,14 +58,26 @@ export function initializeCustomCytoscape(layout: GraphLayout, customLayout: boo
             animate: true
         };
     } else {
-        cyLayout = {
-            name: "breadthfirst",
-            directed: true,
-            nodeDimensionsIncludeLabels: true,
-            spacingFactor: 3,
-            fit: true,
-            padding: 75,
-            animate: true
+        if (displayMethod === DisplayMethod.CytoscapeBfs) {
+            cyLayout = {
+                name: "breadthfirst",
+                directed: true,
+                nodeDimensionsIncludeLabels: true,
+                spacingFactor: 3,
+                fit: true,
+                padding: 75,
+                animate: true
+            }
+        } else if (displayMethod === DisplayMethod.CytoscapeCose) {
+            cyLayout = {
+                name: "cose",
+                nodeDimensionsIncludeLabels: true,
+                spacingFactor: 3,
+                componentSpacing: 40,
+                fit: true,
+                padding: 75,
+                animate: true
+            }
         }
     }
 
