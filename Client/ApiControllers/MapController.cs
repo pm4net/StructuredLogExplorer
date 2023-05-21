@@ -71,8 +71,8 @@ namespace StructuredLogExplorer.ApiControllers
             return new LogInfo
             {
                 ObjectTypes = log.ObjectTypes.Order(),
-                FirstEventTimestamp = log.OrderedEvents.FirstOrDefault().Value.Timestamp.ToString("dd/MM/yyyy"),
-                LastEventTimestamp = log.OrderedEvents.LastOrDefault().Value.Timestamp.ToString("dd/MM/yyyy")
+                FirstEventTimestamp = log.OrderedEvents.FirstOrDefault().Value.Timestamp.ToString("yyyy/MM/dd"),
+                LastEventTimestamp = log.OrderedEvents.LastOrDefault().Value.Timestamp.ToString("yyyy/MM/dd")
             };
         }
 

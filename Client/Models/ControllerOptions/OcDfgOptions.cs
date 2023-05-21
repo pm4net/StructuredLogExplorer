@@ -16,15 +16,15 @@ namespace StructuredLogExplorer.Models.ControllerOptions
 
         public int MinimumSuccessions { get; set; } = 0;
 
-        public string? DateFrom { get; set; } // dd/MM/yyyy
+        public string? DateFrom { get; set; } // yyyy/MM/dd
 
         [JsonIgnore]
-        public DateTimeOffset? DtoFrom => !string.IsNullOrWhiteSpace(DateFrom) ? DateTimeOffset.ParseExact(DateFrom, "dd/MM/yyyy", CultureInfo.InvariantCulture) : null;
+        public DateTimeOffset? DtoFrom => !string.IsNullOrWhiteSpace(DateFrom) ? DateTimeOffset.Parse(DateFrom) : null;
 
-        public string? DateTo { get; set; } // dd/MM/yyyy
+        public string? DateTo { get; set; } // yyyy/MM/dd
 
         [JsonIgnore]
-        public DateTimeOffset? DtoTo => !string.IsNullOrWhiteSpace(DateTo) ? DateTimeOffset.ParseExact(DateTo, "dd/MM/yyyy", CultureInfo.InvariantCulture) : null;
+        public DateTimeOffset? DtoTo => !string.IsNullOrWhiteSpace(DateTo) ? DateTimeOffset.Parse(DateTo) : null;
 
         public KeepCases KeepCases { get; set; }
 

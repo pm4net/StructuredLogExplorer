@@ -91,9 +91,9 @@
         </AccordionItem>
         <AccordionItem>
             <svelte:fragment slot="title"><strong>Timeframe</strong></svelte:fragment>
-            <DatePicker datePickerType="range" dateFormat="d/m/Y" minDate={minDate} maxDate={maxDate} bind:valueFrom={dateFrom} bind:valueTo={dateTo}>
-                <DatePickerInput labelText="From" placeholder="dd/mm/yyyy"></DatePickerInput>
-                <DatePickerInput labelText="To" placeholder="dd/mm/yyyy"></DatePickerInput>
+            <DatePicker datePickerType="range" dateFormat="Y/m/d" minDate={minDate} maxDate={maxDate} bind:valueFrom={dateFrom} bind:valueTo={dateTo}>
+                <DatePickerInput labelText="From" placeholder="yyyy/mm/dd"></DatePickerInput>
+                <DatePickerInput labelText="To" placeholder="yyyy/mm/dd"></DatePickerInput>
             </DatePicker>
             <RadioButtonGroup orientation="vertical" legendText="Keep cases" bind:selected={keepCases}>
                 <RadioButton labelText="Contained in timeframe" value={KeepCases.ContainedInTimeFrame}></RadioButton>
