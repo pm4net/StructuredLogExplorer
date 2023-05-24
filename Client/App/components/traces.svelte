@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ComboBox, InlineLoading } from "carbon-components-svelte";
+    import { Button, ComboBox, InlineLoading } from "carbon-components-svelte";
     import { mapClient } from "../shared/pm4net-client-config";
     import { activeProject } from "../shared/stores";
     import { DateTime } from "luxon";
@@ -9,6 +9,7 @@
     import type { ComboBoxItem } from "carbon-components-svelte/types/ComboBox/ComboBox.svelte";
     import Trace from "./trace.svelte";
     import { getStringValue } from "../helpers/ocel-helpers";
+    import { Debug } from "carbon-icons-svelte";
 
     // Props
     export let objectTypes : string[];
@@ -101,11 +102,27 @@
             </div>
         </ComboBox>
 
+        {#if selectedObjectText && selectedObjectText !== ""}
+            <div class="add-button-margin">
+                <Button
+                    icon={Debug}
+                    size="small"
+                    on:click={() => {}}>
+                    Replay trace    
+                </Button>
+            </div>
+        {/if}
+
         <Trace trace={traces.find(t => t.text === selectedObjectText)}></Trace>
     {/if}
 {/await}
 
 <style lang="scss">
+    .add-button-margin {
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+
     :global(.bx--list-box__menu-item, .bx--list-box__menu-item__option) {
         height: auto;
     }

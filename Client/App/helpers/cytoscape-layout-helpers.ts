@@ -8,7 +8,7 @@ import { DisplayMethod } from "../shared/stores";
 function createNodesFromLayout(graph: GraphLayout) {
     return graph.nodes.map(node => {
         let elem : cytoscape.NodeDefinition = {
-            data: { 
+            data: {
                 id: node.id,
                 text: node.text,
                 info: node.nodeInfo,
@@ -68,7 +68,7 @@ export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, 
                 padding: 75,
                 animate: true
             }
-        } else if (displayMethod === DisplayMethod.CytoscapeCose) {
+        } else /*if (displayMethod === DisplayMethod.CytoscapeCose)*/ {
             cyLayout = {
                 name: "cose",
                 nodeDimensionsIncludeLabels: true,
@@ -117,13 +117,13 @@ export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, 
     });
 
     let startNodeStyles = {
-        'shape': 'round-rectangle',
+        'shape': 'cut-rectangle',
         'border-width': '3px',
         'border-style': 'double'
     };
 
     let endNodeStyles = {
-        'shape': 'round-rectangle',
+        'shape': 'cut-rectangle',
         'border-width': '3px',
         'border-style': 'double'
     };

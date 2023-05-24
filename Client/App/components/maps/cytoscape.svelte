@@ -13,6 +13,7 @@
     import { logLevelToColor, resetHighlights, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
     import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent, OcelObject, ValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
     import { initializeCytoscape } from "../../helpers/cytoscape-layout-helpers";
+    import { getStringValue } from "../../helpers/ocel-helpers";
 
     // Props to pass in either a fully defined graph layout or only an OC-DFG, in which case the default layout algorithm will be used.
     export let layout : GraphLayout | undefined = undefined;
@@ -69,7 +70,12 @@
 
     // Highlight the nodes and edges for a specific trace, replacing the text inside of the nodes with the real rendered text
     export function highlightSpecificTrace(trace: { item1: OcelObject, item2: ValueTupleOfStringAndOcelEvent[], text: string }) {
-        console.log("TODO: highlighting trace", trace);
+        trace.item2.forEach(event => {
+            let cyNode = cy.$id(event.item2.activity).first();
+            cyNode.data("traceText", getStringValue(event.item2.vMap["pm4net_RenderedMessage"]));
+            // TODO: Remove traceText from all other nodes again, and slighlty reduce opacity of events not in trace (but in object type)
+            // TODO: What about events that happen multiple times in a trace?
+        });
     }
 
     onMount(() => {
@@ -94,10 +100,15 @@
                 }
                 let txtColor = Color(bgColor).isDark() ? Color('#FFFFFF') : Color("#000000");
 
-                // Bold text calculations
-                let text = data.text.filter((l: string) => l).join('<br>');
-                text = placeAroundMatches(text, '{', '}', '<strong>', '</strong>');
-                
+                // Text calculations
+                let text : string;
+                if (data.traceText) {
+                    text = data.traceText; // TODO: How to do line breaks, overflows, etc.?
+                } else {
+                    text = data.text.filter((l: string) => l).join('<br>');
+                    text = placeAroundMatches(text, '{', '}', '<strong>', '</strong>');
+                }
+
                 return `<span style="color: rgba(${txtColor.red()}, ${txtColor.green()}, ${txtColor.blue()}, ${data.disabled ? 0.1 : 1})">${text}</span>`
             }
         }]);
