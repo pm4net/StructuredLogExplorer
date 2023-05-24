@@ -6,7 +6,7 @@
     import { getColor } from "../../helpers/color-helpers";
     import { placeAroundMatches } from "../../helpers/string-helpers";
     import { DisplayMethod, activeProject, mapSettings } from "../../shared/stores";
-    import cytoscape from "cytoscape";
+    import cytoscape, { type NodeCollection, type NodeSingular } from "cytoscape";
     import nodeHtmlLabel from "cytoscape-node-html-label";
     import viewUtilities from "cytoscape-view-utilities";
     import { BubbleSetsPlugin } from "cytoscape-bubblesets";
@@ -54,7 +54,7 @@
             });
             let elemsToHide = nodesToHide.union(edgesToHide);
 
-            // Update disabled field on nodes to ensure style updating of HTML nodes
+            // Update disabled field on nodes to ensure style updating of HTML labels
             nodesToHide.forEach(n => { n.data('disabled', true) });
 
             // Find all nodes and edges that remain
@@ -69,13 +69,31 @@
     }
 
     // Highlight the nodes and edges for a specific trace, replacing the text inside of the nodes with the real rendered text
-    export function highlightSpecificTrace(trace: { item1: OcelObject, item2: ValueTupleOfStringAndOcelEvent[], text: string }) {
-        trace.item2.forEach(event => {
-            let cyNode = cy.$id(event.item2.activity).first();
-            cyNode.data("traceText", getStringValue(event.item2.vMap["pm4net_RenderedMessage"]));
-            // TODO: Remove traceText from all other nodes again, and slighlty reduce opacity of events not in trace (but in object type)
-            // TODO: What about events that happen multiple times in a trace?
-        });
+    export function highlightSpecificTrace(trace: { item1: OcelObject, item2: ValueTupleOfStringAndOcelEvent[], text: string } | null) {
+        // First reset all highlights that were added previously (by this function, not the other)
+        //let active = cy.elements().filter(e => e.data('disabled') === false);
+        //viewUtilitiesApi.removeHighlights(active);
+        cy.nodes().removeData("traceText"); // Remove previously assigned trace text from all ndoes
+        
+        if (trace !== null) {
+            let highlightedNodes = cy.collection(); // Empty collection
+            trace?.item2.reverse().forEach(event => { // Reverse to make the "first" occurrence of the same event be shown, since it sets the text last
+                let cyNode = cy.$id(event.item2.activity).first();
+                highlightedNodes = highlightedNodes.add(cyNode);
+                cyNode.data("traceText", getStringValue(event.item2.vMap["pm4net_RenderedMessage"]));
+            });
+
+            // Find the nodes and edges that should be slightly greyed out
+            let nodesToHideSlightly = cy.nodes().difference(highlightedNodes);
+            //nodesToHideSlightly.forEach(n => { n.data('disabled', true) });
+            //viewUtilitiesApi.highlight(nodesToHideSlightly, 1);
+            viewUtilitiesApi.zoomToSelected(highlightedNodes);
+        } else {
+            viewUtilitiesApi.zoomToSelected(cy.elements());
+        }
+
+        // TODO: slighlty reduce opacity of events not in trace (but in object type)
+        // TODO: What about events that happen multiple times in a trace?
     }
 
     onMount(() => {
@@ -117,6 +135,7 @@
         var options = {
             highlightStyles: [
                 { node: { 'opacity': 0.1 }, edge: { 'opacity': 0.1 } }, // Inactive
+                //{ node: { 'opacity': 0.75 }, edge: { 'opacity': 0.75 } }, // Active, but not part of current trace
             ],
             selectStyles: {},
             zoomAnimationDuration: 1000, // default duration for zoom animation speed

@@ -91,7 +91,7 @@
                 text: t.text
             }})}
             bind:value={selectedObjectText}
-            on:clear={() => dispatch("highlightSpecificTrace", undefined)}
+            on:clear={() => dispatch("highlightSpecificTrace", null)}
             on:select={loadAndHighlightSpecificTrace}
             let:item>
             <div>
