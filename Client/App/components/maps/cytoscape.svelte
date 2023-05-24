@@ -6,7 +6,7 @@
     import { getColor } from "../../helpers/color-helpers";
     import { placeAroundMatches } from "../../helpers/string-helpers";
     import { DisplayMethod, activeProject, mapSettings } from "../../shared/stores";
-    import cytoscape, { type NodeCollection, type NodeSingular } from "cytoscape";
+    import cytoscape from "cytoscape";
     import nodeHtmlLabel from "cytoscape-node-html-label";
     import viewUtilities from "cytoscape-view-utilities";
     import { BubbleSetsPlugin } from "cytoscape-bubblesets";
@@ -14,6 +14,8 @@
     import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent, OcelObject, ValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
     import { initializeCytoscape } from "../../helpers/cytoscape-layout-helpers";
     import { getStringValue } from "../../helpers/ocel-helpers";
+    import ReplayControl from "../replay-control.svelte";
+    import ReplayControlDate from "../replay-control-date.svelte";
 
     // Props to pass in either a fully defined graph layout or only an OC-DFG, in which case the default layout algorithm will be used.
     export let layout : GraphLayout | undefined = undefined;
@@ -30,8 +32,23 @@
     let searchVal : string;
     let viewUtilitiesApi : any;
 
+    let stateTraces : ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[] | null;
+    let stateTrace : { item1: OcelObject, item2: ValueTupleOfStringAndOcelEvent[], text: string } | null;
+    let showMultipleTraces = false;
+    let showSingleTrace = false;
+
     // Highlight the nodes and edges that are present in a list of traces
     export function highlightTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
+        if (traces.length > 0) {
+            stateTraces = traces;
+            showMultipleTraces = true;
+            showSingleTrace = false;
+        } else {
+            stateTraces = null;
+            showMultipleTraces = false;
+            showSingleTrace = false;
+        }
+
         // First reset all highlights that were added previously
         resetHighlights(cy, viewUtilitiesApi);
         cy.nodes().forEach(n => { n.data('disabled', false) });
@@ -70,6 +87,16 @@
 
     // Highlight the nodes and edges for a specific trace, replacing the text inside of the nodes with the real rendered text
     export function highlightSpecificTrace(trace: { item1: OcelObject, item2: ValueTupleOfStringAndOcelEvent[], text: string } | null) {
+        if (trace != null) {
+            stateTrace = trace;
+            showMultipleTraces = false;
+            showSingleTrace = true;
+        } else {
+            stateTrace = null;
+            showMultipleTraces = true;
+            showSingleTrace = false;
+        }
+
         // First reset all highlights that were added previously (by this function, not the other)
         //let active = cy.elements().filter(e => e.data('disabled') === false);
         //viewUtilitiesApi.removeHighlights(active);
@@ -165,11 +192,40 @@
             });
         }
     });
+
+    function getMinDateInAllTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
+        return new Date();
+    }
+
+    function getMaxDateInAllTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
+        return new Date();
+    }
 </script>
 
 <Search placeholder="Search nodes..." bind:value={searchVal} on:change={(_) => zoomToNodes(cy, viewUtilitiesApi, searchVal)}></Search>
-<Button kind="secondary" iconDescription="Save image" icon={Save} tooltipPosition="left" on:click={((_) => saveGraphAsImage(cy, $activeProject ?? ""))}></Button>
+<div class="save-btn">
+    <Button 
+        kind="secondary" 
+        iconDescription="Save image" 
+        icon={Save} 
+        tooltipPosition="left" 
+        on:click={((_) => saveGraphAsImage(cy, $activeProject ?? ""))}>
+    </Button>
+</div>
 <div id="dfg"></div>
+
+{#if showMultipleTraces && stateTraces}
+    <!-- TODO: Replay control that replays all traces of object type simultaneously -->
+    <ReplayControlDate
+        min={getMinDateInAllTraces(stateTraces)} 
+        max={getMaxDateInAllTraces(stateTraces)}>
+    </ReplayControlDate>
+{:else if showSingleTrace && stateTrace}
+    <ReplayControl
+        min={0} 
+        max={stateTrace.item2.length}>
+    </ReplayControl>
+{/if}
 
 <style lang="scss">
     #dfg {
@@ -177,19 +233,19 @@
         height: calc(100vh - 48px);
     }
 
-    :global(.bx--search ) {
+    .save-btn {
+        position: absolute;
+        z-index: 1;
+        top: 1rem;
+        right: 1rem;
+    }
+
+    :global(.bx--search) {
         position: absolute;
         z-index: 1;
         top: 1rem;
         left: 1rem;
         width: calc(100% - 6rem);
-    }
-
-    :global(.bx--btn.bx--btn--icon-only.bx--tooltip__trigger) {
-        position: absolute;
-        z-index: 1;
-        top: 1rem;
-        right: 1rem;
     }
 
     :global(.cy-title) {
