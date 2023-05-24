@@ -117,6 +117,10 @@
     function forwardHighlightTracesEvent(event: any) {
         cyComponent?.highlightTraces(event.detail);
     }
+
+    function forwardHighlightSpecificTraceEvent(event: any) {
+        cyComponent?.highlightSpecificTrace(event.detail);
+    }
 </script>
 
 <Layout>
@@ -180,7 +184,11 @@
                             <!-- Refresh traces window when filters change too, so that the traces can be reloaded according to the applied filters, and re-highlighted -->
                             {#key $mapSettings[$activeProject ?? ""]}
                                 <!-- When it changes, we can pass in the selected type as a prop (have to somehow know what was selected before though) -->
-                                <Traces objectTypes={logInfo.objectTypes} on:highlightTraces={forwardHighlightTracesEvent} />
+                                <Traces 
+                                    objectTypes={logInfo.objectTypes} 
+                                    on:highlightTraces={forwardHighlightTracesEvent}
+                                    on:highlightSpecificTrace={forwardHighlightSpecificTraceEvent}
+                                />
                             {/key}
                         </Column>
                     </Row>

@@ -1,59 +1,35 @@
 <script lang="ts">
-    import { Accordion, AccordionItem, ComboBox, ExpandableTile, InlineLoading } from "carbon-components-svelte";
+    import { ComboBox, InlineLoading } from "carbon-components-svelte";
     import { mapClient } from "../shared/pm4net-client-config";
-    import { activeProject, mapSettings } from "../shared/stores";
+    import { activeProject } from "../shared/stores";
     import { DateTime } from "luxon";
-    import humanizeDuration from "humanize-duration"
-    import { createEventDispatcher, onMount } from "svelte";
+    import { createEventDispatcher } from "svelte";
     import { createOcDfgOptionsFromStore } from "../shared/helpers";
-    import type { OcelObject, OcelValue, ValueTupleOfStringAndOcelEvent } from "../shared/pm4net-client";
+    import type { OcelObject, ValueTupleOfStringAndOcelEvent } from "../shared/pm4net-client";
     import type { ComboBoxItem } from "carbon-components-svelte/types/ComboBox/ComboBox.svelte";
+    import Trace from "./trace.svelte";
+    import { getStringValue } from "../helpers/ocel-helpers";
 
     // Props
     export let objectTypes : string[];
     export let selectedType = ""; // $mapSettings[$activeProject ?? ""]?.selectedTypeForTraces ?? "";
-    export let selectedObjectId = "";
+    export let selectedObjectText = "";
 
     const dispatch = createEventDispatcher();
-
-    // Humanizer
-    const shortEnglishHumanizer = humanizeDuration.humanizer({
-        language: "shortEn",
-        spacer: "",
-        languages: {
-            shortEn: {
-                y: () => "y",
-                mo: () => "mo",
-                w: () => "w",
-                d: () => "d",
-                h: () => "h",
-                m: () => "m",
-                s: () => "s",
-                ms: () => "ms",
-                },
-            },
-        });
 
     let tracesPromise = getTracesForObjectType(selectedType);
     async function getTracesForObjectType(objType: string) {
         try {
             if (objType) {
-                return await mapClient.getTracesForObjectType($activeProject, objType, createOcDfgOptionsFromStore());
+                return (await mapClient.getTracesForObjectType($activeProject, objType, createOcDfgOptionsFromStore())).map(t => { return { 
+                    item1: t.item1,
+                    item2: t.item2,
+                    text: getTraceTitle(t.item1)
+                }});
             }
         } catch (e: unknown) {
             console.error(e); // TODO
         }
-    }
-
-    function getStringValue(ocelVal: OcelValue) : string {
-        // @ts-ignore
-        return ocelVal.value ?? "";
-
-        /*if (ocelVal instanceof OcelString) {
-            return ocelVal.value;
-        } else {
-            return undefined;
-        }*/
     }
 
     function getTraceTitle(obj: OcelObject) {
@@ -75,25 +51,13 @@
         }
     }
 
-    function getDurationBetweenTwoEvents(e1: ValueTupleOfStringAndOcelEvent | undefined, e2: ValueTupleOfStringAndOcelEvent | undefined) {
-        if (e1 && e2) {
-            let lx1 = DateTime.fromJSDate(e1.item2.timestamp);
-            let lx2 = DateTime.fromJSDate(e2.item2.timestamp);
-            let duration = lx2.diff(lx1, ['milliseconds']);
-            // Using external library until this is resolved: // https://github.com/moment/luxon/issues/1134
-            return shortEnglishHumanizer(duration.milliseconds, { units: ['y', 'mo', 'w', 'd', 'h', 'm', 's', 'ms'] });
-        } else {
-            return undefined;
-        }
-    }
-
     async function loadAndHighlightTraces() {
         tracesPromise = getTracesForObjectType(selectedType);
         dispatch("highlightTraces", await tracesPromise);
     }
 
     async function loadAndHighlightSpecificTrace() {
-
+        dispatch("highlightSpecificTrace", (await tracesPromise)?.find(t => t.text === selectedObjectText))
     }
 
     function shouldFilterItem(item: ComboBoxItem, value: string) {
@@ -123,12 +87,11 @@
             placeholder="Select an object identifier"
             items={traces.map(t => { return { 
                 id: t,
-                text: getTraceTitle(t.item1) ?? ""
+                text: t.text
             }})}
-            bind:value={selectedObjectId}
-            on:clear={() => { console.log("TODO"); }}
+            bind:value={selectedObjectText}
+            on:clear={() => dispatch("highlightSpecificTrace", undefined)}
             on:select={loadAndHighlightSpecificTrace}
-            {shouldFilterItem}
             let:item>
             <div>
                 <strong>{item.text}</strong>
@@ -138,62 +101,11 @@
             </div>
         </ComboBox>
 
-        <Accordion>
-            {#each traces as t, idx_t}
-                <AccordionItem open={false}>
-                    <svelte:fragment slot="title">
-                        <h5>{getTraceTitle(t.item1)}</h5>
-                        <div>{t.item2.length} events ({getDateString(t.item2.at(0))} - {getDateString(t.item2.at(-1))})</div>
-                    </svelte:fragment>
-                    {#each t.item2 as event, idx_e}
-                        <ExpandableTile>
-                            <div slot="above">
-                                <p><strong>{getStringValue(event.item2.vMap["pm4net_RenderedMessage"])}</strong></p>
-                            </div>
-                            <div slot="below">
-                                <strong>Template: </strong>{event.item2.activity}
-                                <br />
-                                <strong>Timestamp: </strong>{DateTime.fromJSDate(event.item2.timestamp).toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS)}
-                                {#if event.item2.vMap["pm4net_Level"] !== undefined}
-                                    <br />
-                                    <strong>Level: </strong>{getStringValue(event.item2.vMap["pm4net_Level"])}
-                                {/if}
-                                {#if event.item2.vMap["pm4net_Namespace"] !== undefined}
-                                    <br />
-                                    <strong>Namespace: </strong>{getStringValue(event.item2.vMap["pm4net_Namespace"])}
-                                {/if}
-                                {#if event.item2.vMap["pm4net_SourceFile"] !== undefined}
-                                    <br />
-                                    <strong>Source File: </strong>{getStringValue(event.item2.vMap["pm4net_SourceFile"])}
-                                {/if}
-                                {#if event.item2.vMap["pm4net_LineNumber"] !== undefined && event.item2.vMap["pm4net_ColumnNumber"] !== undefined}
-                                    <br />
-                                    <strong>Line number: </strong>{getStringValue(event.item2.vMap["pm4net_LineNumber"])}, Col. {getStringValue(event.item2.vMap["pm4net_ColumnNumber"])}
-                                {/if}
-                            </div>
-                        </ExpandableTile>
-                        {#if idx_e < t.item2.length - 1}
-                            <div class="connector">
-                                <i class="arrow down" />
-                                <p>{getDurationBetweenTwoEvents(t.item2.at(idx_e), t.item2.at(idx_e + 1))}</p>
-                                <i class="arrow down" />
-                            </div>
-                        {/if}
-                    {/each}
-                </AccordionItem>
-            {/each}
-        </Accordion>
+        <Trace trace={traces.find(t => t.text === selectedObjectText)}></Trace>
     {/if}
 {/await}
 
 <style lang="scss">
-    .connector {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-    }
-
     :global(.bx--list-box__menu-item, .bx--list-box__menu-item__option) {
         height: auto;
     }
