@@ -9,9 +9,10 @@
     import cytoscape from "cytoscape";
     import nodeHtmlLabel from "cytoscape-node-html-label";
     import viewUtilities from "cytoscape-view-utilities";
+    import popper from "cytoscape-popper";
     import { BubbleSetsPlugin } from "cytoscape-bubblesets";
     import { logLevelToColor, resetHighlights, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
-    import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent, OcelObject, ValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
+    import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent, OcelObject, ValueTupleOfStringAndOcelEvent, Start, End } from "../../shared/pm4net-client";
     import { initializeCytoscape } from "../../helpers/cytoscape-layout-helpers";
     import { getStringValue } from "../../helpers/ocel-helpers";
 
@@ -25,6 +26,7 @@
     let cy : cytoscape.Core;
     nodeHtmlLabel(cytoscape);
     viewUtilities(cytoscape);
+    popper(cytoscape);
 
     // State values
     let searchVal : string;
@@ -112,6 +114,31 @@
                 return `<span style="color: rgba(${txtColor.red()}, ${txtColor.green()}, ${txtColor.blue()}, ${data.disabled ? 0.1 : 1})">${text}</span>`
             }
         }]);
+
+        // Add start and end overlays to nodes
+        let startNodes = cy.nodes().filter(n => n.data("type") instanceof Start);
+        let popper = startNodes.popper({
+            content: () => {
+                let div = document.createElement("div");
+                div.innerHTML = "Test content";
+                document.body.appendChild(div);
+                return div;
+            },
+            popper: {
+                placement: "top-start",
+                modifiers: [],
+                strategy: "fixed"
+            }
+        });
+
+        let update = () => {
+            popper.update();
+        }
+
+        startNodes.on("position", update);
+        cy.on("pan zoom resize", update);
+
+        let endNodes = cy.nodes().filter(n => n.data("type") instanceof End);
 
         // Initialize view utilities extension
         var options = {
