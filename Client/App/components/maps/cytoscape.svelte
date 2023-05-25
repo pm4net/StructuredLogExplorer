@@ -123,6 +123,25 @@
         // TODO: What about events that happen multiple times in a trace?
     }
 
+    function animateSpecificTrace(index: number) {
+        let fromEvent = stateTrace?.item2[index];
+        let toEvent = index < ((stateTrace?.item2.length ?? 0) - 1) ? stateTrace?.item2[index + 1] : undefined;
+
+        if (fromEvent) {
+            let fromNode = cy.$id(fromEvent.item2.activity);
+            let anim = fromNode.animation({
+                style: {
+                    "background-color": "red"
+                },
+                duration: 1000,
+                position: fromNode.position(),
+                renderedPosition: fromNode.renderedPosition(),
+                easing: "linear"
+            });
+            anim.play();
+        }
+    }
+
     onMount(() => {
         cy = initializeCytoscape(hasLayout ? layout! : ocdfg!, hasLayout, layoutEngine, document.getElementById("dfg"));
 
@@ -194,11 +213,11 @@
     });
 
     function getMinDateInAllTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
-        return new Date();
+        return new Date(); // TODO
     }
 
     function getMaxDateInAllTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
-        return new Date();
+        return new Date(); // TODO
     }
 </script>
 
@@ -222,8 +241,9 @@
     </ReplayControlDate>
 {:else if showSingleTrace && stateTrace}
     <ReplayControl
-        min={0} 
-        max={stateTrace.item2.length}>
+        min={1}
+        max={stateTrace.item2.length}
+        on:sliderChange={(v) => animateSpecificTrace(v.detail - 1)}>
     </ReplayControl>
 {/if}
 
