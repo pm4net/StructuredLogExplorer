@@ -11,7 +11,7 @@
     import viewUtilities from "cytoscape-view-utilities";
     import { BubbleSetsPlugin } from "cytoscape-bubblesets";
     import { logLevelToColor, resetHighlights, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
-    import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent, OcelObject, ValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
+    import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent, OcelObject, ValueTupleOfStringAndOcelEvent, LogLevel } from "../../shared/pm4net-client";
     import { initializeCytoscape } from "../../helpers/cytoscape-layout-helpers";
     import { getStringValue } from "../../helpers/ocel-helpers";
     import ReplayControl from "../replay-control.svelte";
@@ -36,6 +36,10 @@
     let stateTrace : { item1: OcelObject, item2: ValueTupleOfStringAndOcelEvent[], text: string } | null;
     let showMultipleTraces = false;
     let showSingleTrace = false;
+
+    // To remove transition class from previous step
+    let previouslyAnimatedNode : cytoscape.Collection | undefined;
+    let previouslyAnimatedNodeClass : string | undefined;
 
     // Highlight the nodes and edges that are present in a list of traces
     export function highlightTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
@@ -104,7 +108,7 @@
         
         if (trace !== null) {
             let highlightedNodes = cy.collection(); // Empty collection
-            trace?.item2.reverse().forEach(event => { // Reverse to make the "first" occurrence of the same event be shown, since it sets the text last
+            trace?.item2.slice().reverse().forEach(event => { // Reverse to make the "first" occurrence of the same event be shown, since it sets the text last (but using slice first to avoid mutation of trace)
                 let cyNode = cy.$id(event.item2.activity).first();
                 highlightedNodes = highlightedNodes.add(cyNode);
                 cyNode.data("traceText", getStringValue(event.item2.vMap["pm4net_RenderedMessage"]));
@@ -127,18 +131,51 @@
         let fromEvent = stateTrace?.item2[index];
         let toEvent = index < ((stateTrace?.item2.length ?? 0) - 1) ? stateTrace?.item2[index + 1] : undefined;
 
-        if (fromEvent) {
+        if (fromEvent && toEvent) {
             let fromNode = cy.$id(fromEvent.item2.activity);
-            let anim = fromNode.animation({
-                style: {
-                    "background-color": "red"
-                },
-                duration: 1000,
-                position: fromNode.position(),
-                renderedPosition: fromNode.renderedPosition(),
-                easing: "linear"
-            });
-            anim.play();
+            let toNode = cy.$id(toEvent.item2.activity);
+            let connectingEdge = fromNode
+                .edgesTo(toNode)
+                .filter(e => e.data("typeInfos").some((ti: EdgeTypeInfoOfEdgeInfo) => ti.type === stateTrace?.item1.type))
+                .first();
+
+            if (previouslyAnimatedNode && previouslyAnimatedNodeClass) {
+                previouslyAnimatedNode.removeClass(previouslyAnimatedNodeClass);
+            }
+
+            let className : string | undefined;
+            let logLevel = fromNode.data("info")?.logLevel as LogLevel;
+            switch (logLevel) {
+                case LogLevel.Verbose: 
+                    className = "verbose-node-highlighted";
+                    break;
+                case LogLevel.Debug: 
+                    className = "debug-node-highlighted";
+                    break;
+                case LogLevel.Information: 
+                    className = "info-node-highlighted";
+                    break;
+                case LogLevel.Warning: 
+                    className = "warning-node-highlighted";
+                    break;
+                case LogLevel.Error: 
+                    className = "error-node-highlighted";
+                    break;
+                case LogLevel.Fatal: 
+                    className = "fatal-node-highlighted";
+                    break;
+                case LogLevel.Unknown: 
+                    className = undefined;
+                    break;
+            }
+
+            if (className) {
+                fromNode.addClass(className);
+                previouslyAnimatedNode = fromNode;
+                previouslyAnimatedNodeClass = className;
+            }
+
+            connectingEdge.addClass("edge-highlighted");
         }
     }
 
