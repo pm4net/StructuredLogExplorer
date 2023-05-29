@@ -10,10 +10,12 @@
     import nodeHtmlLabel from "cytoscape-node-html-label";
     import viewUtilities from "cytoscape-view-utilities";
     import { BubbleSetsPlugin } from "cytoscape-bubblesets";
-    import { logLevelToColor, resetHighlights, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
-    import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent, OcelObject, ValueTupleOfStringAndOcelEvent } from "../../shared/pm4net-client";
+    import { logLevelToColor, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
+    import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent, OcelObject, ValueTupleOfStringAndOcelEvent, LogLevel } from "../../shared/pm4net-client";
     import { initializeCytoscape } from "../../helpers/cytoscape-layout-helpers";
     import { getStringValue } from "../../helpers/ocel-helpers";
+    import ReplayControl from "../replay-control.svelte";
+    import ReplayControlDate from "../replay-control-date.svelte";
 
     // Props to pass in either a fully defined graph layout or only an OC-DFG, in which case the default layout algorithm will be used.
     export let layout : GraphLayout | undefined = undefined;
@@ -30,11 +32,31 @@
     let searchVal : string;
     let viewUtilitiesApi : any;
 
+    let stateTraces : ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[] | null;
+    let stateTrace : { item1: OcelObject, item2: ValueTupleOfStringAndOcelEvent[], text: string } | null;
+    let showMultipleTraces = false;
+    let showSingleTrace = false;
+
+    // To remove transition class from previous step
+    let previouslyAnimatedNode : cytoscape.Collection | undefined;
+    let previouslyAnimatedNodeClass : string | undefined;
+
     // Highlight the nodes and edges that are present in a list of traces
     export function highlightTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
+        if (traces.length > 0) {
+            stateTraces = traces;
+            showMultipleTraces = true;
+            showSingleTrace = false;
+        } else {
+            stateTraces = null;
+            showMultipleTraces = false;
+            showSingleTrace = false;
+        }
+
         // First reset all highlights that were added previously
-        resetHighlights(cy, viewUtilitiesApi);
+        viewUtilitiesApi.removeHighlights(cy.elements());
         cy.nodes().forEach(n => { n.data('disabled', false) });
+        cy.nodes().forEach(n => { n.data('slightlyHidden', false) });
 
         if (traces.length > 0) {
             // Get set of nodes that are present in the traces
@@ -54,7 +76,7 @@
             });
             let elemsToHide = nodesToHide.union(edgesToHide);
 
-            // Update disabled field on nodes to ensure style updating of HTML nodes
+            // Update disabled field on nodes to ensure style updating of HTML labels
             nodesToHide.forEach(n => { n.data('disabled', true) });
 
             // Find all nodes and edges that remain
@@ -69,13 +91,147 @@
     }
 
     // Highlight the nodes and edges for a specific trace, replacing the text inside of the nodes with the real rendered text
-    export function highlightSpecificTrace(trace: { item1: OcelObject, item2: ValueTupleOfStringAndOcelEvent[], text: string }) {
-        trace.item2.forEach(event => {
-            let cyNode = cy.$id(event.item2.activity).first();
-            cyNode.data("traceText", getStringValue(event.item2.vMap["pm4net_RenderedMessage"]));
-            // TODO: Remove traceText from all other nodes again, and slighlty reduce opacity of events not in trace (but in object type)
-            // TODO: What about events that happen multiple times in a trace?
-        });
+    export function highlightSpecificTrace(trace: { item1: OcelObject, item2: ValueTupleOfStringAndOcelEvent[], text: string } | null) {
+        if (trace != null) {
+            stateTrace = trace;
+            showMultipleTraces = false;
+            showSingleTrace = true;
+        } else {
+            stateTrace = null;
+            showMultipleTraces = true;
+            showSingleTrace = false;
+        }
+
+        // Find start and end node
+        let type = trace?.item1.type;
+        let startNode = cy.$id(`ProcessGraphLayout_Start-${type}`);
+        let endNode = cy.$id(`ProcessGraphLayout_End-${type}`);
+
+        // Find elements that have not been disabled before (meaning they are not part of any of the traces for the object type)
+        let active = cy.elements().filter(e => e.data('disabled') === false).add(startNode).add(endNode);
+
+        // First reset all highlights that were added previously (by this function, not the other)
+        active.forEach(n => { n.data('slightlyHidden', false) });
+        active.removeData("traceText"); // Remove previously assigned trace text from all ndoes
+        viewUtilitiesApi.removeHighlights(active);
+        viewUtilitiesApi.removeHighlights(active.connectedEdges());
+        
+        if (trace !== null) {
+            // Get the list of activities that are present in the trace
+            let traceNodeNames = trace.item2.map(event => event.item2.activity);
+            traceNodeNames.unshift(startNode.id());
+            traceNodeNames.push(endNode.id());
+
+            // Find the nodes and edges that should be slightly greyed out
+            let nodesToHide = active.filter(n => !traceNodeNames.includes(n.id())).subtract(startNode).subtract(endNode);
+            let edgesToHide = active.connectedEdges().filter(e => {
+                let typeInfos : EdgeTypeInfoOfEdgeInfo[] = e.data('typeInfos');
+                let isCorrectType = typeInfos.some(t => t.type === type);
+
+                // Figure out whether edge belongs to the trace
+                let sourceId = e.source().id();
+                let targetId = e.target().id();
+                let belongsToTrace = false;
+
+                // Loop through trace and check whether the source and target occur in it, directly following each other
+                for (let i = 0; i < traceNodeNames.length; i++) {
+                    const elem = traceNodeNames[i];
+
+                    // If the current element isn't the source ID, it is not relevant for this iteration.
+                    if (elem !== sourceId) {
+                        continue;
+                    }
+
+                    // Still has a next element?
+                    if (i < traceNodeNames.length - 1) {
+                        if (traceNodeNames[i + 1] === targetId) {
+                            belongsToTrace = true;
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
+                }
+                
+                //let idxOfSource = nodesInTrace.indexOf(e.source().id());
+                //let idxOfTarget = nodesInTrace.indexOf(e.target().id());
+                //let directlyFollowing = idxOfSource !== -1 && idxOfTarget !== -1 && (idxOfTarget - idxOfSource) === 1;
+                return !isCorrectType || !belongsToTrace;
+            });
+            let elemsToHide = nodesToHide.union(edgesToHide);
+
+            // Update disabled field on nodes to ensure style updating of HTML labels
+            nodesToHide.forEach(n => { n.data('slightlyHidden', true) });
+
+            // Find all nodes and edges that remain
+            let elemsToHighlight = active.subtract(elemsToHide);
+
+            // Reverse to make the "first" occurrence of the same event be shown, since it sets the text last (but using slice first to avoid mutation of trace)
+            // TODO: During animation, text should be swapped out when there's multiple instances, right after passing through it
+            trace?.item2.slice().reverse().forEach(event => {
+                let cyNode = cy.$id(event.item2.activity).first();
+                cyNode.data("traceText", getStringValue(event.item2.vMap["pm4net_RenderedMessage"]));
+            });
+            
+            // Hide the elements that aren't part of the trace, and zoom to the ones remaining
+            viewUtilitiesApi.highlight(elemsToHide, 1);
+            viewUtilitiesApi.zoomToSelected(elemsToHighlight);
+        } else {
+            viewUtilitiesApi.zoomToSelected(cy.elements());
+        }
+    }
+
+    function animateSpecificTrace(index: number) {
+        let fromEvent = stateTrace?.item2[index];
+        let toEvent = index < ((stateTrace?.item2.length ?? 0) - 1) ? stateTrace?.item2[index + 1] : undefined;
+
+        if (fromEvent && toEvent) {
+            let fromNode = cy.$id(fromEvent.item2.activity);
+            let toNode = cy.$id(toEvent.item2.activity);
+            let connectingEdge = fromNode
+                .edgesTo(toNode)
+                .filter(e => e.data("typeInfos").some((ti: EdgeTypeInfoOfEdgeInfo) => ti.type === stateTrace?.item1.type))
+                .first();
+
+            if (previouslyAnimatedNode && previouslyAnimatedNodeClass) {
+                previouslyAnimatedNode.removeClass(previouslyAnimatedNodeClass);
+            }
+
+            let className : string | undefined;
+            let logLevel = fromNode.data("info")?.logLevel as LogLevel;
+            switch (logLevel) {
+                case LogLevel.Verbose: 
+                    className = "verbose-node-highlighted";
+                    break;
+                case LogLevel.Debug: 
+                    className = "debug-node-highlighted";
+                    break;
+                case LogLevel.Information: 
+                    className = "info-node-highlighted";
+                    break;
+                case LogLevel.Warning: 
+                    className = "warning-node-highlighted";
+                    break;
+                case LogLevel.Error: 
+                    className = "error-node-highlighted";
+                    break;
+                case LogLevel.Fatal: 
+                    className = "fatal-node-highlighted";
+                    break;
+                case LogLevel.Unknown: 
+                    className = undefined;
+                    break;
+            }
+
+            if (className) {
+                fromNode.addClass(className);
+                previouslyAnimatedNode = fromNode;
+                previouslyAnimatedNodeClass = className;
+            }
+
+            connectingEdge.addClass("edge-highlighted");
+        }
     }
 
     onMount(() => {
@@ -109,14 +265,19 @@
                     text = placeAroundMatches(text, '{', '}', '<strong>', '</strong>');
                 }
 
-                return `<span style="color: rgba(${txtColor.red()}, ${txtColor.green()}, ${txtColor.blue()}, ${data.disabled ? 0.1 : 1})">${text}</span>`
+                let opacity = 1;
+                if (data.disabled) { opacity = 0.33; }
+                if (data.slightlyHidden) { opacity = 0.66; }
+
+                return `<span style="color: rgba(${txtColor.red()}, ${txtColor.green()}, ${txtColor.blue()}, ${opacity})">${text}</span>`
             }
         }]);
 
         // Initialize view utilities extension
         var options = {
             highlightStyles: [
-                { node: { 'opacity': 0.1 }, edge: { 'opacity': 0.1 } }, // Inactive
+                { node: { 'opacity': 0.33 }, edge: { 'opacity': 0.33 } }, // Inactive
+                { node: { 'opacity': 0.66 }, edge: { 'opacity': 0.66 } }, // Active, but not part of current trace
             ],
             selectStyles: {},
             zoomAnimationDuration: 1000, // default duration for zoom animation speed
@@ -146,11 +307,41 @@
             });
         }
     });
+
+    function getMinDateInAllTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
+        return new Date(); // TODO
+    }
+
+    function getMaxDateInAllTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
+        return new Date(); // TODO
+    }
 </script>
 
 <Search placeholder="Search nodes..." bind:value={searchVal} on:change={(_) => zoomToNodes(cy, viewUtilitiesApi, searchVal)}></Search>
-<Button kind="secondary" iconDescription="Save image" icon={Save} tooltipPosition="left" on:click={((_) => saveGraphAsImage(cy, $activeProject ?? ""))}></Button>
+<div class="save-btn">
+    <Button 
+        kind="secondary" 
+        iconDescription="Save image" 
+        icon={Save} 
+        tooltipPosition="left" 
+        on:click={((_) => saveGraphAsImage(cy, $activeProject ?? ""))}>
+    </Button>
+</div>
 <div id="dfg"></div>
+
+{#if showMultipleTraces && stateTraces}
+    <!-- TODO: Replay control that replays all traces of object type simultaneously -->
+    <ReplayControlDate
+        min={getMinDateInAllTraces(stateTraces)} 
+        max={getMaxDateInAllTraces(stateTraces)}>
+    </ReplayControlDate>
+{:else if showSingleTrace && stateTrace}
+    <ReplayControl
+        min={1}
+        max={stateTrace.item2.length}
+        on:sliderChange={(v) => animateSpecificTrace(v.detail - 1)}>
+    </ReplayControl>
+{/if}
 
 <style lang="scss">
     #dfg {
@@ -158,19 +349,19 @@
         height: calc(100vh - 48px);
     }
 
-    :global(.bx--search ) {
+    .save-btn {
+        position: absolute;
+        z-index: 1;
+        top: 1rem;
+        right: 1rem;
+    }
+
+    :global(.bx--search) {
         position: absolute;
         z-index: 1;
         top: 1rem;
         left: 1rem;
         width: calc(100% - 6rem);
-    }
-
-    :global(.bx--btn.bx--btn--icon-only.bx--tooltip__trigger) {
-        position: absolute;
-        z-index: 1;
-        top: 1rem;
-        right: 1rem;
     }
 
     :global(.cy-title) {

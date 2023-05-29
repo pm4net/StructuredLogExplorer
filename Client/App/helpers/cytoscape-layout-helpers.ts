@@ -13,7 +13,8 @@ function createNodesFromLayout(graph: GraphLayout) {
                 text: node.text,
                 info: node.nodeInfo,
                 type: node.nodeType,
-                disabled: false
+                disabled: false,
+                slightlyHidden: false
             },
             position: { 
                 x: node.position!.x, 
@@ -104,10 +105,78 @@ export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, 
                 }
             },
             {
-            selector: 'edge',
+                selector: 'edge',
+                    style: {
+                        'width': 3,
+                        'target-arrow-shape': 'triangle',
+                    }
+            },
+            {
+                selector: '.verbose-node-highlighted',
                 style: {
-                    'width': 3,
-                    'target-arrow-shape': 'triangle',
+                    'border-style': 'double',
+                    'border-width': '3px',
+                    'background-color': '#bfbfbf', // Darkened normal verbose color by 25% (https://mdigi.tools/darken-color/#ffffff)
+                    'transition-property': 'background-color, border-color, border-style, border-width',
+                    'transition-duration': 1000
+                }
+            },
+            {
+                selector: '.debug-node-highlighted',
+                style: {
+                    'border-style': 'double',
+                    'border-width': '3px',
+                    'background-color': '#a8a8a8', // Darkened normal warning color by 25% (https://mdigi.tools/darken-color/#e0e0e0)
+                    'transition-property': 'background-color, border-color, border-style, border-width',
+                    'transition-duration': 1000
+                }
+            },
+            {
+                selector: '.info-node-highlighted',
+                style: {
+                    'border-style': 'double',
+                    'border-width': '3px',
+                    'background-color': '#909090', // Darkened normal warning color by 25% (https://mdigi.tools/darken-color/#c0c0c0)
+                    'transition-property': 'background-color, border-color, border-style, border-width',
+                    'transition-duration': 1000
+                }
+            },
+            {
+                selector: '.warning-node-highlighted',
+                style: {
+                    'border-style': 'double',
+                    'border-width': '3px',
+                    'background-color': '#e57300', // Darkened normal warning color by 25% (https://mdigi.tools/darken-color/#ff9933)
+                    'transition-property': 'background-color, border-color, border-style, border-width',
+                    'transition-duration': 1000
+                }
+            },
+            {
+                selector: '.error-node-highlighted',
+                style: {
+                    'border-style': 'double',
+                    'border-width': '3px',
+                    'background-color': '#e50000', // Darkened normal warning color by 25% (https://mdigi.tools/darken-color/#ff3333)
+                    'transition-property': 'background-color, border-color, border-style, border-width',
+                    'transition-duration': 1000
+                }
+            },
+            {
+                selector: '.fatal-node-highlighted',
+                style: {
+                    'border-style': 'double',
+                    'border-width': '3px',
+                    'background-color': '#730000', // Darkened normal warning color by 25% (https://mdigi.tools/darken-color/#990000)
+                    'transition-property': 'background-color, border-color, border-style, border-width',
+                    'transition-duration': 1000
+                }
+            },
+            {
+                selector: '.edge-highlighted',
+                style: {
+                    'width': '3px',
+                    'transition-property': 'width',
+                    'transition-duration': 1000
                 }
             }
         ],
@@ -117,7 +186,7 @@ export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, 
     });
 
     let startNodeStyles = {
-        'shape': 'cut-rectangle',
+        'shape': 'round-rectangle',
         'border-width': '3px',
         'border-style': 'double'
     };

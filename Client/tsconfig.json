@@ -9,6 +9,9 @@
     "forceConsistentCasingInFileNames": true,
     "lib": [
       "ES2021.String"
+    ],
+    "types": [
+      "node"
     ]
   }
 }
