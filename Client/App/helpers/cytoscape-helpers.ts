@@ -1,10 +1,6 @@
 import { saveAs } from "file-saver";
 import { Edge, LogLevel } from "../shared/pm4net-client";
 
-export function resetHighlights(cy: cytoscape.Core, viewUtilitiesApi: any) {
-    viewUtilitiesApi.removeHighlights(cy.elements());
-}
-
 export function zoomToNodes(cy: cytoscape.Core, viewUtilitiesApi: any, search: string) {
     // Find nodes that match the search query
     let matchingNodes = cy.nodes().filter(function(el) {

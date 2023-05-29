@@ -13,7 +13,8 @@ function createNodesFromLayout(graph: GraphLayout) {
                 text: node.text,
                 info: node.nodeInfo,
                 type: node.nodeType,
-                disabled: false
+                disabled: false,
+                slightlyHidden: false
             },
             position: { 
                 x: node.position!.x, 

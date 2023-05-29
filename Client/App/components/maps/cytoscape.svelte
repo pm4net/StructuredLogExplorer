@@ -10,7 +10,7 @@
     import nodeHtmlLabel from "cytoscape-node-html-label";
     import viewUtilities from "cytoscape-view-utilities";
     import { BubbleSetsPlugin } from "cytoscape-bubblesets";
-    import { logLevelToColor, resetHighlights, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
+    import { logLevelToColor, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
     import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent, OcelObject, ValueTupleOfStringAndOcelEvent, LogLevel } from "../../shared/pm4net-client";
     import { initializeCytoscape } from "../../helpers/cytoscape-layout-helpers";
     import { getStringValue } from "../../helpers/ocel-helpers";
@@ -54,8 +54,9 @@
         }
 
         // First reset all highlights that were added previously
-        resetHighlights(cy, viewUtilitiesApi);
+        viewUtilitiesApi.removeHighlights(cy.elements());
         cy.nodes().forEach(n => { n.data('disabled', false) });
+        cy.nodes().forEach(n => { n.data('slightlyHidden', false) });
 
         if (traces.length > 0) {
             // Get set of nodes that are present in the traces
@@ -101,30 +102,84 @@
             showSingleTrace = false;
         }
 
+        // Find start and end node
+        let type = trace?.item1.type;
+        let startNode = cy.$id(`ProcessGraphLayout_Start-${type}`);
+        let endNode = cy.$id(`ProcessGraphLayout_End-${type}`);
+
+        // Find elements that have not been disabled before (meaning they are not part of any of the traces for the object type)
+        let active = cy.elements().filter(e => e.data('disabled') === false).add(startNode).add(endNode);
+
         // First reset all highlights that were added previously (by this function, not the other)
-        //let active = cy.elements().filter(e => e.data('disabled') === false);
-        //viewUtilitiesApi.removeHighlights(active);
-        cy.nodes().removeData("traceText"); // Remove previously assigned trace text from all ndoes
+        active.forEach(n => { n.data('slightlyHidden', false) });
+        active.removeData("traceText"); // Remove previously assigned trace text from all ndoes
+        viewUtilitiesApi.removeHighlights(active);
+        viewUtilitiesApi.removeHighlights(active.connectedEdges());
         
         if (trace !== null) {
-            let highlightedNodes = cy.collection(); // Empty collection
-            trace?.item2.slice().reverse().forEach(event => { // Reverse to make the "first" occurrence of the same event be shown, since it sets the text last (but using slice first to avoid mutation of trace)
-                let cyNode = cy.$id(event.item2.activity).first();
-                highlightedNodes = highlightedNodes.add(cyNode);
-                cyNode.data("traceText", getStringValue(event.item2.vMap["pm4net_RenderedMessage"]));
-            });
+            // Get the list of activities that are present in the trace
+            let traceNodeNames = trace.item2.map(event => event.item2.activity);
+            traceNodeNames.unshift(startNode.id());
+            traceNodeNames.push(endNode.id());
 
             // Find the nodes and edges that should be slightly greyed out
-            let nodesToHideSlightly = cy.nodes().difference(highlightedNodes);
-            //nodesToHideSlightly.forEach(n => { n.data('disabled', true) });
-            //viewUtilitiesApi.highlight(nodesToHideSlightly, 1);
-            viewUtilitiesApi.zoomToSelected(highlightedNodes);
+            let nodesToHide = active.filter(n => !traceNodeNames.includes(n.id())).subtract(startNode).subtract(endNode);
+            let edgesToHide = active.connectedEdges().filter(e => {
+                let typeInfos : EdgeTypeInfoOfEdgeInfo[] = e.data('typeInfos');
+                let isCorrectType = typeInfos.some(t => t.type === type);
+
+                // Figure out whether edge belongs to the trace
+                let sourceId = e.source().id();
+                let targetId = e.target().id();
+                let belongsToTrace = false;
+
+                // Loop through trace and check whether the source and target occur in it, directly following each other
+                for (let i = 0; i < traceNodeNames.length; i++) {
+                    const elem = traceNodeNames[i];
+
+                    // If the current element isn't the source ID, it is not relevant for this iteration.
+                    if (elem !== sourceId) {
+                        continue;
+                    }
+
+                    // Still has a next element?
+                    if (i < traceNodeNames.length - 1) {
+                        if (traceNodeNames[i + 1] === targetId) {
+                            belongsToTrace = true;
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
+                }
+                
+                //let idxOfSource = nodesInTrace.indexOf(e.source().id());
+                //let idxOfTarget = nodesInTrace.indexOf(e.target().id());
+                //let directlyFollowing = idxOfSource !== -1 && idxOfTarget !== -1 && (idxOfTarget - idxOfSource) === 1;
+                return !isCorrectType || !belongsToTrace;
+            });
+            let elemsToHide = nodesToHide.union(edgesToHide);
+
+            // Update disabled field on nodes to ensure style updating of HTML labels
+            nodesToHide.forEach(n => { n.data('slightlyHidden', true) });
+
+            // Find all nodes and edges that remain
+            let elemsToHighlight = active.subtract(elemsToHide);
+
+            // Reverse to make the "first" occurrence of the same event be shown, since it sets the text last (but using slice first to avoid mutation of trace)
+            // TODO: During animation, text should be swapped out when there's multiple instances, right after passing through it
+            trace?.item2.slice().reverse().forEach(event => {
+                let cyNode = cy.$id(event.item2.activity).first();
+                cyNode.data("traceText", getStringValue(event.item2.vMap["pm4net_RenderedMessage"]));
+            });
+            
+            // Hide the elements that aren't part of the trace, and zoom to the ones remaining
+            viewUtilitiesApi.highlight(elemsToHide, 1);
+            viewUtilitiesApi.zoomToSelected(elemsToHighlight);
         } else {
             viewUtilitiesApi.zoomToSelected(cy.elements());
         }
-
-        // TODO: slighlty reduce opacity of events not in trace (but in object type)
-        // TODO: What about events that happen multiple times in a trace?
     }
 
     function animateSpecificTrace(index: number) {
@@ -210,15 +265,19 @@
                     text = placeAroundMatches(text, '{', '}', '<strong>', '</strong>');
                 }
 
-                return `<span style="color: rgba(${txtColor.red()}, ${txtColor.green()}, ${txtColor.blue()}, ${data.disabled ? 0.1 : 1})">${text}</span>`
+                let opacity = 1;
+                if (data.disabled) { opacity = 0.33; }
+                if (data.slightlyHidden) { opacity = 0.66; }
+
+                return `<span style="color: rgba(${txtColor.red()}, ${txtColor.green()}, ${txtColor.blue()}, ${opacity})">${text}</span>`
             }
         }]);
 
         // Initialize view utilities extension
         var options = {
             highlightStyles: [
-                { node: { 'opacity': 0.1 }, edge: { 'opacity': 0.1 } }, // Inactive
-                //{ node: { 'opacity': 0.75 }, edge: { 'opacity': 0.75 } }, // Active, but not part of current trace
+                { node: { 'opacity': 0.33 }, edge: { 'opacity': 0.33 } }, // Inactive
+                { node: { 'opacity': 0.66 }, edge: { 'opacity': 0.66 } }, // Active, but not part of current trace
             ],
             selectStyles: {},
             zoomAnimationDuration: 1000, // default duration for zoom animation speed
