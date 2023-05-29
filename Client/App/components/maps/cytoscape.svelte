@@ -11,11 +11,12 @@
     import viewUtilities from "cytoscape-view-utilities";
     import { BubbleSetsPlugin } from "cytoscape-bubblesets";
     import { logLevelToColor, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
-    import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent, OcelObject, ValueTupleOfStringAndOcelEvent, LogLevel } from "../../shared/pm4net-client";
+    import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent, OcelObject, ValueTupleOfStringAndOcelEvent, LogLevel, Size } from "../../shared/pm4net-client";
     import { initializeCytoscape } from "../../helpers/cytoscape-layout-helpers";
     import { getStringValue } from "../../helpers/ocel-helpers";
     import ReplayControl from "../replay-control.svelte";
     import ReplayControlDate from "../replay-control-date.svelte";
+    import { getLines } from "../../shared/helpers";
 
     // Props to pass in either a fully defined graph layout or only an OC-DFG, in which case the default layout algorithm will be used.
     export let layout : GraphLayout | undefined = undefined;
@@ -153,10 +154,7 @@
                         continue;
                     }
                 }
-                
-                //let idxOfSource = nodesInTrace.indexOf(e.source().id());
-                //let idxOfTarget = nodesInTrace.indexOf(e.target().id());
-                //let directlyFollowing = idxOfSource !== -1 && idxOfTarget !== -1 && (idxOfTarget - idxOfSource) === 1;
+
                 return !isCorrectType || !belongsToTrace;
             });
             let elemsToHide = nodesToHide.union(edgesToHide);
@@ -259,7 +257,9 @@
                 // Text calculations
                 let text : string;
                 if (data.traceText) {
-                    text = data.traceText; // TODO: How to do line breaks, overflows, etc.?
+                    let nodeSize = data.size as Size;
+                    let wrapped = getLines(document.getElementsByTagName("canvas")?.[0] || document.createElement("canvas"), data.traceText, nodeSize.width / 2);
+                    text = wrapped.filter((l: string) => l).join('<br>');
                 } else {
                     text = data.text.filter((l: string) => l).join('<br>');
                     text = placeAroundMatches(text, '{', '}', '<strong>', '</strong>');

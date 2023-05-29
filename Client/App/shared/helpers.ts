@@ -46,6 +46,31 @@ export function getTextSize(canvas: any, text: string, font?: string) {
     };
 }
 
+// https://stackoverflow.com/a/16599668/2102106
+export function getLines(canvas: any, text: string, maxWidth: number, font?: string) {
+    const context = canvas.getContext("2d")!;
+    if (font) {
+        context.font = font;
+    }
+
+    var words = text.split(" ");
+    var lines = [];
+    var currentLine = words[0];
+
+    for (var i = 1; i < words.length; i++) {
+        var word = words[i];
+        var width = context.measureText(currentLine + " " + word).width;
+        if (width < maxWidth) {
+            currentLine += " " + word;
+        } else {
+            lines.push(currentLine);
+            currentLine = word;
+        }
+    }
+    lines.push(currentLine);
+    return lines;
+}
+
 export function createOcDfgOptionsFromStore() {
     return new OcDfgOptions({
         minimumEvents: get(mapSettings)[get(activeProject) ?? ""]?.dfg.minEvents,
