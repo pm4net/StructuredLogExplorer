@@ -10,7 +10,7 @@
     import nodeHtmlLabel from "cytoscape-node-html-label";
     import viewUtilities from "cytoscape-view-utilities";
     import { BubbleSetsPlugin } from "cytoscape-bubblesets";
-    import { logLevelToColor, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
+    import { logLevelName, logLevelToColor, saveGraphAsImage, zoomToNodes } from "../../helpers/cytoscape-helpers";
     import { Event, type EdgeTypeInfoOfEdgeInfo, type GraphLayout, type ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent, OcelObject, ValueTupleOfStringAndOcelEvent, LogLevel, Size } from "../../shared/pm4net-client";
     import { initializeCytoscape } from "../../helpers/cytoscape-layout-helpers";
     import { getStringValue } from "../../helpers/ocel-helpers";
@@ -40,7 +40,7 @@
 
     // To remove transition class from previous step
     let previouslyAnimatedNode : cytoscape.Collection | undefined;
-    let previouslyAnimatedNodeClass : string | undefined;
+    let previouslyAnimatedLevelName : string | undefined;
 
     // Highlight the nodes and edges that are present in a list of traces
     export function highlightTraces(traces: ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]) {
@@ -58,6 +58,7 @@
         viewUtilitiesApi.removeHighlights(cy.elements());
         cy.nodes().forEach(n => { n.data('disabled', false) });
         cy.nodes().forEach(n => { n.data('slightlyHidden', false) });
+        cy.nodes().removeData("traceText");
 
         if (traces.length > 0) {
             // Get set of nodes that are present in the traces
@@ -184,6 +185,11 @@
         let fromEvent = stateTrace?.item2[index];
         let toEvent = index < ((stateTrace?.item2.length ?? 0) - 1) ? stateTrace?.item2[index + 1] : undefined;
 
+        if (previouslyAnimatedNode && previouslyAnimatedLevelName) {
+            previouslyAnimatedNode.removeClass(previouslyAnimatedLevelName);
+            previouslyAnimatedNode.addClass(previouslyAnimatedLevelName + "-node-remove-highlight");
+        }
+
         if (fromEvent && toEvent) {
             let fromNode = cy.$id(fromEvent.item2.activity);
             let toNode = cy.$id(toEvent.item2.activity);
@@ -192,40 +198,14 @@
                 .filter(e => e.data("typeInfos").some((ti: EdgeTypeInfoOfEdgeInfo) => ti.type === stateTrace?.item1.type))
                 .first();
 
-            if (previouslyAnimatedNode && previouslyAnimatedNodeClass) {
-                previouslyAnimatedNode.removeClass(previouslyAnimatedNodeClass);
-            }
-
-            let className : string | undefined;
             let logLevel = fromNode.data("info")?.logLevel as LogLevel;
-            switch (logLevel) {
-                case LogLevel.Verbose: 
-                    className = "verbose-node-highlighted";
-                    break;
-                case LogLevel.Debug: 
-                    className = "debug-node-highlighted";
-                    break;
-                case LogLevel.Information: 
-                    className = "info-node-highlighted";
-                    break;
-                case LogLevel.Warning: 
-                    className = "warning-node-highlighted";
-                    break;
-                case LogLevel.Error: 
-                    className = "error-node-highlighted";
-                    break;
-                case LogLevel.Fatal: 
-                    className = "fatal-node-highlighted";
-                    break;
-                case LogLevel.Unknown: 
-                    className = undefined;
-                    break;
-            }
+            let levelName = logLevelName(logLevel);
 
-            if (className) {
-                fromNode.addClass(className);
+            if (levelName) {
+                fromNode.removeClass(levelName + "-node-remove-highlight"); // Just in case it is still set from a previous animation
+                fromNode.addClass(levelName + "-node-highlighted");
                 previouslyAnimatedNode = fromNode;
-                previouslyAnimatedNodeClass = className;
+                previouslyAnimatedLevelName = levelName;
             }
 
             connectingEdge.addClass("edge-highlighted");

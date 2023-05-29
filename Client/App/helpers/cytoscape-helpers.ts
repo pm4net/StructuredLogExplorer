@@ -42,6 +42,25 @@ export function logLevelToColor(level: LogLevel) {
     }
 }
 
+export function logLevelName(level: LogLevel) {
+    switch (level) {
+        case LogLevel.Verbose: 
+            return "verbose";
+        case LogLevel.Debug: 
+            return "debug";
+        case LogLevel.Information: 
+            return "info";
+        case LogLevel.Warning: 
+            return "warning";
+        case LogLevel.Error: 
+            return "error";
+        case LogLevel.Fatal: 
+            return "fatal";
+        case LogLevel.Unknown: 
+            return undefined;
+    }
+}
+
 export function getEdgeId(edge: Edge) {
     return edge.sourceId + "-" + edge.targetId;
 }
