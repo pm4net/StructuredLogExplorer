@@ -1096,6 +1096,7 @@
       "required": [
         "sourceId",
         "targetId",
+        "constrained",
         "totalWeight",
         "typeInfos"
       ],
@@ -1110,6 +1111,9 @@
           "$ref": "#/definitions/Waypoints"
         },
         "downwards": {
+          "type": "boolean"
+        },
+        "constrained": {
           "type": "boolean"
         },
         "totalWeight": {

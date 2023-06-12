@@ -102,8 +102,7 @@ namespace StructuredLogExplorer.ApiControllers
 	        var log = GetProjectLog(projectName);
 	        return _graphLayoutService.ComputeGraphLayout(projectName, log, modelAndOptions.Item1,
 		        modelAndOptions.Item2.MergeEdgesOfSameType, modelAndOptions.Item2.FixUnforeseenEdges,
-		        modelAndOptions.Item2.NodeSeparation, modelAndOptions.Item2.RankSeparation,
-		        modelAndOptions.Item2.EdgeSeparation, modelAndOptions.Item2.Tension);
+		        modelAndOptions.Item2.NodeSeparation, modelAndOptions.Item2.RankSeparation);
         }
 
 		[HttpPost]

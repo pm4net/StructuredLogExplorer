@@ -69,6 +69,8 @@ namespace Infrastructure.Models
 
         public bool? Downwards { get; set; }
 
+        public bool Constrained { get; set; }
+
 		public int TotalWeight { get; set; }
 
 		public IEnumerable<EdgeTypeInfo<EdgeInfo>> TypeInfos { get; set; } = Enumerable.Empty<EdgeTypeInfo<EdgeInfo>>();
@@ -134,6 +136,7 @@ namespace Infrastructure.Models
 					QuadraticBezier = edge.Waypoints.QuadraticBezier,
 				},
 				Downwards = edge.Downwards,
+				Constrained = edge.Constrained,
 				TotalWeight = edge.TotalWeight,
 				TypeInfos = edge.TypeInfos.Select(x => new EdgeTypeInfo<EdgeInfo>
 				{

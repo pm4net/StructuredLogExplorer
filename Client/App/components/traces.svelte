@@ -101,20 +101,6 @@
                 {item.id.item2.length} events ({getDateString(item.id.item2.at(0))} - {getDateString(item.id.item2.at(-1))})
             </div>
         </ComboBox>
-
-        <!--
-            {#if selectedObjectText && selectedObjectText !== ""}
-                <div class="add-button-margin">
-                    <Button
-                        icon={Debug}
-                        size="small"
-                        on:click={() => {}}>
-                        Replay trace    
-                    </Button>
-                </div>
-            {/if}
-        -->
-
         <Trace trace={traces.find(t => t.text === selectedObjectText)}></Trace>
     {/if}
 {/await}

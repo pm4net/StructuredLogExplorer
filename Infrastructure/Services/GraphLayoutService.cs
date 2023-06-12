@@ -28,7 +28,6 @@ namespace Infrastructure.Services
 		/// <param name="fixUnforeseenEdges"></param>
 		/// <param name="nodeSep"></param>
 		/// <param name="rankSep"></param>
-		/// <param name="edgeSep"></param>
 		/// <returns></returns>
 		public GraphLayout ComputeGraphLayout(
 			string projectName, 
@@ -37,9 +36,7 @@ namespace Infrastructure.Services
 			bool mergeEdges, 
 			bool fixUnforeseenEdges, 
 			float nodeSep,
-			float rankSep, 
-			float edgeSep,
-			float tension)
+			float rankSep)
 		{
 			var nodeCalculations = GetNodeCalculations(projectName);
 			if (nodeCalculations is null)
@@ -74,9 +71,7 @@ namespace Infrastructure.Services
 					discoveredGraph, 
 					model, 
 					nodeSep,
-					rankSep,
-					edgeSep,
-					tension)
+					rankSep)
 					.FromFSharpGraphLayout();
 			}
 			else
@@ -96,9 +91,7 @@ namespace Infrastructure.Services
 					model,
 					nodeSep,
 					rankSep,
-					edgeSep,
-					mergeEdges,
-					tension)
+					mergeEdges)
 					.FromFSharpGraphLayout();
 			}
 		}

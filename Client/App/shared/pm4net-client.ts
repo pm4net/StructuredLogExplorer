@@ -1866,6 +1866,7 @@ export class Edge implements IEdge {
     targetId!: string;
     waypoints?: Waypoints | undefined;
     downwards?: boolean | undefined;
+    constrained!: boolean;
     totalWeight!: number;
     typeInfos!: EdgeTypeInfoOfEdgeInfo[];
 
@@ -1887,6 +1888,7 @@ export class Edge implements IEdge {
             this.targetId = _data["targetId"];
             this.waypoints = _data["waypoints"] ? Waypoints.fromJS(_data["waypoints"]) : <any>undefined;
             this.downwards = _data["downwards"];
+            this.constrained = _data["constrained"];
             this.totalWeight = _data["totalWeight"];
             if (Array.isArray(_data["typeInfos"])) {
                 this.typeInfos = [] as any;
@@ -1909,6 +1911,7 @@ export class Edge implements IEdge {
         data["targetId"] = this.targetId;
         data["waypoints"] = this.waypoints ? this.waypoints.toJSON() : <any>undefined;
         data["downwards"] = this.downwards;
+        data["constrained"] = this.constrained;
         data["totalWeight"] = this.totalWeight;
         if (Array.isArray(this.typeInfos)) {
             data["typeInfos"] = [];
@@ -1924,6 +1927,7 @@ export interface IEdge {
     targetId: string;
     waypoints?: Waypoints | undefined;
     downwards?: boolean | undefined;
+    constrained: boolean;
     totalWeight: number;
     typeInfos: EdgeTypeInfoOfEdgeInfo[];
 }
