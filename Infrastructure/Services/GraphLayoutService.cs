@@ -82,8 +82,8 @@ namespace Infrastructure.Services
 					globalOrder = new GlobalOrder(ProcessGraphLayout.FastCustomMeasurements.ComputeGlobalOrder(traces), DateTime.Now);
 					SaveGlobalOrder(projectName, globalOrder);
 				}
-				
-				return ProcessGraphLayout.FastCustomMeasurements.ComputeLayout(
+
+                return ProcessGraphLayout.FastCustomMeasurements.ComputeLayout(
 					FSharpFunc.FromFunc(lineWrapFunc), 
 					FSharpFunc.FromFunc(nodeSizeFunc),
 					globalOrder.GlobalOrderGraph,

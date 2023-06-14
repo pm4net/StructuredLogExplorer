@@ -79,8 +79,8 @@
                 layoutOptions: new GraphLayoutOptions({
                     mergeEdgesOfSameType: true,
                     fixUnforeseenEdges: $mapSettings[$activeProject ?? ""]?.fixUnforeseenEdges,
-                    nodeSeparation: 50,
-                    rankSeparation: 50,
+                    nodeSeparation: 25,
+                    rankSeparation: 10,
                     edgeSeparation: 50,
                     tension: 0.5
                 })
