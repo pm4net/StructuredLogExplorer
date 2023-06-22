@@ -35,14 +35,15 @@ export function pointOnLine(p1: Position, p2: Position, q: Coordinate) {
         y: p1.y + (U * (p2.y - p1.y))
     }
 
-    const minx = Math.min(p1.x, p2.x);
+    return r; // Sometimes the resulting point may be outside of the range, but this is okay for our purposes.
+
+    /*const minx = Math.min(p1.x, p2.x);
     const maxx = Math.max(p1.x, p2.x);
     const miny = Math.min(p1.y, p2.y);
     const maxy = Math.max(p1.y, p2.y);
 
     const isValid = (r.x >= minx && r.x <= maxx) && (r.y >= miny && r.y <= maxy);
-
-    return isValid ? r : null;
+    return isValid ? r : null;*/
 }
 
 export function distanceBetweenPoints(p1x: number, p1y: number, p2x: number, p2y: number) {

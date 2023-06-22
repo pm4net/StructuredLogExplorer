@@ -300,20 +300,23 @@ export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, 
                     if (e.downwards) {
                         waypoints.reverse();
                     }
+
+                    let segmentDistances = e.waypoints!.coordinates.map(w => distanceToLine(startPos, endPos, w));
+                    let segmentWeights = e.waypoints!.coordinates.map(w => {
+                        let point = pointOnLine(startPos, endPos, w);
+                        if (point) {
+                            let distBetweenPoints = distanceBetweenPoints(startPos.x, startPos.y, point.x, point.y);
+                            let distBetweenStartEnd = distanceBetweenPoints(startPos.x, startPos.y, endPos.x, endPos.y);
+                            return distBetweenPoints / distBetweenStartEnd;
+                        } else {
+                            return null;
+                        }
+                    }).flatMap(v => !!v ? [v] : []); // Removes null entries
     
                     elem.style({
                         'curve-style': 'segments',
-                        'segment-distances': e.waypoints!.coordinates.map(w => distanceToLine(startPos, endPos, w)),
-                        'segment-weights': e.waypoints!.coordinates.map(w => {
-                            let point = pointOnLine(startPos, endPos, w);
-                            if (point) {
-                                let distBetweenPoints = distanceBetweenPoints(startPos.x, startPos.y, point.x, point.y);
-                                let distBetweenStartEnd = distanceBetweenPoints(startPos.x, startPos.y, endPos.x, endPos.y);
-                                return distBetweenPoints / distBetweenStartEnd;
-                            } else {
-                                return null;
-                            }
-                        }).flatMap(v => !!v ? [v] : []),
+                        'segment-distances': segmentDistances,
+                        'segment-weights': segmentWeights,
                         'edge-distances': 'node-position',
                     });
                 } else {
