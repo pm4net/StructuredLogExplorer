@@ -58,8 +58,8 @@
     async function preComputeNodeProperties(nodes: LogNode[] | undefined) {
         if (nodes) {
             let computedSizes = nodes.map(n => {
-                var wrapped = wrapAnsi(n.displayName, 20, { hard: false });
-                var textSize = getTextSize(document.getElementsByTagName("canvas")?.[0] || document.createElement("canvas"), wrapped);
+                let wrapped = wrapAnsi(n.displayName, 20, { hard: false });
+                let textSize = getTextSize(document.getElementsByTagName("canvas")?.[0] || document.createElement("canvas"), wrapped);
                 return new NodeCalculation({
                     nodeId: n.id,
                     textWrap: wrapped.split("\n"),
