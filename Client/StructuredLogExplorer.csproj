@@ -35,18 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Pages\Cases.entry.ts">
-      <DependentUpon>Cases.cshtml</DependentUpon>
-    </None>
-    <None Update="Pages\Cases.rollup.config.js">
-      <DependentUpon>Cases.cshtml</DependentUpon>
-    </None>
-    <None Update="Pages\Statistics.entry.ts">
-      <DependentUpon>Statistics.cshtml</DependentUpon>
-    </None>
-    <None Update="Pages\Statistics.rollup.config.js">
-      <DependentUpon>Statistics.cshtml</DependentUpon>
-    </None>
     <None Update="Pages\Map.entry.ts">
       <DependentUpon>Map.cshtml</DependentUpon>
     </None>
