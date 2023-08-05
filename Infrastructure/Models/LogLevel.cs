@@ -23,5 +23,10 @@ namespace Infrastructure.Models
 		{
 			return (LogLevel) logLevel.Tag;
 		}
+
+        public static pm4net.Types.LogLevel ToFSharpLogLevel(this LogLevel logLevel)
+        {
+            return pm4net.Types.LogLevel.FromString.Invoke(logLevel.ToString());
+        }
 	}
 }

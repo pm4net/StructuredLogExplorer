@@ -32,7 +32,7 @@
                     displayMethod: DisplayMethod.Cytoscape,
                     groupByNamespace: true,
                     objectTypes: (await logInfoPromise).objectTypes,
-                    logLevels: [LogLevel.Information, LogLevel.Warning, LogLevel.Error, LogLevel.Fatal],
+                    logLevels: [LogLevel.Unknown, LogLevel.Information, LogLevel.Warning, LogLevel.Error, LogLevel.Fatal],
                     fixUnforeseenEdges: false,
                     dfg: {
                         minEvents: 0,

@@ -4,6 +4,7 @@ using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
 using pm4net.Algorithms.Discovery.Ocel;
 using OCEL.CSharp;
@@ -12,6 +13,7 @@ using pm4net.Utilities;
 using pm4net.Types;
 using StructuredLogExplorer.Models.ControllerOptions;
 using KeepCases = StructuredLogExplorer.Models.ControllerOptions.KeepCases;
+using LogLevel = pm4net.Types.LogLevel;
 using NodeInfo = pm4net.Types.NodeInfo;
 using OcelEvent = Infrastructure.Models.OcelEvent;
 
@@ -59,7 +61,7 @@ namespace StructuredLogExplorer.ApiControllers
             return OcelDfg.Discover(new OcDfgFilter(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions,
                     options.DateFrom != null && options.DateTo != null
                         ? FSharpOption<TimeframeFilter>.Some(new TimeframeFilter(options.DtoFrom!.Value.StartOfDay(), options.DtoTo!.Value.EndOfDay(), options.KeepCases.ToPm4Net()))
-                        : FSharpOption<TimeframeFilter>.None),
+                        : FSharpOption<TimeframeFilter>.None, options.IncludedLogLevels.Select(l => l.ToFSharpLogLevel()).ToFSharpList()),
                 options.IncludedTypes, log);
         }
 
