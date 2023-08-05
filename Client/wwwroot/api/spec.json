@@ -1374,7 +1374,8 @@
         "minimumOccurrence",
         "minimumSuccessions",
         "keepCases",
-        "includedTypes"
+        "includedTypes",
+        "includedLogLevels"
       ],
       "properties": {
         "minimumEvents": {
@@ -1402,6 +1403,12 @@
           "type": "array",
           "items": {
             "type": "string"
+          }
+        },
+        "includedLogLevels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LogLevel"
           }
         }
       }

@@ -3,7 +3,7 @@
     import { activeProject, DisplayMethod, DisplayType, EdgeType, mapSettings } from "../shared/stores";
     import { getColor } from "../helpers/color-helpers";
     import { onMount } from "svelte";
-    import { KeepCases } from "../shared/pm4net-client";
+    import { KeepCases, LogLevel } from "../shared/pm4net-client";
 
     export let availableObjectTypes = <string[]>[];
     export let minDate : string;
@@ -14,6 +14,7 @@
     let displayMethod = $mapSettings[$activeProject ?? ""]?.displayMethod;
     let groupByNamespace = $mapSettings[$activeProject ?? ""]?.groupByNamespace;
     let objectTypes = $mapSettings[$activeProject ?? ""]?.objectTypes ?? [];
+    let logLevels = $mapSettings[$activeProject ?? ""]?.logLevels ?? [];
     let fixUnforeseenEdges = $mapSettings[$activeProject ?? ""].fixUnforeseenEdges;
     let minEvents = $mapSettings[$activeProject ?? ""].dfg.minEvents;
     let minOccurrences = $mapSettings[$activeProject ?? ""].dfg.minOccurrences;
@@ -29,6 +30,7 @@
         settings[$activeProject ?? ""].displayMethod = displayMethod;
         settings[$activeProject ?? ""].groupByNamespace = groupByNamespace;
         settings[$activeProject ?? ""].objectTypes = objectTypes;
+        settings[$activeProject ?? ""].logLevels = logLevels;
         settings[$activeProject ?? ""].fixUnforeseenEdges = fixUnforeseenEdges;
         settings[$activeProject ?? ""].dfg.minEvents = minEvents;
         settings[$activeProject ?? ""].dfg.minOccurrences = minOccurrences;
@@ -102,6 +104,14 @@
                 <RadioButton labelText="Completed in timeframe" value={KeepCases.CompletedInTimeFrame}></RadioButton>
                 <RadioButton labelText="Trim to timeframe" value={KeepCases.TrimToTimeFrame}></RadioButton>
             </RadioButtonGroup>
+        </AccordionItem>
+        <AccordionItem>
+            <svelte:fragment slot="title"><strong>Log levels</strong></svelte:fragment>
+            {#each Object.values(LogLevel).filter(v => isNaN(Number(v))) as logLevel}
+                <Checkbox bind:group={logLevels} value={logLevel}>
+                    <svelte:fragment slot="labelText">{logLevel}</svelte:fragment>
+                </Checkbox>
+            {/each}
         </AccordionItem>
         <AccordionItem>
             <svelte:fragment slot="title"><strong>Object types</strong></svelte:fragment>

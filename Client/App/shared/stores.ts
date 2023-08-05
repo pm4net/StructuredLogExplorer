@@ -1,5 +1,5 @@
 import { persisted } from "svelte-local-storage-store";
-import type { KeepCases } from "./pm4net-client";
+import type { KeepCases, LogLevel } from "./pm4net-client";
 
 export const activeProject = persisted<string | undefined>("activeProject", undefined);
 export const mapSettings = persisted<ProjectMapSettings>("mapSettings", {});
@@ -11,6 +11,7 @@ export type MapSettings = {
     displayMethod: DisplayMethod,
     groupByNamespace: boolean,
     objectTypes: string[],
+    logLevels: LogLevel[],
     fixUnforeseenEdges: boolean,
     dfg: {
         minEvents: number,

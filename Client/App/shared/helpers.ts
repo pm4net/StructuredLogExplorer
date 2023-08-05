@@ -77,6 +77,7 @@ export function createOcDfgOptionsFromStore() {
         minimumOccurrence: get(mapSettings)[get(activeProject) ?? ""]?.dfg.minOccurrences,
         minimumSuccessions: get(mapSettings)[get(activeProject) ?? ""]?.dfg.minSuccessions,
         includedTypes: get(mapSettings)[get(activeProject) ?? ""]?.objectTypes,
+        includedLogLevels: get(mapSettings)[get(activeProject) ?? ""].logLevels,
         dateFrom: get(mapSettings)[get(activeProject) ?? ""]?.dfg.dateFrom,
         dateTo: get(mapSettings)[get(activeProject) ?? ""]?.dfg.dateTo,
         keepCases: get(mapSettings)[get(activeProject) ?? ""]?.dfg.keepCases

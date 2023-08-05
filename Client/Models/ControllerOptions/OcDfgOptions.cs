@@ -5,6 +5,7 @@ using Infrastructure.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using pm4net.Types;
+using LogLevel = Infrastructure.Models.LogLevel;
 
 namespace StructuredLogExplorer.Models.ControllerOptions
 {
@@ -29,6 +30,8 @@ namespace StructuredLogExplorer.Models.ControllerOptions
         public KeepCases KeepCases { get; set; }
 
         public IEnumerable<string> IncludedTypes { get; set; } = Enumerable.Empty<string>();
+
+        public IEnumerable<LogLevel> IncludedLogLevels { get; set; } = Enumerable.Empty<LogLevel>();
     }
 
     [JsonConverter(typeof(StringEnumConverter))]

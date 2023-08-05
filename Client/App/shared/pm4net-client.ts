@@ -2602,6 +2602,7 @@ export class OcDfgOptions implements IOcDfgOptions {
     dateTo?: string | undefined;
     keepCases!: KeepCases;
     includedTypes!: string[];
+    includedLogLevels!: LogLevel[];
 
     constructor(data?: IOcDfgOptions) {
         if (data) {
@@ -2612,6 +2613,7 @@ export class OcDfgOptions implements IOcDfgOptions {
         }
         if (!data) {
             this.includedTypes = [];
+            this.includedLogLevels = [];
         }
     }
 
@@ -2627,6 +2629,11 @@ export class OcDfgOptions implements IOcDfgOptions {
                 this.includedTypes = [] as any;
                 for (let item of _data["includedTypes"])
                     this.includedTypes!.push(item);
+            }
+            if (Array.isArray(_data["includedLogLevels"])) {
+                this.includedLogLevels = [] as any;
+                for (let item of _data["includedLogLevels"])
+                    this.includedLogLevels!.push(item);
             }
         }
     }
@@ -2651,6 +2658,11 @@ export class OcDfgOptions implements IOcDfgOptions {
             for (let item of this.includedTypes)
                 data["includedTypes"].push(item);
         }
+        if (Array.isArray(this.includedLogLevels)) {
+            data["includedLogLevels"] = [];
+            for (let item of this.includedLogLevels)
+                data["includedLogLevels"].push(item);
+        }
         return data;
     }
 }
@@ -2663,6 +2675,7 @@ export interface IOcDfgOptions {
     dateTo?: string | undefined;
     keepCases: KeepCases;
     includedTypes: string[];
+    includedLogLevels: LogLevel[];
 }
 
 export enum KeepCases {

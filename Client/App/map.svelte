@@ -6,7 +6,7 @@
     import { Column, Grid, InlineNotification, Loading, Row, ToastNotification } from "carbon-components-svelte";
     import Filters from "./components/filters.svelte";
     import Dot from "./components/maps/dot.svelte";
-    import { GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, Size, KeepCases } from "./shared/pm4net-client";
+    import { GraphLayoutOptions, LogNode, NodeCalculation, OcDfgLayoutOptions, Size, KeepCases, LogLevel } from "./shared/pm4net-client";
     import wrapAnsi from "wrap-ansi";
     import Traces from "./components/traces.svelte";
     import Cytoscape from "./components/maps/cytoscape.svelte";
@@ -32,6 +32,7 @@
                     displayMethod: DisplayMethod.Cytoscape,
                     groupByNamespace: true,
                     objectTypes: (await logInfoPromise).objectTypes,
+                    logLevels: [LogLevel.Information, LogLevel.Warning, LogLevel.Error, LogLevel.Fatal],
                     fixUnforeseenEdges: false,
                     dfg: {
                         minEvents: 0,
