@@ -13,7 +13,6 @@ using pm4net.Utilities;
 using pm4net.Types;
 using StructuredLogExplorer.Models.ControllerOptions;
 using KeepCases = StructuredLogExplorer.Models.ControllerOptions.KeepCases;
-using LogLevel = pm4net.Types.LogLevel;
 using NodeInfo = pm4net.Types.NodeInfo;
 using OcelEvent = Infrastructure.Models.OcelEvent;
 
@@ -147,6 +146,17 @@ namespace StructuredLogExplorer.ApiControllers
                 var log = GetProjectLog(projectName);
                 var flattened = OcelHelpers.Flatten(log.ToFSharpOcelLog(), objectType);
                 var traces = OcelHelpers.OrderedTracesOfFlattenedLog(flattened);
+
+                // Apply log level filter
+                traces = traces.Select(t =>
+                {
+                    var filtered = t.Item2.Where(e =>
+                    {
+                        var logLevel = OcelHelpers.GetLogLevel(e.Item2);
+                        return options.IncludedLogLevels.Contains(logLevel.HasValue() ? logLevel.Value.FromFSharpLogLevel() : Infrastructure.Models.LogLevel.Unknown);
+                    });
+                    return new Tuple<OCEL.Types.OcelObject, IEnumerable<Tuple<string, OCEL.Types.OcelEvent>>>(t.Item1, filtered);
+                }).Where(t => t.Item2.Any());
 
                 // Apply min. events filter
                 traces = traces.Where(t => t.Item2.Count() >= options.MinimumEvents);

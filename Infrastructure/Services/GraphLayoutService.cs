@@ -45,8 +45,8 @@ namespace Infrastructure.Services
 			}
 
 			// Define custom functions
-			var lineWrapFunc = new Func<OutputTypes.Node<NodeInfo>, IEnumerable<string>>(n => nodeCalculations.First(x => x.NodeId == n.Id).TextWrap);
-			var nodeSizeFunc = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size?>(n => nodeCalculations.First(x => x.NodeId == n.Id).Size);
+			var lineWrapFunc = new Func<OutputTypes.Node<NodeInfo>, IEnumerable<string>>(n => nodeCalculations.FirstOrDefault(x => x.NodeId == n.Id)?.TextWrap ?? new List<string>());
+			var nodeSizeFunc = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size?>(n => nodeCalculations.FirstOrDefault(x => x.NodeId == n.Id)?.Size);
 
 			// Get traces in log
 			var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog()).ToList();
