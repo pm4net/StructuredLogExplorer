@@ -25,8 +25,10 @@
 
     // Format a Luxon DateTime in a human-friendly way
     function formatDateTime(dt: any) {
-        if (dt instanceof DateTime) {
+        if (dt instanceof DateTime) { // Luxon date
             return dt.toFormat("yyyy-MM-dd HH:mm");
+        } else if (dt instanceof Date) { // JS Date
+            return DateTime.fromJSDate(dt).toFormat("yyyy-MM-dd HH:mm");
         }
 
         return "";
