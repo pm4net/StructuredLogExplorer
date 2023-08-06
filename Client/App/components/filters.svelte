@@ -54,6 +54,11 @@
         resizeObserver.observe(filterElem);
         return () => resizeObserver.unobserve(filterElem);
     });
+
+    // Just get the damn number, it is already...
+    function getNum(val: string | LogLevel) : number {
+        return val as number;
+    }
 </script>
 
 <div bind:this={filterElem}>
@@ -107,9 +112,9 @@
         </AccordionItem>
         <AccordionItem>
             <svelte:fragment slot="title"><strong>Log levels</strong></svelte:fragment>
-            {#each Object.values(LogLevel).filter(v => isNaN(Number(v))) as logLevel}
+            {#each Object.values(LogLevel).filter(v => !isNaN(Number(v))) as logLevel}
                 <Checkbox bind:group={logLevels} value={logLevel}>
-                    <svelte:fragment slot="labelText">{logLevel}</svelte:fragment>
+                    <svelte:fragment slot="labelText">{LogLevel[getNum(logLevel)]}</svelte:fragment>
                 </Checkbox>
             {/each}
         </AccordionItem>
