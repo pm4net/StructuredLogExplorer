@@ -60,6 +60,9 @@
                     {#if event.item2.vMap["pm4net_Namespace"] !== undefined}
                         <br />
                         <strong>Namespace: </strong>{getStringValue(event.item2.vMap["pm4net_Namespace"])}
+                    {:else if event.item2.vMap["SourceContext"] !== undefined}
+                        <br />
+                        <strong>Namespace: </strong>{getStringValue(event.item2.vMap["SourceContext"])}
                     {/if}
                     {#if event.item2.vMap["pm4net_SourceFile"] !== undefined}
                         <br />
