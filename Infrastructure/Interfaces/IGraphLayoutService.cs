@@ -10,7 +10,7 @@ namespace Infrastructure.Interfaces
 		GraphLayout ComputeGraphLayout(
 			string projectName,
 			OcelLog log,
-			GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>> model,
+            pm4net.Types.DirectedGraph<Node<NodeInfo>, Edge<EdgeInfo>> model,
 			bool mergeEdges,
 			bool fixUnforeseenEdges,
 			float nodeSep,

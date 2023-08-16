@@ -54,7 +54,7 @@ namespace StructuredLogExplorer.ApiControllers
         /// <summary>
         /// Discover an object-centric directly-follows-graph (OC-DFG) from a project's event log, applying the given options.
         /// </summary>
-        private GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>> DiscoverOriginalOcDfg(string projectName, OcDfgOptions options)
+        private pm4net.Types.DirectedGraph<Node<NodeInfo>, Edge<EdgeInfo>> DiscoverOriginalOcDfg(string projectName, OcDfgOptions options)
         {
             var log = GetProjectLog(projectName);
             return OcelDfg.Discover(new OcDfgFilter(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions,
@@ -98,7 +98,7 @@ namespace StructuredLogExplorer.ApiControllers
 
         [HttpPost]
         [Route("computeLayoutWithModel")]
-		public GraphLayout ComputeLayoutWithModel(string projectName, [FromBody] (GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>>, GraphLayoutOptions) modelAndOptions)
+		public GraphLayout ComputeLayoutWithModel(string projectName, [FromBody] (pm4net.Types.DirectedGraph<Node<NodeInfo>, Edge<EdgeInfo>>, GraphLayoutOptions) modelAndOptions)
         {
 	        var log = GetProjectLog(projectName);
 	        return _graphLayoutService.ComputeGraphLayout(projectName, log, modelAndOptions.Item1,

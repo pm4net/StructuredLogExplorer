@@ -115,7 +115,7 @@ namespace Infrastructure.Services
                         break;
                     case OcelFileExtensions.Xml:
                         var xml = File.ReadAllText(filePath);
-                        var xmlLog = OcelXml.Deserialize(xml);
+                        var xmlLog = OcelXml.Deserialize(xml, true);
                         OcelLiteDB.Serialize(db, xmlLog.MergeDuplicateObjects(), true);
                         eventsAfter = xmlLog.Events.Count;
                         objectsAfter = xmlLog.Objects.Count;

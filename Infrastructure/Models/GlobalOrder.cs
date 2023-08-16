@@ -11,13 +11,13 @@ namespace Infrastructure.Models
 	{
 		public GlobalOrder() { }
 
-		public GlobalOrder(GraphTypes.DirectedGraph<Tuple<int, OutputTypes.SequenceNode>> globalOrderGraph, DateTime lastUpdated)
+		public GlobalOrder(pm4net.Types.DirectedGraph<Tuple<int, OutputTypes.SequenceNode>> globalOrderGraph, DateTime lastUpdated)
 		{
 			GlobalOrderGraph = globalOrderGraph;
 			LastUpdated = lastUpdated;
 		}
 
-		public GraphTypes.DirectedGraph<Tuple<int, OutputTypes.SequenceNode>> GlobalOrderGraph { get; set; } = new(FSharpList<Tuple<int, OutputTypes.SequenceNode>>.Empty, FSharpList<Tuple<Tuple<int, OutputTypes.SequenceNode>, Tuple<int, OutputTypes.SequenceNode>>>.Empty);
+		public pm4net.Types.DirectedGraph<Tuple<int, OutputTypes.SequenceNode>> GlobalOrderGraph { get; set; } = new(FSharpList<Tuple<int, OutputTypes.SequenceNode>>.Empty, FSharpList<Tuple<Tuple<int, OutputTypes.SequenceNode>, Tuple<int, OutputTypes.SequenceNode>>>.Empty);
 
 		public DateTime LastUpdated { get; set; }
 	}

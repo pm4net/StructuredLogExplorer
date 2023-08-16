@@ -156,7 +156,7 @@ namespace Infrastructure.Models
 			};
 		}
 
-        public static GraphLayout FromOcDfg(this GraphTypes.DirectedGraph<InputTypes.Node<pm4net.Types.NodeInfo>, InputTypes.Edge<EdgeInfo>> graph, IList<NodeCalculation> nodeCalculations)
+        public static GraphLayout FromOcDfg(this pm4net.Types.DirectedGraph<Node<pm4net.Types.NodeInfo>, Edge<EdgeInfo>> graph, IList<NodeCalculation> nodeCalculations)
         {
             return new GraphLayout
             {
@@ -165,7 +165,7 @@ namespace Infrastructure.Models
                     NodeType nodeType = new Event();
 					
                     string? objType = null;
-                    InputTypes.EventNode<pm4net.Types.NodeInfo>? eventNode = null;
+                    EventNode<pm4net.Types.NodeInfo>? eventNode = null;
 					NodeInfo? nodeInfo = null;
 
                     if (n.TryEventNode(ref eventNode))
@@ -213,10 +213,10 @@ namespace Infrastructure.Models
                 })
             };
 
-            string GetNodeId<T>(InputTypes.Node<T> node)
+            string GetNodeId<T>(Node<T> node)
             {
                 string? objType = null;
-                InputTypes.EventNode<T>? eventNode = null;
+                EventNode<T>? eventNode = null;
                 if (node.TryEventNode(ref eventNode))
                 {
                     return eventNode.Name;

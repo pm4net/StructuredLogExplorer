@@ -31,8 +31,8 @@ namespace Infrastructure.Services
 		/// <returns></returns>
 		public GraphLayout ComputeGraphLayout(
 			string projectName, 
-			OcelLog log, 
-			GraphTypes.DirectedGraph<InputTypes.Node<NodeInfo>, InputTypes.Edge<EdgeInfo>> model, 
+			OcelLog log,
+            pm4net.Types.DirectedGraph<pm4net.Types.Node<NodeInfo>, pm4net.Types.Edge<EdgeInfo>> model, 
 			bool mergeEdges, 
 			bool fixUnforeseenEdges, 
 			float nodeSep,

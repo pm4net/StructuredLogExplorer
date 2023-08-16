@@ -33,7 +33,7 @@ namespace StructuredLogExplorer.Mappers
 
 		public static Func<BsonValue, Infrastructure.Models.GlobalOrder> DeserializeGlobalOrder => bson => new Infrastructure.Models.GlobalOrder
 		{
-			GlobalOrderGraph = JsonConvert.DeserializeObject<GraphTypes.DirectedGraph<Tuple<int, SequenceNode>>>(bson["globalOrder"])!,
+			GlobalOrderGraph = JsonConvert.DeserializeObject<pm4net.Types.DirectedGraph<Tuple<int, SequenceNode>>>(bson["globalOrder"])!,
 			LastUpdated = BsonMapper.Global.Deserialize<DateTime>(bson["lastUpdated"])
 		};
 	}

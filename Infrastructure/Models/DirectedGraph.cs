@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FSharpx;
-using LiteDB;
+﻿using FSharpx;
 
 namespace Infrastructure.Models
 {
@@ -27,7 +21,7 @@ namespace Infrastructure.Models
 
 	public static class DirectedGraphExtensions
 	{
-		public static DirectedGraph<TNode, TEdge> FromFSharpDirectedGraph<TNode, TEdge>(this GraphTypes.DirectedGraph<TNode, TEdge> graph)
+		public static DirectedGraph<TNode, TEdge> FromFSharpDirectedGraph<TNode, TEdge>(this pm4net.Types.DirectedGraph<TNode, TEdge> graph)
 		{
 			return new DirectedGraph<TNode, TEdge>
 			{
@@ -36,9 +30,9 @@ namespace Infrastructure.Models
 			};
 		}
 
-		public static GraphTypes.DirectedGraph<TNode, TEdge> ToFSharpDirectedGraph<TNode, TEdge>(this DirectedGraph<TNode, TEdge> graph)
+		public static pm4net.Types.DirectedGraph<TNode, TEdge> ToFSharpDirectedGraph<TNode, TEdge>(this DirectedGraph<TNode, TEdge> graph)
 		{
-			return new GraphTypes.DirectedGraph<TNode, TEdge>(graph.Nodes.ToFSharpList(), graph.Edges.ToFSharpList());
+			return new pm4net.Types.DirectedGraph<TNode, TEdge>(graph.Nodes.ToFSharpList(), graph.Edges.ToFSharpList());
 		}
 	}
 }
