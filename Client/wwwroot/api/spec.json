@@ -1077,6 +1077,16 @@
         }
       ]
     },
+    "OcelNull": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/OcelValue"
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
     "OcelObject": {
       "type": "object",
       "properties": {
@@ -1252,7 +1262,6 @@
     },
     "DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo": {
       "type": "object",
-      "description": "Directed graph with edge information.",
       "properties": {
         "nodes": {
           "type": "array",
@@ -1270,7 +1279,6 @@
     },
     "NodeOfNodeInfo": {
       "type": "object",
-      "description": "A node type that can be a regular event node or a start/end node for a specific type.",
       "x-abstract": true
     },
     "TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo": {
@@ -1294,7 +1302,6 @@
     },
     "EdgeOfEdgeInfo": {
       "type": "object",
-      "description": "An edge is associated with a weight/frequency, and optionally a type, as well as any other arbitrary information.",
       "required": [
         "weight"
       ],

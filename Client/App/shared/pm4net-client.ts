@@ -1538,6 +1538,11 @@ export abstract class OcelValue implements IOcelValue {
             result.init(data);
             return result;
         }
+        if (data["discriminator"] === "OcelNull") {
+            let result = new OcelNull();
+            result.init(data);
+            return result;
+        }
         throw new Error("The abstract class 'OcelValue' cannot be instantiated.");
     }
 
@@ -1807,6 +1812,34 @@ export class OcelMap extends OcelValue implements IOcelMap {
 
 export interface IOcelMap extends IOcelValue {
     values?: { [key: string]: OcelValue; } | undefined;
+}
+
+export class OcelNull extends OcelValue implements IOcelNull {
+
+    constructor(data?: IOcelNull) {
+        super(data);
+        this._discriminator = "OcelNull";
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+    }
+
+    static override fromJS(data: any): OcelNull {
+        data = typeof data === 'object' ? data : {};
+        let result = new OcelNull();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IOcelNull extends IOcelValue {
 }
 
 export class OcelObject implements IOcelObject {
@@ -2253,7 +2286,6 @@ export interface IValueTupleOfDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfoAndG
     item2: GraphLayoutOptions;
 }
 
-/** Directed graph with edge information. */
 export class DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo implements IDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo {
     nodes?: NodeOfNodeInfo[] | undefined;
     edges?: TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo[] | undefined;
@@ -2305,13 +2337,11 @@ export class DirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo implements IDirected
     }
 }
 
-/** Directed graph with edge information. */
 export interface IDirectedGraphOfNodeOfNodeInfoAndEdgeOfEdgeInfo {
     nodes?: NodeOfNodeInfo[] | undefined;
     edges?: TupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo[] | undefined;
 }
 
-/** A node type that can be a regular event node or a start/end node for a specific type. */
 export abstract class NodeOfNodeInfo implements INodeOfNodeInfo {
 
     constructor(data?: INodeOfNodeInfo) {
@@ -2337,7 +2367,6 @@ export abstract class NodeOfNodeInfo implements INodeOfNodeInfo {
     }
 }
 
-/** A node type that can be a regular event node or a start/end node for a specific type. */
 export interface INodeOfNodeInfo {
 }
 
@@ -2388,7 +2417,6 @@ export interface ITupleOfNodeOfNodeInfoAndNodeOfNodeInfoAndEdgeOfEdgeInfo {
     item3: EdgeOfEdgeInfo;
 }
 
-/** An edge is associated with a weight/frequency, and optionally a type, as well as any other arbitrary information. */
 export class EdgeOfEdgeInfo implements IEdgeOfEdgeInfo {
     weight!: number;
     type?: FSharpOptionOfString | undefined;
@@ -2427,7 +2455,6 @@ export class EdgeOfEdgeInfo implements IEdgeOfEdgeInfo {
     }
 }
 
-/** An edge is associated with a weight/frequency, and optionally a type, as well as any other arbitrary information. */
 export interface IEdgeOfEdgeInfo {
     weight: number;
     type?: FSharpOptionOfString | undefined;
