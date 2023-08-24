@@ -33,6 +33,7 @@
         settings[$activeProject ?? ""].groupByNamespace = groupByNamespace;
         settings[$activeProject ?? ""].objectTypes = objectTypes;
         settings[$activeProject ?? ""].logLevels = logLevels;
+        settings[$activeProject ?? ""].namespaces = namespaces;
         settings[$activeProject ?? ""].fixUnforeseenEdges = fixUnforeseenEdges;
         settings[$activeProject ?? ""].dfg.minEvents = minEvents;
         settings[$activeProject ?? ""].dfg.minOccurrences = minOccurrences;

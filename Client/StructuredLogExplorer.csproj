@@ -20,7 +20,7 @@
 	<PackageReference Include="ElectronNET.API" Version="23.6.1" />
 	<PackageReference Include="OCEL" Version="1.3.5" />
 	<PackageReference Include="OCEL.CSharp" Version="1.3.5" />
-	<PackageReference Include="pm4net" Version="1.0.1" />
+	<PackageReference Include="pm4net" Version="1.0.2" />
   </ItemGroup>
 	
   <Target Name="NSwag" AfterTargets="Build" Condition="'$(Configuration)' == 'Debug'">

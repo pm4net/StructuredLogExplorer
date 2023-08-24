@@ -1,4 +1,5 @@
-﻿using FSharpx;
+﻿using System.Diagnostics;
+using FSharpx;
 using Infrastructure.Helpers;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
@@ -57,10 +58,18 @@ namespace StructuredLogExplorer.ApiControllers
         private pm4net.Types.DirectedGraph<Node<NodeInfo>, Edge<EdgeInfo>> DiscoverOriginalOcDfg(string projectName, OcDfgOptions options)
         {
             var log = GetProjectLog(projectName);
+
+            // TODO: Only includes high-level namespaces for now
+            var nsTree = ListTree<string>.NewNode("", 
+                options.IncludedNamespaces.Select(ns => ListTree<string>.NewNode(ns, 
+                    new List<ListTree<string>> { ListTree<string>.NewNode("*", 
+                        FSharpList<ListTree<string>>.Empty) }.ToFSharpList()
+                    )).ToFSharpList());
+
             return OcelDfg.Discover(new OcDfgFilter(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions,
                     options.DateFrom != null && options.DateTo != null
                         ? FSharpOption<TimeframeFilter>.Some(new TimeframeFilter(options.DtoFrom!.Value.StartOfDay(), options.DtoTo!.Value.EndOfDay(), options.KeepCases.ToPm4Net()))
-                        : FSharpOption<TimeframeFilter>.None, options.IncludedLogLevels.Select(l => l.ToFSharpLogLevel()).ToFSharpList()),
+                        : FSharpOption<TimeframeFilter>.None, options.IncludedLogLevels.Select(l => l.ToFSharpLogLevel()).ToFSharpList(), options.IncludedNamespaces.Any() ? nsTree : FSharpOption<ListTree<string>>.None),
                 options.IncludedTypes, log);
         }
 
