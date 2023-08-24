@@ -32,6 +32,8 @@ namespace StructuredLogExplorer.Models.ControllerOptions
         public IEnumerable<string> IncludedTypes { get; set; } = Enumerable.Empty<string>();
 
         public IEnumerable<LogLevel> IncludedLogLevels { get; set; } = Enumerable.Empty<LogLevel>();
+
+        public IEnumerable<string> IncludedNamespaces { get; set; } = Enumerable.Empty<string>();
     }
 
     [JsonConverter(typeof(StringEnumConverter))]

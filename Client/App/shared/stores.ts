@@ -12,6 +12,7 @@ export type MapSettings = {
     groupByNamespace: boolean,
     objectTypes: string[],
     logLevels: LogLevel[],
+    namespaces: string[],
     fixUnforeseenEdges: boolean,
     dfg: {
         minEvents: number,

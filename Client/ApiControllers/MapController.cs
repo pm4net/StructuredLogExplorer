@@ -69,9 +69,13 @@ namespace StructuredLogExplorer.ApiControllers
         public LogInfo GetLogInfo(string projectName)
         {
             var log = GetProjectLog(projectName);
+            var namespaces = log.Events.Select(e => OcelHelpers.GetNamespace(e.Value.ToFSharpOcelEvent())).Distinct();
+            var nsTree = OcelHelpers.NamespaceTree(new[] { '.' }, namespaces.Where(n => n.HasValue()).Select(n => n.Value));
+            var highLevelNs = nsTree.Item2.Select(x => x.Item1); // TODO: Should be improved when FE can handle nested checkboxes
             return new LogInfo
             {
                 ObjectTypes = log.ObjectTypes.Order(),
+                Namespaces = highLevelNs,
                 FirstEventTimestamp = log.OrderedEvents.FirstOrDefault().Value.Timestamp.ToString("yyyy/MM/dd"),
                 LastEventTimestamp = log.OrderedEvents.LastOrDefault().Value.Timestamp.ToString("yyyy/MM/dd")
             };
@@ -196,18 +200,6 @@ namespace StructuredLogExplorer.ApiControllers
             }
 
             return new List<(OcelObject, IEnumerable<(string, OcelEvent)>)>();
-        }
-
-        [HttpGet]
-        [Route("namespaceTree")]
-        [OutputCache] // TODO: Invalidate in FileController when new log files are imported
-		[Obsolete("Not currently used")]
-		public ListTree<string> GetNamespaceTree(string projectName)
-        {
-            // TODO: Port ListTree type to C# type that NSwag can convert
-            var log = GetProjectLog(projectName);
-            var namespaces = log.Events.Select(e => OcelHelpers.GetNamespace(e.Value.ToFSharpOcelEvent())).Distinct();
-            return OcelHelpers.NamespaceTree(new[] {'.'}, namespaces.Select(n => n.Value)); // TODO: Check if null first
         }
     }
 }

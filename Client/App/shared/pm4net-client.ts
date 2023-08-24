@@ -227,12 +227,6 @@ export interface IMapClient {
     discoverOcDfgAndGenerateDot(projectName: string | undefined, groupByNamespace: boolean | undefined, options: OcDfgOptions): Promise<string>;
 
     getTracesForObjectType(projectName: string | undefined, objectType: string | undefined, options: OcDfgOptions): Promise<ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]>;
-
-    /**
-     * @param projectName (optional) 
-     * @deprecated
-     */
-    getNamespaceTree(projectName: string | undefined): Promise<ListTreeOfString>;
 }
 
 export class MapClient implements IMapClient {
@@ -591,48 +585,6 @@ export class MapClient implements IMapClient {
         }
         return Promise.resolve<ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]>(null as any);
     }
-
-    /**
-     * @param projectName (optional) 
-     * @deprecated
-     */
-    getNamespaceTree(projectName: string | undefined): Promise<ListTreeOfString> {
-        let url_ = this.baseUrl + "/api/Map/namespaceTree?";
-        if (projectName === null)
-            throw new Error("The parameter 'projectName' cannot be null.");
-        else if (projectName !== undefined)
-            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: RequestInit = {
-            method: "GET",
-            headers: {
-                "Accept": "application/json"
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetNamespaceTree(_response);
-        });
-    }
-
-    protected processGetNamespaceTree(response: Response): Promise<ListTreeOfString> {
-        const status = response.status;
-        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200) {
-            return response.text().then((_responseText) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ListTreeOfString.fromJS(resultData200);
-            return result200;
-            });
-        } else if (status !== 200 && status !== 204) {
-            return response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            });
-        }
-        return Promise.resolve<ListTreeOfString>(null as any);
-    }
 }
 
 export interface IObjectsClient {
@@ -884,6 +836,7 @@ export interface ILogFileInfo {
 
 export class LogInfo implements ILogInfo {
     objectTypes!: string[];
+    namespaces!: string[];
     firstEventTimestamp!: string;
     lastEventTimestamp!: string;
 
@@ -896,6 +849,7 @@ export class LogInfo implements ILogInfo {
         }
         if (!data) {
             this.objectTypes = [];
+            this.namespaces = [];
         }
     }
 
@@ -905,6 +859,11 @@ export class LogInfo implements ILogInfo {
                 this.objectTypes = [] as any;
                 for (let item of _data["objectTypes"])
                     this.objectTypes!.push(item);
+            }
+            if (Array.isArray(_data["namespaces"])) {
+                this.namespaces = [] as any;
+                for (let item of _data["namespaces"])
+                    this.namespaces!.push(item);
             }
             this.firstEventTimestamp = _data["firstEventTimestamp"];
             this.lastEventTimestamp = _data["lastEventTimestamp"];
@@ -925,6 +884,11 @@ export class LogInfo implements ILogInfo {
             for (let item of this.objectTypes)
                 data["objectTypes"].push(item);
         }
+        if (Array.isArray(this.namespaces)) {
+            data["namespaces"] = [];
+            for (let item of this.namespaces)
+                data["namespaces"].push(item);
+        }
         data["firstEventTimestamp"] = this.firstEventTimestamp;
         data["lastEventTimestamp"] = this.lastEventTimestamp;
         return data;
@@ -933,6 +897,7 @@ export class LogInfo implements ILogInfo {
 
 export interface ILogInfo {
     objectTypes: string[];
+    namespaces: string[];
     firstEventTimestamp: string;
     lastEventTimestamp: string;
 }
@@ -2630,6 +2595,7 @@ export class OcDfgOptions implements IOcDfgOptions {
     keepCases!: KeepCases;
     includedTypes!: string[];
     includedLogLevels!: LogLevel[];
+    includedNamespaces!: string[];
 
     constructor(data?: IOcDfgOptions) {
         if (data) {
@@ -2641,6 +2607,7 @@ export class OcDfgOptions implements IOcDfgOptions {
         if (!data) {
             this.includedTypes = [];
             this.includedLogLevels = [];
+            this.includedNamespaces = [];
         }
     }
 
@@ -2661,6 +2628,11 @@ export class OcDfgOptions implements IOcDfgOptions {
                 this.includedLogLevels = [] as any;
                 for (let item of _data["includedLogLevels"])
                     this.includedLogLevels!.push(item);
+            }
+            if (Array.isArray(_data["includedNamespaces"])) {
+                this.includedNamespaces = [] as any;
+                for (let item of _data["includedNamespaces"])
+                    this.includedNamespaces!.push(item);
             }
         }
     }
@@ -2690,6 +2662,11 @@ export class OcDfgOptions implements IOcDfgOptions {
             for (let item of this.includedLogLevels)
                 data["includedLogLevels"].push(item);
         }
+        if (Array.isArray(this.includedNamespaces)) {
+            data["includedNamespaces"] = [];
+            for (let item of this.includedNamespaces)
+                data["includedNamespaces"].push(item);
+        }
         return data;
     }
 }
@@ -2703,6 +2680,7 @@ export interface IOcDfgOptions {
     keepCases: KeepCases;
     includedTypes: string[];
     includedLogLevels: LogLevel[];
+    includedNamespaces: string[];
 }
 
 export enum KeepCases {
@@ -2882,36 +2860,6 @@ export interface IOcelEvent {
     timestamp: Date;
     oMap: { [key: string]: OcelObject; };
     vMap: { [key: string]: OcelValue; };
-}
-
-export class ListTreeOfString implements IListTreeOfString {
-
-    constructor(data?: IListTreeOfString) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-    }
-
-    static fromJS(data: any): ListTreeOfString {
-        data = typeof data === 'object' ? data : {};
-        let result = new ListTreeOfString();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        return data;
-    }
-}
-
-export interface IListTreeOfString {
 }
 
 export class ObjectInfo implements IObjectInfo {

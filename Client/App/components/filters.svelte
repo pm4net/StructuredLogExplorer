@@ -6,6 +6,7 @@
     import { KeepCases, LogLevel } from "../shared/pm4net-client";
 
     export let availableObjectTypes = <string[]>[];
+    export let highLevelNamespaces = <string[]>[];
     export let minDate : string;
     export let maxDate : string;
     
@@ -15,6 +16,7 @@
     let groupByNamespace = $mapSettings[$activeProject ?? ""]?.groupByNamespace;
     let objectTypes = $mapSettings[$activeProject ?? ""]?.objectTypes ?? [];
     let logLevels = $mapSettings[$activeProject ?? ""]?.logLevels ?? [];
+    let namespaces = $mapSettings[$activeProject ?? ""]?.namespaces ?? [];
     let fixUnforeseenEdges = $mapSettings[$activeProject ?? ""].fixUnforeseenEdges;
     let minEvents = $mapSettings[$activeProject ?? ""].dfg.minEvents;
     let minOccurrences = $mapSettings[$activeProject ?? ""].dfg.minOccurrences;
@@ -128,6 +130,12 @@
                 <Checkbox bind:group={objectTypes} value={objType}>
                     <svelte:fragment slot="labelText">{objType} <div class="circle" style:background-color="{getColor(objType)}"></div></svelte:fragment>
                 </Checkbox>
+            {/each}
+        </AccordionItem>
+        <AccordionItem>
+            <svelte:fragment slot="title"><strong>Namespaces</strong></svelte:fragment>
+            {#each highLevelNamespaces as namespace}
+                <Checkbox bind:group={namespaces} value={namespace} labelText={namespace} />
             {/each}
         </AccordionItem>
     </Accordion>

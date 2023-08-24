@@ -481,37 +481,6 @@
         }
       }
     },
-    "/api/Map/namespaceTree": {
-      "get": {
-        "tags": [
-          "Map"
-        ],
-        "operationId": "Map_GetNamespaceTree",
-        "produces": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "parameters": [
-          {
-            "type": "string",
-            "name": "projectName",
-            "in": "query",
-            "x-nullable": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "x-nullable": false,
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/ListTreeOfString"
-            }
-          }
-        },
-        "deprecated": true
-      }
-    },
     "/api/Objects/getObjectTypeInfos": {
       "get": {
         "tags": [
@@ -672,11 +641,18 @@
       "type": "object",
       "required": [
         "objectTypes",
+        "namespaces",
         "firstEventTimestamp",
         "lastEventTimestamp"
       ],
       "properties": {
         "objectTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "namespaces": {
           "type": "array",
           "items": {
             "type": "string"
@@ -1382,7 +1358,8 @@
         "minimumSuccessions",
         "keepCases",
         "includedTypes",
-        "includedLogLevels"
+        "includedLogLevels",
+        "includedNamespaces"
       ],
       "properties": {
         "minimumEvents": {
@@ -1416,6 +1393,12 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/LogLevel"
+          }
+        },
+        "includedNamespaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
       }
@@ -1500,9 +1483,6 @@
           }
         }
       }
-    },
-    "ListTreeOfString": {
-      "type": "object"
     },
     "ObjectInfo": {
       "type": "object",
