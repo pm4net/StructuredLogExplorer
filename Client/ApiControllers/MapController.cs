@@ -14,6 +14,7 @@ using pm4net.Utilities;
 using pm4net.Types;
 using StructuredLogExplorer.Models.ControllerOptions;
 using KeepCases = StructuredLogExplorer.Models.ControllerOptions.KeepCases;
+using LogLevel = pm4net.Types.LogLevel;
 using NodeInfo = pm4net.Types.NodeInfo;
 using OcelEvent = Infrastructure.Models.OcelEvent;
 
@@ -152,60 +153,27 @@ namespace StructuredLogExplorer.ApiControllers
 
         [HttpPost]
         [Route("getTracesForObjectType")]
-		public IEnumerable<(OcelObject, IEnumerable<(string, OcelEvent)>)> GetTracesForObjectType(string projectName, string objectType, [FromBody] OcDfgOptions options) // TODO: Actually use options to perform filtering on traces
+		public IEnumerable<(OcelObject, IEnumerable<(string, OcelEvent)>)> GetTracesForObjectType(string projectName, string objectType, [FromBody] OcDfgOptions options)
 		{
             if (!string.IsNullOrWhiteSpace(projectName) && !string.IsNullOrWhiteSpace(objectType))
             {
                 var log = GetProjectLog(projectName);
                 var flattened = OcelHelpers.Flatten(log.ToFSharpOcelLog(), objectType);
-                var traces = OcelHelpers.OrderedTracesOfFlattenedLog(flattened);
 
-                // Apply log level filter
-                traces = traces.Select(t =>
+                var namespaceFilter = ListTree<string>.NewNode("", options.IncludedNamespaces.Select(x => ListTree<string>.NewNode(x, new FSharpList<ListTree<string>>(ListTree<string>.NewNode("*", FSharpList<ListTree<string>>.Empty), FSharpList<ListTree<string>>.Empty))).ToFSharpList());
+                TimeframeFilter? timeFrameFilter = null;
+                if (options.DtoFrom != null && options.DtoTo != null)
                 {
-                    var filtered = t.Item2.Where(e =>
-                    {
-                        var logLevel = OcelHelpers.GetLogLevel(e.Item2);
-                        return options.IncludedLogLevels.Contains(logLevel.HasValue() ? logLevel.Value.FromFSharpLogLevel() : Infrastructure.Models.LogLevel.Unknown);
-                    });
-                    return new Tuple<OCEL.Types.OcelObject, IEnumerable<Tuple<string, OCEL.Types.OcelEvent>>>(t.Item1, filtered);
-                }).Where(t => t.Item2.Any());
-
-                // Apply min. events filter
-                traces = traces.Where(t => t.Item2.Count() >= options.MinimumEvents);
-
-                // Apply time-frame filter
-                if (options.DtoFrom.HasValue && options.DtoTo.HasValue)
-                {
-                    var from = options.DtoFrom.Value.StartOfDay();
-                    var to = options.DtoTo.Value.EndOfDay();
-
-                    traces = traces.Select(t =>
-                    {
-                        var f = t.Item2.First().Item2.Timestamp;
-                        var l = t.Item2.Last().Item2.Timestamp;
-
-                        return options.KeepCases switch
-                        {
-                            KeepCases.ContainedInTimeFrame => f > from && l < to ? t : null,
-                            KeepCases.IntersectingTimeFrame => (f < from && l >= to) || (f >= from && f <= to) ? t : null,
-                            KeepCases.StartedInTimeFrame => f >= from && f <= to ? t : null,
-                            KeepCases.CompletedInTimeFrame => l >= from && l <= to ? t : null,
-                            KeepCases.TrimToTimeFrame => TrimToTimeFrame(t),
-                            _ => throw new ArgumentOutOfRangeException(nameof(options.KeepCases), $"{options.KeepCases} is not a valid case of {nameof(KeepCases)}.")
-                        };
-
-                        Tuple<OCEL.Types.OcelObject, IEnumerable<Tuple<string, OCEL.Types.OcelEvent>>>? TrimToTimeFrame(Tuple<OCEL.Types.OcelObject, IEnumerable<Tuple<string, OCEL.Types.OcelEvent>>> trace)
-                        {
-                            var trimmed = trace.Item2.Where(e => e.Item2.Timestamp >= from && e.Item2.Timestamp <= to).ToList();
-                            return trimmed.Any() ? new Tuple<OCEL.Types.OcelObject, IEnumerable<Tuple<string, OCEL.Types.OcelEvent>>>(t.Item1, trimmed) : null;
-                        }
-                    }).Where(t => t is not null);
+                    timeFrameFilter = new TimeframeFilter(options.DtoFrom.Value.StartOfDay(), options.DtoTo.Value.EndOfDay(), options.KeepCases.ToPm4Net());
                 }
 
-                // TODO: Apply min. occurrence and min. successions filter
+                var traces = OcelDfg.GetTracesForSingleType(
+                    new OcDfgFilter(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions, 
+                        timeFrameFilter != null ? FSharpOption<TimeframeFilter>.Some(timeFrameFilter) : FSharpOption<TimeframeFilter>.None, 
+                        options.IncludedLogLevels.Select(x => x.ToFSharpLogLevel()).ToFSharpList(), 
+                        namespaceFilter), flattened);
 
-                return traces.Select(t => (t.Item1.FromFSharpOcelObject(), t.Item2.Select(e => (e.Item1, e.Item2.FromRegularOcelEvent(flattened)))));
+                return traces.Select(x => (x.Item1.FromFSharpOcelObject(), x.Item2.Select(e => (e.Item1, e.Item2.FromRegularOcelEvent(flattened)))));
             }
 
             return new List<(OcelObject, IEnumerable<(string, OcelEvent)>)>();
