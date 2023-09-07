@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import { Button, Search } from "carbon-components-svelte";
     import { Save } from "carbon-icons-svelte";
     import Color from "color";
@@ -23,6 +23,9 @@
     export let ocdfg : GraphLayout | undefined = undefined;
     export let layoutEngine : DisplayMethod | undefined = undefined;
     $: hasLayout = layout !== undefined;
+
+    // Create event dispatcher
+    const dispatch = createEventDispatcher();
 
     // Create cytoscape instance and register extensions
     let cy : cytoscape.Core;
@@ -214,23 +217,14 @@
         // If the previous node appears again later in the trace, the text on it should be updated to that of the next occurrence
         let traceNodes = cy.nodes().filter(n => n.data("traceText") !== undefined);
         traceNodes.forEach(n => {
-            let nextOccurrence = stateTrace?.item2.slice(index - 1).find(node => node.item2.activity === n.id());
+            let nextOccurrence = stateTrace?.item2.slice(index).find(node => node.item2.activity === n.id());
             if (nextOccurrence) {
                 n.data("traceText", getStringValue(nextOccurrence.item2.vMap["pm4net_RenderedMessage"]));
             }
         });
-        
-        // Old implementation
-        /*if (index > 1) { // Starts at  1
-            let prevNode = stateTrace?.item2[index - 1];
-            if (prevNode) {
-                let cyNode = cy.$id(prevNode?.item2?.activity);
-                let nextOccurrence = stateTrace?.item2.slice(index).find(n => n.item2.activity === prevNode?.item2.activity);
-                if (nextOccurrence) {
-                    cyNode.data("traceText", getStringValue(nextOccurrence.item2.vMap["pm4net_RenderedMessage"]));
-                }
-            }
-        }*/
+
+        // Highlight the event in the trace window
+        dispatch("animateStepChanged", index);
     }
 
     onMount(() => {

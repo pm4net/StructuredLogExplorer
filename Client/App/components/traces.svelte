@@ -9,12 +9,13 @@
     import type { ComboBoxItem } from "carbon-components-svelte/types/ComboBox/ComboBox.svelte";
     import Trace from "./trace.svelte";
     import { getStringValue } from "../helpers/ocel-helpers";
-    import { Debug } from "carbon-icons-svelte";
 
     // Props
     export let objectTypes : string[];
     export let selectedType = ""; // $mapSettings[$activeProject ?? ""]?.selectedTypeForTraces ?? "";
     export let selectedObjectText = "";
+
+    let highlightedTraceIndex : number | null = null;
 
     const dispatch = createEventDispatcher();
 
@@ -65,9 +66,13 @@
         if (!value) return true;
         return item.text?.toLowerCase().includes(value.toLowerCase());
     }
+
+    export function highlightAnimationStep(index: number) {
+        highlightedTraceIndex = index;
+    }
 </script>
 
-<ComboBox 
+<ComboBox
     placeholder="Select an object type"
     items={objectTypes.map(o => { return { id: o, text: o } })}
     bind:value={selectedType}
@@ -101,7 +106,7 @@
                 {item.id.item2.length} events ({getDateString(item.id.item2.at(0))} - {getDateString(item.id.item2.at(-1))})
             </div>
         </ComboBox>
-        <Trace trace={traces.find(t => t.text === selectedObjectText)}></Trace>
+        <Trace trace={traces.find(t => t.text === selectedObjectText)} highlightedIndex={highlightedTraceIndex}></Trace>
     {/if}
 {/await}
 

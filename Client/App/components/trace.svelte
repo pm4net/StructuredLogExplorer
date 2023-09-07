@@ -6,6 +6,16 @@
     import { getStringValue } from "../helpers/ocel-helpers";
 
     export let trace : { item1: OcelObject, item2: ValueTupleOfStringAndOcelEvent[], text: string } | undefined;
+    export let highlightedIndex : number | null;
+
+    $: {
+        if (highlightedIndex) {
+            // TODO: How to find nth tile and scroll to it?
+            //var elem = document.querySelector(`bx--tile--expandable:nth-of-type(${highlightedIndex})`) as HTMLElement;
+            //console.log("elem", elem);
+            //elem?.scrollIntoView({ behavior: "smooth" });
+        }
+    }
 
     // Humanizer
     const shortEnglishHumanizer = humanizeDuration.humanizer({
@@ -45,7 +55,7 @@
 {#if trace !== undefined}
     <div class="add-margin">
         {#each trace.item2 as event, idx_e}
-            <ExpandableTile>
+            <ExpandableTile style={idx_e === highlightedIndex ? "background: greenyellow" : ""}>
                 <div slot="above">
                     <p><strong>{getStringValue(event.item2.vMap["pm4net_RenderedMessage"])}</strong></p>
                 </div>

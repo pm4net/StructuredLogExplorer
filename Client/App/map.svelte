@@ -12,6 +12,7 @@
     import Cytoscape from "./components/maps/cytoscape.svelte";
 
     let cyComponent : Cytoscape;
+    let tracesComponent : Traces;
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {
@@ -123,6 +124,10 @@
     function forwardHighlightSpecificTraceEvent(event: any) {
         cyComponent?.highlightSpecificTrace(event.detail);
     }
+
+    function forwardAnimationStepChanged(event: any) {
+        tracesComponent?.highlightAnimationStep(event.detail);
+    }
 </script>
 
 <Layout>
@@ -165,13 +170,22 @@
                                                     {#await getGraphLayout()}
                                                         <Loading withOverlay={false} description="Loading..." />
                                                     {:then layout}
-                                                        <Cytoscape bind:this={cyComponent} layout={layout} />
+                                                        <Cytoscape 
+                                                            bind:this={cyComponent} 
+                                                            layout={layout} 
+                                                            on:animateStepChanged={forwardAnimationStepChanged} 
+                                                        />
                                                     {/await}
                                                 {:else}
                                                     {#await getOcDfg()}
                                                         <Loading withOverlay={false} description="Loading..." />
                                                     {:then ocdfg}
-                                                        <Cytoscape bind:this={cyComponent} ocdfg={ocdfg} layoutEngine={$mapSettings[$activeProject ?? ""]?.displayMethod} />
+                                                        <Cytoscape 
+                                                            bind:this={cyComponent} 
+                                                            ocdfg={ocdfg} 
+                                                            layoutEngine={$mapSettings[$activeProject ?? ""]?.displayMethod}
+                                                            on:animateStepChanged={forwardAnimationStepChanged}
+                                                        />
                                                     {/await}
                                                 {/if}
                                             {/await}
@@ -186,8 +200,9 @@
                             <!-- Refresh traces window when filters change too, so that the traces can be reloaded according to the applied filters, and re-highlighted -->
                             {#key $mapSettings[$activeProject ?? ""]}
                                 <!-- When it changes, we can pass in the selected type as a prop (have to somehow know what was selected before though) -->
-                                <Traces 
-                                    objectTypes={logInfo.objectTypes} 
+                                <Traces
+                                    bind:this={tracesComponent}
+                                    objectTypes={logInfo.objectTypes}
                                     on:highlightTraces={forwardHighlightTracesEvent}
                                     on:highlightSpecificTrace={forwardHighlightSpecificTraceEvent}
                                 />
