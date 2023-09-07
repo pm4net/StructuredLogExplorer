@@ -167,7 +167,7 @@
             let elemsToHighlight = active.subtract(elemsToHide);
 
             // Reverse to make the "first" occurrence of the same event be shown, since it sets the text last (but using slice first to avoid mutation of trace)
-            // TODO: During animation, text should be swapped out when there's multiple instances, right after passing through it
+            // During animation, text should be swapped out when there's multiple instances, right after passing through it
             trace?.item2.slice().reverse().forEach(event => {
                 let cyNode = cy.$id(event.item2.activity).first();
                 cyNode.data("traceText", getStringValue(event.item2.vMap["pm4net_RenderedMessage"]));
@@ -210,6 +210,27 @@
 
             connectingEdge.addClass("edge-highlighted");
         }
+
+        // If the previous node appears again later in the trace, the text on it should be updated to that of the next occurrence
+        let traceNodes = cy.nodes().filter(n => n.data("traceText") !== undefined);
+        traceNodes.forEach(n => {
+            let nextOccurrence = stateTrace?.item2.slice(index - 1).find(node => node.item2.activity === n.id());
+            if (nextOccurrence) {
+                n.data("traceText", getStringValue(nextOccurrence.item2.vMap["pm4net_RenderedMessage"]));
+            }
+        });
+        
+        // Old implementation
+        /*if (index > 1) { // Starts at  1
+            let prevNode = stateTrace?.item2[index - 1];
+            if (prevNode) {
+                let cyNode = cy.$id(prevNode?.item2?.activity);
+                let nextOccurrence = stateTrace?.item2.slice(index).find(n => n.item2.activity === prevNode?.item2.activity);
+                if (nextOccurrence) {
+                    cyNode.data("traceText", getStringValue(nextOccurrence.item2.vMap["pm4net_RenderedMessage"]));
+                }
+            }
+        }*/
     }
 
     onMount(() => {
