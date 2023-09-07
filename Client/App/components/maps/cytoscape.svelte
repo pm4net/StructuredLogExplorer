@@ -275,7 +275,7 @@
                     if (ns) {
                         // TODO: not all of them showing up? Maybe due to overlaps?
                         let matchingNodes = cy.nodes().filter(n => n.data('info')?.namespace?.split('.')[0] === ns);
-                        bb.addPath(matchingNodes, matchingNodes.connectedEdges(), null, {
+                        bb.addPath(matchingNodes, matchingNodes.connectedEdges(), null, { // matchingNodes.edgesWith(matchingNodes) yields no rendered sets at all
                             style: {
                                 'stroke': 'black',
                                 'fill': getColor(ns),
@@ -284,6 +284,8 @@
                         });
                     }
                 });
+
+                // console.log(bb.getPaths());
             });
         }
     });
