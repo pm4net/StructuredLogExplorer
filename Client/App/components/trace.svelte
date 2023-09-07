@@ -1,9 +1,10 @@
 <script lang="ts">
     import { ExpandableTile } from "carbon-components-svelte";
-    import type { OcelObject, ValueTupleOfStringAndOcelEvent } from "../shared/pm4net-client";
+    import type { OcelObject, OcelValue, ValueTupleOfStringAndOcelEvent } from "../shared/pm4net-client";
     import { DateTime } from "luxon";
     import humanizeDuration from "humanize-duration";
     import { getStringValue } from "../helpers/ocel-helpers";
+    import { logLevelFromString, logLevelToColor } from "../helpers/cytoscape-helpers";
 
     export let trace : { item1: OcelObject, item2: ValueTupleOfStringAndOcelEvent[], text: string } | undefined;
     export let highlightedIndex : number | null;
@@ -50,12 +51,27 @@
     async function getFilteredAttributes(event: ValueTupleOfStringAndOcelEvent) {
         return Promise.resolve(Object.entries(event.item2.vMap).filter(e => !e[0].includes("pm4net_") && e[0] !== "SourceContext"));
     }
+
+    function getLogLevelColor(level: OcelValue | undefined) {
+        if (level) {
+            let str = getStringValue(level);
+            let logLevel = logLevelFromString(str);
+            console.log(logLevel);
+            return logLevelToColor(logLevel);
+        }
+        return undefined;
+    }
 </script>
 
 {#if trace !== undefined}
     <div class="add-margin">
         {#each trace.item2 as event, idx_e}
-            <ExpandableTile style={idx_e === highlightedIndex ? "background: greenyellow" : ""}>
+            <ExpandableTile
+                style={
+                    `background:${getLogLevelColor(event.item2.vMap["pm4net_Level"])};` + 
+                    (idx_e === highlightedIndex ? `outline: 5px solid greenyellow; outline-offset: -2px;` : "")
+                }
+            >
                 <div slot="above">
                     <p><strong>{getStringValue(event.item2.vMap["pm4net_RenderedMessage"])}</strong></p>
                 </div>
@@ -85,7 +101,7 @@
 
                     {#await getFilteredAttributes(event) then attrs}
                         {#if attrs.length > 0}
-                            <br /><br />
+                            <br/><br/>
                             <strong>Attributes:</strong>
                             {#each attrs as attr}
                                 <br />
@@ -93,8 +109,15 @@
                             {/each}
                         {/if}
                     {/await}
+
+                    {#if event.item2.vMap["pm4net_Exception"] !== undefined}
+                        <br/><br/>
+                        <strong>Exception:</strong>
+                        {getStringValue(event.item2.vMap["pm4net_Exception"])} <!-- TODO -->
+                    {/if}
                 </div>
             </ExpandableTile>
+
             {#if idx_e < trace.item2.length - 1}
                 <div class="connector">
                     <i class="arrow down" />

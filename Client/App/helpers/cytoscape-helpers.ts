@@ -23,6 +23,25 @@ export async function saveGraphAsImage(cy: cytoscape.Core, activeProject: string
     saveAs(pngBlob, `${activeProject}.png`);
 }
 
+export function logLevelFromString(level: string) {
+    switch (level) {
+        case "Verbose":
+            return LogLevel.Verbose;
+        case "Debug":
+            return LogLevel.Debug;
+        case "Information":
+            return LogLevel.Information;
+        case "Warning":
+            return LogLevel.Warning;
+        case "Error":
+            return LogLevel.Error;
+        case "Fatal":
+            return LogLevel.Fatal;
+        default:
+            return LogLevel.Unknown;
+    }
+}
+
 export function logLevelToColor(level: LogLevel) {
     switch (level) {
         case LogLevel.Verbose:
