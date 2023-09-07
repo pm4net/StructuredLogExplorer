@@ -136,7 +136,9 @@
         <AccordionItem>
             <svelte:fragment slot="title"><strong>Namespaces</strong></svelte:fragment>
             {#each highLevelNamespaces as namespace}
-                <Checkbox bind:group={namespaces} value={namespace} labelText={namespace} />
+                <Checkbox bind:group={namespaces} value={namespace}>
+                    <svelte:fragment slot="labelText">{namespace} <div class="circle" style:background-color="{getColor(namespace)}"></svelte:fragment>
+                </Checkbox>
             {/each}
         </AccordionItem>
     </Accordion>
