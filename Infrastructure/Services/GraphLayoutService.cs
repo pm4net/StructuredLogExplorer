@@ -56,7 +56,7 @@ namespace Infrastructure.Services
 			var projectDb = _projectService.GetProjectDatabase(projectName);
 			var importedLogs = projectDb.GetCollection<LogFileInfo>(Identifiers.LogFilesInfo)?.FindAll().ToList() ?? new List<LogFileInfo>();
 			if (globalRanking is null || importedLogs.Any(l => l.LastImported >= globalRanking?.LastUpdated)) // TODO: Or were any object types converted to attributes?
-			{
+            {
 				globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces).FromFSharpGlobalRanking();
 				SaveGlobalRanking(projectName, globalRanking);
 			}
@@ -79,7 +79,8 @@ namespace Infrastructure.Services
 				var globalOrder = GetGlobalOrder(projectName);
 				if (globalOrder is null || importedLogs.Any(l => l.LastImported >= globalOrder?.LastUpdated)) // TODO: Or were any object types converted to attributes?
                 {
-					globalOrder = new GlobalOrder(ProcessGraphLayout.FastCustomMeasurements.ComputeGlobalOrder(traces), DateTime.Now);
+                    var (go, _) = ProcessGraphLayout.FastCustomMeasurements.ComputeGlobalOrder(traces);
+                    globalOrder = new GlobalOrder(go, DateTime.Now);
 					SaveGlobalOrder(projectName, globalOrder);
 				}
 
