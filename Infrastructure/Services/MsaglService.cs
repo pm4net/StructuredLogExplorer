@@ -6,6 +6,7 @@ using Microsoft.Msagl.Layout.Layered;
 using Microsoft.Msagl.Miscellaneous;
 using Microsoft.Msagl.Prototype.Ranking;
 using pm4net.Types;
+using System.Text;
 
 namespace Infrastructure.Services
 {
@@ -18,10 +19,11 @@ namespace Infrastructure.Services
             foreach (var node in model.Nodes)
             {
                 var nodeName = GetNodeName(node);
+                var (wrapped, lines) = WrapText(nodeName, 20);
                 var n = graph.AddNode(nodeName);
-                n.LabelText = nodeName;
-                n.Label.Width = 100;
-                n.Label.Height = 50;
+                n.LabelText = wrapped;
+                n.Label.Width = (wrapped.Split(Environment.NewLine).MaxBy(l => l.Length)?.Length ?? 60) * 10;
+                n.Label.Height = lines * 20;
             }
 
             foreach (var edge in model.Edges)
@@ -37,7 +39,7 @@ namespace Infrastructure.Services
             // Now the drawing graph elements point to the corresponding geometry elements, however the node boundary curves are not set. Setting the node boundaries
             foreach (var n in graph.Nodes)
             {
-                n.GeometryNode.BoundaryCurve = CurveFactory.CreateRectangleWithRoundedCorners(60, 40, 3, 2, new Point(0, 0));
+                n.GeometryNode.BoundaryCurve = CurveFactory.CreateRectangleWithRoundedCorners(n.Label.Width, n.Label.Height, 3, 2, new Point(n.Label.Width, n.Label.Height));
             }
             
             LayoutHelpers.CalculateLayout(graph.GeometryGraph, new SugiyamaLayoutSettings(), null);
@@ -67,6 +69,34 @@ namespace Infrastructure.Services
             throw new ArgumentOutOfRangeException(nameof(node), "Node is not one of the allowed types.");
         }
 
+        private static (string, int) WrapText(string text, int maxCharsPerLine)
+        {
+            var words = text.Split(' ');
+            var newSentence = new StringBuilder();
+            var noOfLines = 0;
+
+            var line = "";
+            foreach (var word in words)
+            {
+                if ((line + word).Length > maxCharsPerLine)
+                {
+                    newSentence.AppendLine(line);
+                    noOfLines++;
+                    line = "";
+                }
+
+                line += $"{word} ";
+            }
+
+            if (line.Length > 0)
+            {
+                newSentence.AppendLine(line);
+                noOfLines++;
+            }
+
+            return (newSentence.ToString(), noOfLines);
+        }
+ 
         private static string GetSvg(Graph drawingGraph)
         {
             var ms = new MemoryStream();
