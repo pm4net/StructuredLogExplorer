@@ -4,12 +4,12 @@ using Microsoft.Msagl.Core.Geometry.Curves;
 using Microsoft.Msagl.Drawing;
 using Microsoft.Msagl.Layout.Layered;
 using Microsoft.Msagl.Miscellaneous;
-using Microsoft.Msagl.Prototype.Ranking;
 using pm4net.Types;
 using System.Text;
 
 namespace Infrastructure.Services
 {
+    [Obsolete("Use pm4net implementation instead")]
     public class MsaglService : IMsaglService
     {
         public string ComputeSvgGraph(string projectName, DirectedGraph<Node<NodeInfo>, Edge<EdgeInfo>> model, bool mergeEdges, bool groupByNamespace)

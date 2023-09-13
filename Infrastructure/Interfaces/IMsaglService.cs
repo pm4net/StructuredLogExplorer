@@ -2,6 +2,7 @@
 
 namespace Infrastructure.Interfaces
 {
+    [Obsolete("Use pm4net implementation instead")]
     public interface IMsaglService
     {
         string ComputeSvgGraph(

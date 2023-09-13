@@ -22,14 +22,12 @@ namespace StructuredLogExplorer.ApiControllers
     {
         private readonly IProjectService _projectService;
         private readonly IGraphLayoutService _graphLayoutService;
-        private readonly IMsaglService _msaglService;
         private readonly IDictionary<string, OcelLog> _logs;
 
-        public MapController(IProjectService projectService, IGraphLayoutService graphLayoutService, IMsaglService msaglService)
+        public MapController(IProjectService projectService, IGraphLayoutService graphLayoutService)
         {
             _projectService = projectService;
             _graphLayoutService = graphLayoutService;
-            _msaglService = msaglService;
             _logs = new Dictionary<string, OcelLog>();
         }
 
@@ -154,7 +152,7 @@ namespace StructuredLogExplorer.ApiControllers
         public string DiscoverOcDfgAndGenerateMsaglSvg(string projectName, bool groupByNamespace, [FromBody] OcDfgOptions options)
         {
             var ocDfg = DiscoverOriginalOcDfg(projectName, options);
-            return _msaglService.ComputeSvgGraph(projectName, ocDfg, true, groupByNamespace);
+            return pm4net.Visualization.Ocel.Msagl.OcDfg2Msagl(ocDfg, groupByNamespace);
         }
 
         [HttpPost]
