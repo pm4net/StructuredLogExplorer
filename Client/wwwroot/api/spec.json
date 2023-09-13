@@ -427,6 +427,57 @@
         }
       }
     },
+    "/api/Map/discoverOcDfgAndGenerateMsaglSvg": {
+      "post": {
+        "tags": [
+          "Map"
+        ],
+        "operationId": "Map_DiscoverOcDfgAndGenerateMsaglSvg",
+        "consumes": [
+          "application/json-patch+json",
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "projectName",
+            "in": "query",
+            "x-nullable": false
+          },
+          {
+            "type": "boolean",
+            "name": "groupByNamespace",
+            "in": "query",
+            "x-nullable": false
+          },
+          {
+            "name": "options",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OcDfgOptions"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "/api/Map/getTracesForObjectType": {
       "post": {
         "tags": [

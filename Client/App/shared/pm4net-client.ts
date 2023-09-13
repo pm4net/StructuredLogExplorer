@@ -226,6 +226,8 @@ export interface IMapClient {
 
     discoverOcDfgAndGenerateDot(projectName: string | undefined, groupByNamespace: boolean | undefined, options: OcDfgOptions): Promise<string>;
 
+    discoverOcDfgAndGenerateMsaglSvg(projectName: string | undefined, groupByNamespace: boolean | undefined, options: OcDfgOptions): Promise<string>;
+
     getTracesForObjectType(projectName: string | undefined, objectType: string | undefined, options: OcDfgOptions): Promise<ValueTupleOfOcelObjectAndIEnumerableOfValueTupleOfStringAndOcelEvent[]>;
 }
 
@@ -515,6 +517,53 @@ export class MapClient implements IMapClient {
     }
 
     protected processDiscoverOcDfgAndGenerateDot(response: Response): Promise<string> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<string>(null as any);
+    }
+
+    discoverOcDfgAndGenerateMsaglSvg(projectName: string | undefined, groupByNamespace: boolean | undefined, options: OcDfgOptions): Promise<string> {
+        let url_ = this.baseUrl + "/api/Map/discoverOcDfgAndGenerateMsaglSvg?";
+        if (projectName === null)
+            throw new Error("The parameter 'projectName' cannot be null.");
+        else if (projectName !== undefined)
+            url_ += "projectName=" + encodeURIComponent("" + projectName) + "&";
+        if (groupByNamespace === null)
+            throw new Error("The parameter 'groupByNamespace' cannot be null.");
+        else if (groupByNamespace !== undefined)
+            url_ += "groupByNamespace=" + encodeURIComponent("" + groupByNamespace) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(options);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDiscoverOcDfgAndGenerateMsaglSvg(_response);
+        });
+    }
+
+    protected processDiscoverOcDfgAndGenerateMsaglSvg(response: Response): Promise<string> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {

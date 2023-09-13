@@ -47,6 +47,8 @@ builder.Services.AddSingleton<IGraphLayoutService>(sp =>
 	return new GraphLayoutService(projectService!);
 });
 
+builder.Services.AddSingleton<IMsaglService, MsaglService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

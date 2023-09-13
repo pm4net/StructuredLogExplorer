@@ -1,10 +1,8 @@
-﻿using System.Diagnostics;
-using FSharpx;
+﻿using FSharpx;
 using Infrastructure.Helpers;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
 using pm4net.Algorithms.Discovery.Ocel;
@@ -13,8 +11,6 @@ using pm4net.Types.Trees;
 using pm4net.Utilities;
 using pm4net.Types;
 using StructuredLogExplorer.Models.ControllerOptions;
-using KeepCases = StructuredLogExplorer.Models.ControllerOptions.KeepCases;
-using LogLevel = pm4net.Types.LogLevel;
 using NodeInfo = pm4net.Types.NodeInfo;
 using OcelEvent = Infrastructure.Models.OcelEvent;
 
@@ -26,12 +22,14 @@ namespace StructuredLogExplorer.ApiControllers
     {
         private readonly IProjectService _projectService;
         private readonly IGraphLayoutService _graphLayoutService;
+        private readonly IMsaglService _msaglService;
         private readonly IDictionary<string, OcelLog> _logs;
 
-        public MapController(IProjectService projectService, IGraphLayoutService graphLayoutService)
+        public MapController(IProjectService projectService, IGraphLayoutService graphLayoutService, IMsaglService msaglService)
         {
             _projectService = projectService;
             _graphLayoutService = graphLayoutService;
+            _msaglService = msaglService;
             _logs = new Dictionary<string, OcelLog>();
         }
 
@@ -149,6 +147,14 @@ namespace StructuredLogExplorer.ApiControllers
 	        var ocDfg = DiscoverOriginalOcDfg(projectName, options);
             var dot = pm4net.Visualization.Ocel.Graphviz.OcDfg2Dot(ocDfg, groupByNamespace);
             return dot;
+        }
+
+        [HttpPost]
+        [Route("discoverOcDfgAndGenerateMsaglSvg")]
+        public string DiscoverOcDfgAndGenerateMsaglSvg(string projectName, bool groupByNamespace, [FromBody] OcDfgOptions options)
+        {
+            var ocDfg = DiscoverOriginalOcDfg(projectName, options);
+            return _msaglService.ComputeSvgGraph(projectName, ocDfg, true, groupByNamespace);
         }
 
         [HttpPost]

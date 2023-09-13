@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutomaticGraphLayout" Version="1.1.12" />
+    <PackageReference Include="AutomaticGraphLayout.Drawing" Version="1.1.12" />
     <PackageReference Include="FSharpx.Extras" Version="3.1.0" />
     <PackageReference Include="LiteDB" Version="5.0.17" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

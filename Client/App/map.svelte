@@ -10,6 +10,7 @@
     import wrapAnsi from "wrap-ansi";
     import Traces from "./components/traces.svelte";
     import Cytoscape from "./components/maps/cytoscape.svelte";
+    import Msagl from "./components/maps/msagl.svelte";
 
     let cyComponent : Cytoscape;
     let tracesComponent : Traces;
@@ -107,6 +108,19 @@
         }
     }
 
+    // Load the MSAGL SVG definition of the OC-DFG from API, using the settings from local storage.
+    async function getOcDfgMsagl() {
+        try {
+            return await mapClient.discoverOcDfgAndGenerateMsaglSvg(
+                $activeProject ?? "", 
+                $mapSettings[$activeProject ?? ""].groupByNamespace, 
+                createOcDfgOptionsFromStore());
+        } catch (e: unknown) {
+            errorNotification.show = true;
+            errorNotification.message = getErrorMessage(e);
+        }
+    }
+
     // Load the OC-DFG from the API, using the settings from local storage
     async function getOcDfg() {
         try {
@@ -162,6 +176,12 @@
                                             <Loading withOverlay={false} description="Loading..." />
                                         {:then dot}
                                             <Dot dot={dot ?? ""} />
+                                        {/await}
+                                    {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Msagl}
+                                        {#await getOcDfgMsagl()}
+                                            <Loading withOverlay={false} description="Loading..." />
+                                        {:then svg}
+                                            <Msagl svg={svg ?? ""}></Msagl>
                                         {/await}
                                     {:else}
                                         {#await getNodesToPreCompute() then nodes}

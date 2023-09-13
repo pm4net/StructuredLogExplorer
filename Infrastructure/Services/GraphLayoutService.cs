@@ -32,7 +32,7 @@ namespace Infrastructure.Services
 		public GraphLayout ComputeGraphLayout(
 			string projectName, 
 			OcelLog log,
-            pm4net.Types.DirectedGraph<pm4net.Types.Node<NodeInfo>, pm4net.Types.Edge<EdgeInfo>> model, 
+            pm4net.Types.DirectedGraph<Node<NodeInfo>, Edge<EdgeInfo>> model, 
 			bool mergeEdges, 
 			bool fixUnforeseenEdges, 
 			float nodeSep,
