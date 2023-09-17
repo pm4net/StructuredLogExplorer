@@ -12,7 +12,7 @@
     let selectedRowIds : DataTableRowId[];
 
     // Load object types and attributes of active project from API
-    let objects = objectsClient.getObjectTypeInfos($activeProject);
+    let objects = $activeProject ? objectsClient.getObjectTypeInfos($activeProject) : Promise.reject();
 
     // The state of the error notification that is shown when an API error occurs
     let errorNotification = {

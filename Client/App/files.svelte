@@ -14,7 +14,7 @@
     let pagination = { pageSize: 10, page: 1, filteredRowIds: <number[]>[] }
 
     // Load log files of active project from API
-    let files = filesClient.getLogFileInfos($activeProject);
+    let files = $activeProject ? filesClient.getLogFileInfos($activeProject) : Promise.reject();
     let importingFiles = <string[]>[]
 
     // The state of the error notification that is shown when an API error occurs

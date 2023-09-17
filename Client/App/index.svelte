@@ -83,7 +83,7 @@
             projects[newActiveIdx].active = true;
         }
 
-        activeProject.set(name);
+        activeProject.set(name ?? "");
     }
 
     /// Create a new project with the values entered in the modal
