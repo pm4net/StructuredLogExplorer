@@ -1,10 +1,11 @@
 <script lang="ts">
-    import { ExpandableTile } from "carbon-components-svelte";
-    import type { OcelObject, OcelValue, ValueTupleOfStringAndOcelEvent } from "../shared/pm4net-client";
+    import { CodeSnippet, ExpandableTile } from "carbon-components-svelte";
+    import { OcelMap, type OcelObject, type OcelValue, type ValueTupleOfStringAndOcelEvent } from "../shared/pm4net-client";
     import { DateTime } from "luxon";
     import humanizeDuration from "humanize-duration";
     import { getStringValue } from "../helpers/ocel-helpers";
     import { logLevelFromString, logLevelToColor } from "../helpers/cytoscape-helpers";
+    import Color from "color";
 
     export let trace : { item1: OcelObject, item2: ValueTupleOfStringAndOcelEvent[], text: string } | undefined;
     export let highlightedIndex : number | null;
@@ -56,10 +57,19 @@
         if (level) {
             let str = getStringValue(level);
             let logLevel = logLevelFromString(str);
-            console.log(logLevel);
-            return logLevelToColor(logLevel);
+            let logLevelColor = logLevelToColor(logLevel);
+            let lightened = Color(logLevelColor).lighten(0.1);
+            return lightened;
         }
         return undefined;
+    }
+
+    function getExceptionValues(exception: OcelValue) {
+        if (exception instanceof OcelMap) {
+            return exception.values;
+        }
+
+        return {};
     }
 </script>
 
@@ -113,7 +123,36 @@
                     {#if event.item2.vMap["pm4net_Exception"] !== undefined}
                         <br/><br/>
                         <strong>Exception:</strong>
-                        {getStringValue(event.item2.vMap["pm4net_Exception"])} <!-- TODO -->
+                        <br/>
+                        {#await getExceptionValues(event.item2.vMap["pm4net_Exception"]) then values}
+                            {#if values}
+                                {#if "Message" in values}
+                                    <strong>Message:</strong> {getStringValue(values["Message"])}
+                                    <br/>
+                                {/if}
+                                {#if "Type" in values}
+                                    <strong>Type:</strong> {getStringValue(values["Type"])}
+                                    <br/>
+                                {/if}
+                                {#if "Source" in values}
+                                    <strong>Source:</strong> {getStringValue(values["Source"])}
+                                    <br/>
+                                {/if}
+                                {#if "TargetSite" in values}
+                                    <strong>TargetSite:</strong> {getStringValue(values["TargetSite"])}
+                                    <br/>
+                                {/if}
+                                {#if "HResult" in values}
+                                    <strong>HResult:</strong> {getStringValue(values["HResult"])}
+                                    <br/>
+                                {/if}
+                                {#if "StackTrace" in values}
+                                    <strong>Stack trace:</strong> 
+                                    <br/>
+                                    <CodeSnippet type="multi" code={getStringValue(values["StackTrace"])} />
+                                {/if}
+                            {/if}
+                        {/await}
                     {/if}
                 </div>
             </ExpandableTile>
