@@ -53,10 +53,10 @@ namespace StructuredLogExplorer.ApiControllers
             switch (format.ToLower())
             {
                 case "json":
-                    var json = OcelJson.Serialize(log, Formatting.Indented);
+                    var json = OcelJson.Serialize(log, Formatting.Indented, false);
                     return File(Encoding.UTF8.GetBytes(json), MediaTypeNames.Application.Json, fileDownloadName: $"{projectName}.jsonocel");
                 case "xml":
-                    var xml = OcelXml.Serialize(log, Formatting.Indented);
+                    var xml = OcelXml.Serialize(log, Formatting.Indented, false);
                     return File(Encoding.UTF8.GetBytes(xml), MediaTypeNames.Application.Xml, fileDownloadName: $"{projectName}.xmlocel");
                 case "litedb":
                     // Get temporary DB file
