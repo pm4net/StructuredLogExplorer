@@ -14,7 +14,7 @@ export interface IFileClient {
 
     importAll(projectName: string | undefined): Promise<{ [key: string]: LogFileInfo; }>;
 
-    importLog(projectName: string | undefined, fileName: string | undefined): Promise<LogFileInfo | null>;
+    importLog(projectName: string | undefined, fileName: string | undefined): Promise<LogFileInfo>;
 
     exportOcel(projectName: string | undefined, format: string | undefined): Promise<FileResponse | null>;
 }
@@ -121,7 +121,7 @@ export class FileClient implements IFileClient {
         return Promise.resolve<{ [key: string]: LogFileInfo; }>(null as any);
     }
 
-    importLog(projectName: string | undefined, fileName: string | undefined): Promise<LogFileInfo | null> {
+    importLog(projectName: string | undefined, fileName: string | undefined): Promise<LogFileInfo> {
         let url_ = this.baseUrl + "/api/File/importLog?";
         if (projectName === null)
             throw new Error("The parameter 'projectName' cannot be null.");
@@ -145,14 +145,14 @@ export class FileClient implements IFileClient {
         });
     }
 
-    protected processImportLog(response: Response): Promise<LogFileInfo | null> {
+    protected processImportLog(response: Response): Promise<LogFileInfo> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = resultData200 ? LogFileInfo.fromJS(resultData200) : <any>null;
+            result200 = LogFileInfo.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -160,7 +160,7 @@ export class FileClient implements IFileClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<LogFileInfo | null>(null as any);
+        return Promise.resolve<LogFileInfo>(null as any);
     }
 
     exportOcel(projectName: string | undefined, format: string | undefined): Promise<FileResponse | null> {

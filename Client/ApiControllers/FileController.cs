@@ -1,9 +1,11 @@
 ﻿using System.Net.Mime;
 using System.Text;
+using Infrastructure.Constants;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using LiteDB;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using OCEL.CSharp;
 using OCEL.Types;
 
@@ -15,11 +17,13 @@ namespace StructuredLogExplorer.ApiControllers
     {
         private readonly ILogFileService _logFileService;
         private readonly IProjectService _projectService;
+        private readonly IOutputCacheStore _outputCacheStore;
 
-        public FileController(ILogFileService logFileService, IProjectService projectService)
+        public FileController(ILogFileService logFileService, IProjectService projectService, IOutputCacheStore outputCacheStore)
         {
             _logFileService = logFileService;
             _projectService = projectService;
+            _outputCacheStore = outputCacheStore;
         }
 
         [HttpGet]
@@ -31,16 +35,20 @@ namespace StructuredLogExplorer.ApiControllers
 
         [HttpPost]
         [Route("importAll")]
-        public IDictionary<string, LogFileInfo?> ImportAll(string projectName)
+        public async Task<IDictionary<string, LogFileInfo?>> ImportAll(string projectName)
         {
-            return _logFileService.ImportAllLogs(projectName);
+            var logs = _logFileService.ImportAllLogs(projectName);
+            await _outputCacheStore.EvictByTagAsync(CachePolicies.ObjectTypeInfo, CancellationToken.None);
+            return logs;
         }
 
         [HttpPost]
         [Route("importLog")]
-        public LogFileInfo? ImportLog(string projectName, string fileName)
+        public async Task<LogFileInfo?> ImportLog(string projectName, string fileName)
         {
-            return _logFileService.ImportLog(projectName, fileName);
+            var log = _logFileService.ImportLog(projectName, fileName);
+            await _outputCacheStore.EvictByTagAsync(CachePolicies.ObjectTypeInfo, CancellationToken.None);
+            return log;
         }
 
         [HttpGet]

@@ -8,7 +8,7 @@ using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using ElectronNET.API;
 using ElectronNET.API.Entities;
-using Infrastructure.Models;
+using Infrastructure.Constants;
 using LiteDB;
 using StructuredLogExplorer;
 using StructuredLogExplorer.Mappers;
@@ -26,7 +26,14 @@ builder.Services.AddRazorPages();
 builder.Services.AddHttpClient().AddOptions();
 builder.Services.AddMvcCore().AddApiExplorer();
 builder.Services.AddSwaggerDocument();
-builder.Services.AddOutputCache();
+
+// Configure caching
+builder.Services.AddOutputCache(options =>
+{
+    options.AddBasePolicy(p => p.Expire(TimeSpan.FromMinutes(5)));
+
+    options.AddPolicy(CachePolicies.ObjectTypeInfo, p => p.Tag(CachePolicies.ObjectTypeInfo));
+});
 
 // Add custom services (scoped instead of singletons to avoid mutex issues when using shared LiteDb connections (https://github.com/mbdavid/LiteDB/issues/1546#issuecomment-1321174469))
 builder.Services.AddSingleton<IProjectService>(_ => {

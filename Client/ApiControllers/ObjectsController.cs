@@ -4,6 +4,7 @@ using Infrastructure.Helpers;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using OCEL.CSharp;
 
 namespace StructuredLogExplorer.ApiControllers
@@ -13,14 +14,17 @@ namespace StructuredLogExplorer.ApiControllers
     public class ObjectsController : ControllerBase
     {
         private readonly IProjectService _projectService;
+        private readonly IOutputCacheStore _outputCacheStore;
 
-        public ObjectsController(IProjectService projectService)
+        public ObjectsController(IProjectService projectService, IOutputCacheStore outputCacheStore)
         {
             _projectService = projectService;
+            _outputCacheStore = outputCacheStore;
         }
 
         [HttpGet]
         [Route("getObjectTypeInfos")]
+        [OutputCache(PolicyName = CachePolicies.ObjectTypeInfo)]
         public async Task<IEnumerable<ObjectInfo>> GetObjectTypeInfos(string projectName)
         {
             var db = _projectService.GetProjectDatabase(projectName);
@@ -85,7 +89,7 @@ namespace StructuredLogExplorer.ApiControllers
 
         [HttpPost]
         [Route("convertObjectsToAttributes")]
-        public void ConvertObjectsToAttributes(string projectName, IEnumerable<string> objectTypes)
+        public async Task ConvertObjectsToAttributes(string projectName, IEnumerable<string> objectTypes)
         {
             var db = _projectService.GetProjectDatabase(projectName);
             var log = OcelLiteDB.Deserialize(db);
@@ -105,6 +109,9 @@ namespace StructuredLogExplorer.ApiControllers
             var project = ProjectInfoHelper.GetProjectInformation(db);
             project.LastConversions = DateTime.Now;
             db.GetCollection<ProjectInfo>(Identifiers.ProjectInfo).Update(project);
+
+            // Evict output cache
+            await _outputCacheStore.EvictByTagAsync(CachePolicies.ObjectTypeInfo, CancellationToken.None);
         }
     }
 }

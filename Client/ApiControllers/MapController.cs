@@ -3,6 +3,7 @@ using Infrastructure.Helpers;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
 using pm4net.Algorithms.Discovery.Ocel;
