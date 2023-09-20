@@ -1,5 +1,6 @@
 ﻿using FSharpx;
 using Infrastructure.Constants;
+using Infrastructure.Helpers;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using OCEL.CSharp;
@@ -54,8 +55,10 @@ namespace Infrastructure.Services
 			// Retrieve or generate global ranking
 			var globalRanking = GetGlobalRanking(projectName);
 			var projectDb = _projectService.GetProjectDatabase(projectName);
-			var importedLogs = projectDb.GetCollection<LogFileInfo>(Identifiers.LogFilesInfo)?.FindAll().ToList() ?? new List<LogFileInfo>();
-			if (globalRanking is null || importedLogs.Any(l => l.LastImported >= globalRanking?.LastUpdated)) // TODO: Or were any object types converted to attributes?
+            var projectInfo = ProjectInfoHelper.GetProjectInformation(projectDb);
+
+            var importedLogs = projectDb.GetCollection<LogFileInfo>(Identifiers.LogFilesInfo)?.FindAll().ToList() ?? new List<LogFileInfo>();
+            if (globalRanking is null || importedLogs.Any(l => l.LastImported >= globalRanking?.LastUpdated) || projectInfo.LastConversions >= globalRanking.LastUpdated)
             {
 				globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces).FromFSharpGlobalRanking();
 				SaveGlobalRanking(projectName, globalRanking);
@@ -77,7 +80,7 @@ namespace Infrastructure.Services
 			else
 			{
 				var globalOrder = GetGlobalOrder(projectName);
-				if (globalOrder is null || importedLogs.Any(l => l.LastImported >= globalOrder?.LastUpdated)) // TODO: Or were any object types converted to attributes?
+				if (globalOrder is null || importedLogs.Any(l => l.LastImported >= globalOrder?.LastUpdated) || projectInfo.LastConversions >= globalOrder.LastUpdated)
                 {
                     var (go, _) = ProcessGraphLayout.FastCustomMeasurements.ComputeGlobalOrder(traces);
                     globalOrder = new GlobalOrder(go, DateTime.Now);

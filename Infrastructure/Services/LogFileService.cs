@@ -42,7 +42,7 @@ namespace Infrastructure.Services
                     fileInfo.FileSize = logFile.Length;
                 }
             }
-
+            
             // Fill list with new files that haven't been added yet
             var notYetAdded = logFiles
                 ?.Where(f => dbLogFiles.All(x => x.Name != f.Name))

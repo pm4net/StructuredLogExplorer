@@ -1,4 +1,6 @@
-﻿using Infrastructure.Extensions;
+﻿using Infrastructure.Constants;
+using Infrastructure.Extensions;
+using Infrastructure.Helpers;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -98,6 +100,11 @@ namespace StructuredLogExplorer.ApiControllers
             
             // Write modified log to database
             OcelLiteDB.Serialize(db, modifiedLog, false);
+
+            // Update the project database to persist time of conversion
+            var project = ProjectInfoHelper.GetProjectInformation(db);
+            project.LastConversions = DateTime.Now;
+            db.GetCollection<ProjectInfo>(Identifiers.ProjectInfo).Update(project);
         }
     }
 }

@@ -18,7 +18,8 @@ namespace Infrastructure.Helpers
             return new ProjectInfo(projectInfo?.Name ?? string.Empty, projectInfo?.LogDirectory ?? string.Empty)
             {
                 NoOfEvents = db.GetCollection("events")?.Count() ?? default,
-                NoOfObjects = db.GetCollection("objects")?.Count() ?? default
+                NoOfObjects = db.GetCollection("objects")?.Count() ?? default,
+                LastConversions = projectInfo?.LastConversions
             };
         }
     }
