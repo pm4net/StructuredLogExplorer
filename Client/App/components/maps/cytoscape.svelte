@@ -44,6 +44,7 @@
     // To remove transition class from previous step
     let previouslyAnimatedNode : cytoscape.Collection | undefined;
     let previouslyAnimatedEdge : cytoscape.SingularElementArgument | undefined;
+    let previouslyAnimatedEdgeWidth : any;
     let previouslyAnimatedLevelName : string | undefined;
 
     // Highlight the nodes and edges that are present in a list of traces
@@ -195,7 +196,8 @@
         }
 
         if (previouslyAnimatedEdge) {
-            previouslyAnimatedEdge.removeClass("edge-highlighted");
+            //previouslyAnimatedEdge.removeClass("edge-highlighted");
+            previouslyAnimatedEdge.style("width", previouslyAnimatedEdgeWidth);
         }
 
         if (fromEvent && toEvent) {
@@ -216,8 +218,10 @@
                 previouslyAnimatedLevelName = levelName;
             }
 
-            connectingEdge.addClass("edge-highlighted");
+            //connectingEdge.addClass("edge-highlighted");
             previouslyAnimatedEdge = connectingEdge;
+            previouslyAnimatedEdgeWidth = connectingEdge.style("width");
+            connectingEdge.style("width", "10px");
         }
 
         // If the previous node appears again later in the trace, the text on it should be updated to that of the next occurrence
