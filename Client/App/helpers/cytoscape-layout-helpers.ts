@@ -115,15 +115,17 @@ export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, 
             {
                 selector: '.verbose-node-highlighted',
                 style: {
-                    'border-width': '3px',
+                    'border-color': 'greenyellow',
+                    'border-width': '5px',
                     'background-color': '#bfbfbf', // Darkened normal verbose color by 25% (https://mdigi.tools/darken-color/#ffffff)
                     'transition-property': 'background-color, border-color, border-width',
-                    'transition-duration': 1000
+                    'transition-duration': 2000
                 }
             },
             {
                 selector: '.verbose-node-remove-highlight',
                 style: {
+                    'border-color': 'black',
                     'border-width': '1px',
                     'background-color': '#FFFFFF',
                     'transition-property': 'background-color, border-color, border-width',
@@ -133,15 +135,17 @@ export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, 
             {
                 selector: '.debug-node-highlighted',
                 style: {
-                    'border-width': '3px',
+                    'border-color': 'greenyellow',
+                    'border-width': '5px',
                     'background-color': '#a8a8a8', // Darkened normal warning color by 25% (https://mdigi.tools/darken-color/#e0e0e0)
                     'transition-property': 'background-color, border-color, border-width',
-                    'transition-duration': 1000
+                    'transition-duration': 2000
                 }
             },
             {
                 selector: '.debug-node-remove-highlight',
                 style: {
+                    'border-color': 'black',
                     'border-width': '1px',
                     'background-color': '#E0E0E0',
                     'transition-property': 'background-color, border-color, border-width',
@@ -151,15 +155,17 @@ export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, 
             {
                 selector: '.info-node-highlighted',
                 style: {
-                    'border-width': '3px',
+                    'border-color': 'greenyellow',
+                    'border-width': '5px',
                     'background-color': '#909090', // Darkened normal warning color by 25% (https://mdigi.tools/darken-color/#c0c0c0)
                     'transition-property': 'background-color, border-color, border-width',
-                    'transition-duration': 1000
+                    'transition-duration': 2000
                 }
             },
             {
                 selector: '.info-node-remove-highlight',
                 style: {
+                    'border-color': 'black',
                     'border-width': '1px',
                     'background-color': '#C0C0C0',
                     'transition-property': 'background-color, border-color, border-width',
@@ -169,15 +175,17 @@ export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, 
             {
                 selector: '.warning-node-highlighted',
                 style: {
-                    'border-width': '3px',
+                    'border-color': 'greenyellow',
+                    'border-width': '5px',
                     'background-color': '#e57300', // Darkened normal warning color by 25% (https://mdigi.tools/darken-color/#ff9933)
                     'transition-property': 'background-color, border-color, border-width',
-                    'transition-duration': 1000
+                    'transition-duration': 2000
                 }
             },
             {
                 selector: '.warning-node-remove-highlight',
                 style: {
+                    'border-color': 'black',
                     'border-width': '1px',
                     'background-color': '#FF9933',
                     'transition-property': 'background-color, border-color, border-width',
@@ -187,15 +195,17 @@ export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, 
             {
                 selector: '.error-node-highlighted',
                 style: {
-                    'border-width': '3px',
+                    'border-color': 'greenyellow',
+                    'border-width': '5px',
                     'background-color': '#e50000', // Darkened normal warning color by 25% (https://mdigi.tools/darken-color/#ff3333)
                     'transition-property': 'background-color, border-color, border-width',
-                    'transition-duration': 1000
+                    'transition-duration': 2000
                 }
             },
             {
                 selector: '.error-node-remove-highlight',
                 style: {
+                    'border-color': 'black',
                     'border-width': '1px',
                     'background-color': '#FF3333',
                     'transition-property': 'background-color, border-color, border-width',
@@ -205,15 +215,17 @@ export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, 
             {
                 selector: '.fatal-node-highlighted',
                 style: {
-                    'border-width': '3px',
+                    'border-color': 'greenyellow',
+                    'border-width': '5px',
                     'background-color': '#730000', // Darkened normal warning color by 25% (https://mdigi.tools/darken-color/#990000)
                     'transition-property': 'background-color, border-color, border-width',
-                    'transition-duration': 1000
+                    'transition-duration': 2000
                 }
             },
             {
                 selector: '.fatal-node-remove-highlight',
                 style: {
+                    'border-color': 'black',
                     'border-width': '1px',
                     'background-color': '#990000',
                     'transition-property': 'background-color, border-color, border-width',
@@ -223,9 +235,9 @@ export function initializeCytoscape(layout: GraphLayout, customLayout: boolean, 
             {
                 selector: '.edge-highlighted',
                 style: {
-                    'width': '3px',
+                    'width': '10px',
                     'transition-property': 'width',
-                    'transition-duration': 1000
+                    'transition-duration': 2000
                 }
             }
         ],

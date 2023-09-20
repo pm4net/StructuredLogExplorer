@@ -29,7 +29,7 @@
                     playing = false;
                     clearInterval(interval);
                 }
-            }, 1000);
+            }, 2000);
         } else {
             playing = false;
             clearInterval(interval);
