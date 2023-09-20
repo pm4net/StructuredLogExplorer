@@ -222,7 +222,7 @@
                                 <!-- When it changes, we can pass in the selected type as a prop (have to somehow know what was selected before though) -->
                                 <Traces
                                     bind:this={tracesComponent}
-                                    objectTypes={logInfo.objectTypes}
+                                    objectTypes={$mapSettings[$activeProject ?? ""].objectTypes}
                                     on:highlightTraces={forwardHighlightTracesEvent}
                                     on:highlightSpecificTrace={forwardHighlightSpecificTraceEvent}
                                 />
