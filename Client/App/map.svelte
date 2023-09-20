@@ -33,9 +33,9 @@
                     edgeType: EdgeType.Frequency,
                     displayMethod: DisplayMethod.Cytoscape,
                     groupByNamespace: true,
-                    objectTypes: (await logInfoPromise).objectTypes,
+                    objectTypes: [], //(await logInfoPromise).objectTypes,
                     logLevels: [LogLevel.Unknown, LogLevel.Information, LogLevel.Warning, LogLevel.Error, LogLevel.Fatal],
-                    namespaces: (await logInfoPromise).namespaces,
+                    namespaces: [], //(await logInfoPromise).namespaces,
                     fixUnforeseenEdges: false,
                     dfg: {
                         minEvents: 0,
