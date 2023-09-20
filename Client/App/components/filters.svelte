@@ -122,7 +122,7 @@
                 </Checkbox>
             {/each}
         </AccordionItem>
-        <AccordionItem>
+        <AccordionItem open>
             <svelte:fragment slot="title"><strong>Object types</strong></svelte:fragment>
             <ButtonSet stacked={filterWidth < 425}>
                 <Button size="small" kind="tertiary" on:click={() => (objectTypes = availableObjectTypes)}>Select all</Button>
@@ -134,7 +134,7 @@
                 </Checkbox>
             {/each}
         </AccordionItem>
-        <AccordionItem>
+        <AccordionItem open>
             <svelte:fragment slot="title"><strong>Namespaces</strong></svelte:fragment>
             {#each highLevelNamespaces as namespace}
                 <Checkbox bind:group={namespaces} value={namespace}>

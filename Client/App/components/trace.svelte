@@ -85,7 +85,7 @@
                 <div slot="above">
                     <p><strong>{getStringValue(event.item2.vMap["pm4net_RenderedMessage"])}</strong></p>
                 </div>
-                <div slot="below">
+                <div slot="below" class="wrap-overflow">
                     <strong>Template: </strong>{event.item2.activity}
                     <br />
                     <strong>Timestamp: </strong>{DateTime.fromJSDate(event.item2.timestamp).toLocaleString(DateTime.DATETIME_FULL_WITH_SECONDS)}
@@ -178,5 +178,9 @@
 
     .add-margin {
         margin: 1rem;
+    }
+
+    .wrap-overflow {
+        overflow-wrap: break-word;
     }
 </style>
