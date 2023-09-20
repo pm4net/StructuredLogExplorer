@@ -14,7 +14,6 @@
             let elem = document.getElementsByTagName("g")[0];
             if (elem) {
                 panzoom(elem, {
-                    minZoom: 0.05,
                     maxZoom: 1,
                     initialZoom: 1
                 });
