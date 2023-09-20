@@ -56,7 +56,8 @@ namespace StructuredLogExplorer.ApiControllers
         private pm4net.Types.DirectedGraph<Node<NodeInfo>, Edge<EdgeInfo>> DiscoverOriginalOcDfg(string projectName, OcDfgOptions options)
         {
             var log = GetProjectLog(projectName);
-
+            log = log.MergeDuplicateObjects(); // If imported from multiple files, the objects across those logs are not merged yet.
+            
             // TODO: Only includes high-level namespaces for now
             var nsTree = ListTree<string>.NewNode("", 
                 options.IncludedNamespaces.Select(ns => ListTree<string>.NewNode(ns, 
@@ -112,7 +113,8 @@ namespace StructuredLogExplorer.ApiControllers
 		public GraphLayout ComputeLayoutWithModel(string projectName, [FromBody] (pm4net.Types.DirectedGraph<Node<NodeInfo>, Edge<EdgeInfo>>, GraphLayoutOptions) modelAndOptions)
         {
 	        var log = GetProjectLog(projectName);
-	        return _graphLayoutService.ComputeGraphLayout(projectName, log, modelAndOptions.Item1,
+            log = log.MergeDuplicateObjects(); // If imported from multiple files, the objects across those logs are not merged yet.
+            return _graphLayoutService.ComputeGraphLayout(projectName, log, modelAndOptions.Item1,
 		        modelAndOptions.Item2.MergeEdgesOfSameType, modelAndOptions.Item2.FixUnforeseenEdges,
 		        modelAndOptions.Item2.NodeSeparation, modelAndOptions.Item2.RankSeparation);
         }
@@ -163,6 +165,7 @@ namespace StructuredLogExplorer.ApiControllers
             if (!string.IsNullOrWhiteSpace(projectName) && !string.IsNullOrWhiteSpace(objectType))
             {
                 var log = GetProjectLog(projectName);
+                log = log.MergeDuplicateObjects(); // If imported from multiple files, the objects across those logs are not merged yet.
                 var flattened = OcelHelpers.Flatten(log.ToFSharpOcelLog(), objectType);
 
                 var namespaceFilter = ListTree<string>.NewNode("", options.IncludedNamespaces.Select(x => ListTree<string>.NewNode(x, new FSharpList<ListTree<string>>(ListTree<string>.NewNode("*", FSharpList<ListTree<string>>.Empty), FSharpList<ListTree<string>>.Empty))).ToFSharpList());
