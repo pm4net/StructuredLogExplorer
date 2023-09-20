@@ -167,7 +167,7 @@
                         <Column class="maxScreenHeight" sm={4} md={2} lg={4} xlg={3} max={3}>
                             <Filters availableObjectTypes={logInfo.objectTypes} highLevelNamespaces={logInfo.namespaces} minDate={logInfo.firstEventTimestamp} maxDate={logInfo.lastEventTimestamp} />
                         </Column>
-                        <Column class="maxScreenHeight relativePos" sm={4} md={4} lg={8} xlg={10} max={10}>
+                        <Column class="maxScreenHeight relativePos noOverflow" sm={4} md={4} lg={8} xlg={10} max={10}>
                             <!-- Refresh whenever any of the map settings change -->
                             {#key $mapSettings[$activeProject ?? ""]}
                                 {#if $mapSettings[$activeProject ?? ""]?.displayType == DisplayType.OcDfg}
@@ -250,5 +250,9 @@
 
     :global(.relativePos) {
         position: relative;
+    }
+
+    :global(.noOverflow) {
+        overflow: hidden;
     }
 </style>
