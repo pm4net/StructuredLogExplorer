@@ -263,7 +263,7 @@
                 let text : string;
                 if (data.traceText) {
                     let nodeSize = data.size as Size;
-                    let wrapped = getLines(document.getElementsByTagName("canvas")?.[0] || document.createElement("canvas"), data.traceText, nodeSize.width / 2);
+                    let wrapped = getLines(document.getElementsByTagName("canvas")?.[0] || document.createElement("canvas"), data.traceText, nodeSize.width / 2, nodeSize.height / 2);                    
                     text = wrapped.filter((l: string) => l).join('<br>');
                 } else {
                     text = data.text.filter((l: string) => l).join('<br>');

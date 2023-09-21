@@ -47,7 +47,7 @@ export function getTextSize(canvas: any, text: string, font?: string) {
 }
 
 // https://stackoverflow.com/a/16599668/2102106
-export function getLines(canvas: any, text: string, maxWidth: number, font?: string) {
+export function getLines(canvas: any, text: string, maxWidth: number, maxHeight: number, font?: string) {
     const context = canvas.getContext("2d")!;
     if (font) {
         context.font = font;
@@ -56,15 +56,24 @@ export function getLines(canvas: any, text: string, maxWidth: number, font?: str
     var words = text.split(" ");
     var lines = [];
     var currentLine = words[0];
+    var currentHeight = 0;
 
     for (var i = 1; i < words.length; i++) {
         var word = words[i];
-        var width = context.measureText(currentLine + " " + word).width;
+        var measurement = context.measureText(currentLine + " " + word);
+        var width = measurement.width;
+        var height = measurement.actualBoundingBoxAscent + measurement.actualBoundingBoxDescent; // https://stackoverflow.com/a/45789011/2102106
+
+        if (currentHeight + height > maxHeight) {
+            break;
+        }
+
         if (width < maxWidth) {
             currentLine += " " + word;
         } else {
             lines.push(currentLine);
             currentLine = word;
+            currentHeight += height;
         }
     }
     lines.push(currentLine);
