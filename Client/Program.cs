@@ -13,9 +13,9 @@ using LiteDB;
 using StructuredLogExplorer;
 using StructuredLogExplorer.Mappers;
 
-var builder = WebApplication.CreateBuilder(args);
+JsonConvert.DefaultSettings = () => new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 
-JsonConvert.DefaultSettings = () => new JsonSerializerSettings{ContractResolver = new CamelCasePropertyNamesContractResolver()};
+var builder = WebApplication.CreateBuilder(args);
 
 // Configure web host
 builder.WebHost.UseElectron(args);
@@ -104,16 +104,20 @@ app.MapFallback(context =>
     return Task.CompletedTask;
 });
 
-if (HybridSupport.IsElectronActive) {
-    CreateElectronWindow(app);
-}
-
 app.Lifetime.ApplicationStopping.Register(() => OnShutdown(app.Services));
 
 BsonMapper.Global.RegisterType(LiteDbBsonMappers.SerializeGlobalRanking, LiteDbBsonMappers.DeserializeGlobalRanking);
 BsonMapper.Global.RegisterType(LiteDbBsonMappers.SerializeGlobalOrder, LiteDbBsonMappers.DeserializeGlobalOrder);
 
-app.Run();
+await app.StartAsync();
+
+if (HybridSupport.IsElectronActive)
+{
+    Console.WriteLine("yep");
+    await CreateElectronWindow(app);
+}
+
+app.WaitForShutdown();
 
 static void OnShutdown(IServiceProvider? serviceProvider)
 {
@@ -121,7 +125,7 @@ static void OnShutdown(IServiceProvider? serviceProvider)
     projectService?.CloseProject();
 }
 
-static async void CreateElectronWindow(IHost? app)
+static async Task CreateElectronWindow(IHost? app)
 {
     BrowserWindow window = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
     {
