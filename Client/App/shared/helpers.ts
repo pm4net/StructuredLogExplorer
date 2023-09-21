@@ -81,15 +81,16 @@ export function getLines(canvas: any, text: string, maxWidth: number, maxHeight:
 }
 
 export function createOcDfgOptionsFromStore() {
+    let settings = get(mapSettings)[get(activeProject) ?? ""];
     return new OcDfgOptions({
-        minimumEvents: get(mapSettings)[get(activeProject) ?? ""]?.dfg.minEvents,
-        minimumOccurrence: get(mapSettings)[get(activeProject) ?? ""]?.dfg.minOccurrences,
-        minimumSuccessions: get(mapSettings)[get(activeProject) ?? ""]?.dfg.minSuccessions,
-        includedTypes: get(mapSettings)[get(activeProject) ?? ""]?.objectTypes,
-        includedLogLevels: get(mapSettings)[get(activeProject) ?? ""].logLevels,
-        includedNamespaces: get(mapSettings)[get(activeProject) ?? ""]?.namespaces,
-        dateFrom: get(mapSettings)[get(activeProject) ?? ""]?.dfg.dateFrom,
-        dateTo: get(mapSettings)[get(activeProject) ?? ""]?.dfg.dateTo,
-        keepCases: get(mapSettings)[get(activeProject) ?? ""]?.dfg.keepCases
+        minimumEvents: settings?.dfg.minEvents,
+        minimumOccurrence: settings?.dfg.minOccurrences,
+        minimumSuccessions: settings?.dfg.minSuccessions,
+        includedTypes: settings?.objectTypes,
+        includedLogLevels: settings.logLevels,
+        includedNamespaces: settings?.namespaces,
+        dateFrom: `${settings?.dfg.dateFrom} ${settings?.dfg.timeFrom}`,
+        dateTo: `${settings?.dfg.dateTo} ${settings?.dfg.timeTo}`,
+        keepCases: settings?.dfg.keepCases
     });
 }

@@ -67,7 +67,7 @@ namespace StructuredLogExplorer.ApiControllers
 
             return OcelDfg.Discover(new OcDfgFilter(options.MinimumEvents, options.MinimumOccurrence, options.MinimumSuccessions,
                     options.DateFrom != null && options.DateTo != null
-                        ? FSharpOption<TimeframeFilter>.Some(new TimeframeFilter(options.DtoFrom!.Value.StartOfDay(), options.DtoTo!.Value.EndOfDay(), options.KeepCases.ToPm4Net()))
+                        ? FSharpOption<TimeframeFilter>.Some(new TimeframeFilter(options.DtoFrom!.Value, options.DtoTo!.Value, options.KeepCases.ToPm4Net()))
                         : FSharpOption<TimeframeFilter>.None, options.IncludedLogLevels.Select(l => l.ToFSharpLogLevel()).ToFSharpList(), options.IncludedNamespaces.Any() ? nsTree : FSharpOption<ListTree<string>>.None),
                 options.IncludedTypes, log);
         }
@@ -172,7 +172,7 @@ namespace StructuredLogExplorer.ApiControllers
                 TimeframeFilter? timeFrameFilter = null;
                 if (options.DtoFrom != null && options.DtoTo != null)
                 {
-                    timeFrameFilter = new TimeframeFilter(options.DtoFrom.Value.StartOfDay(), options.DtoTo.Value.EndOfDay(), options.KeepCases.ToPm4Net());
+                    timeFrameFilter = new TimeframeFilter(options.DtoFrom.Value, options.DtoTo.Value, options.KeepCases.ToPm4Net());
                 }
 
                 var traces = OcelDfg.GetTracesForSingleType(

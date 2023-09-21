@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Accordion, AccordionItem, Button, ButtonSet, Checkbox, DatePicker, DatePickerInput, FormGroup, NumberInput, RadioButton, RadioButtonGroup } from "carbon-components-svelte";
+    import { Accordion, AccordionItem, Button, ButtonSet, Checkbox, DatePicker, DatePickerInput, FormGroup, NumberInput, RadioButton, RadioButtonGroup, TimePicker } from "carbon-components-svelte";
     import { activeProject, DisplayMethod, DisplayType, EdgeType, mapSettings } from "../shared/stores";
     import { getColor } from "../helpers/color-helpers";
     import { onMount } from "svelte";
@@ -22,7 +22,9 @@
     let minOccurrences = $mapSettings[$activeProject ?? ""].dfg.minOccurrences;
     let minSuccessions = $mapSettings[$activeProject ?? ""].dfg.minSuccessions;
     let dateFrom = $mapSettings[$activeProject ?? ""].dfg.dateFrom ?? minDate;
+    let timeFrom = $mapSettings[$activeProject ?? ""].dfg.timeFrom ?? "00:00";
     let dateTo = $mapSettings[$activeProject ?? ""].dfg.dateTo ?? maxDate;
+    let timeTo = $mapSettings[$activeProject ?? ""].dfg.timeTo ?? "23:59";
     let keepCases = $mapSettings[$activeProject ?? ""].dfg.keepCases;
 
     $: {
@@ -39,7 +41,9 @@
         settings[$activeProject ?? ""].dfg.minOccurrences = minOccurrences;
         settings[$activeProject ?? ""].dfg.minSuccessions = minSuccessions;
         settings[$activeProject ?? ""].dfg.dateFrom = dateFrom;
+        settings[$activeProject ?? ""].dfg.timeFrom = timeFrom;
         settings[$activeProject ?? ""].dfg.dateTo = dateTo;
+        settings[$activeProject ?? ""].dfg.timeTo = timeTo;
         settings[$activeProject ?? ""].dfg.keepCases = keepCases;
         mapSettings.set(settings);
     }
@@ -106,6 +110,9 @@
                 <DatePickerInput labelText="From" placeholder="yyyy/mm/dd"></DatePickerInput>
                 <DatePickerInput labelText="To" placeholder="yyyy/mm/dd"></DatePickerInput>
             </DatePicker>
+            <br />
+            <TimePicker labelText="Time from" placeholder="hh:mm" bind:value={timeFrom}></TimePicker>
+            <TimePicker labelText="Time to" placeholder="hh:mm" bind:value={timeTo}></TimePicker>
             <RadioButtonGroup orientation="vertical" legendText="Keep cases" bind:selected={keepCases}>
                 <RadioButton labelText="Contained in timeframe" value={KeepCases.ContainedInTimeFrame}></RadioButton>
                 <RadioButton labelText="Intersecting timeframe" value={KeepCases.IntersectingTimeFrame}></RadioButton>

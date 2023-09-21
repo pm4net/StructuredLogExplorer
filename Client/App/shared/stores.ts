@@ -19,7 +19,9 @@ export type MapSettings = {
         minOccurrences: number,
         minSuccessions: number,
         dateFrom?: string,
+        timeFrom?: string,
         dateTo?: string,
+        timeTo?: string,
         keepCases: KeepCases
     }
 }

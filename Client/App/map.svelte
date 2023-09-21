@@ -42,7 +42,9 @@
                         minOccurrences: 0,
                         minSuccessions: 0,
                         dateFrom: undefined,
+                        timeFrom: undefined,
                         dateTo: undefined,
+                        timeTo: undefined,
                         keepCases: KeepCases.ContainedInTimeFrame
                     }
                 };

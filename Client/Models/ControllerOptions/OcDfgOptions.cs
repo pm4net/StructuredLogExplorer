@@ -17,12 +17,12 @@ namespace StructuredLogExplorer.Models.ControllerOptions
 
         public int MinimumSuccessions { get; set; } = 0;
 
-        public string? DateFrom { get; set; } // yyyy/MM/dd
+        public string? DateFrom { get; set; } // yyyy/MM/dd hh:mm
 
         [JsonIgnore]
         public DateTimeOffset? DtoFrom => !string.IsNullOrWhiteSpace(DateFrom) ? DateTimeOffset.Parse(DateFrom) : null;
 
-        public string? DateTo { get; set; } // yyyy/MM/dd
+        public string? DateTo { get; set; } // yyyy/MM/dd hh:mm
 
         [JsonIgnore]
         public DateTimeOffset? DtoTo => !string.IsNullOrWhiteSpace(DateTo) ? DateTimeOffset.Parse(DateTo) : null;
