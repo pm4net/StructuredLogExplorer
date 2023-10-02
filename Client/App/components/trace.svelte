@@ -82,7 +82,7 @@
                     (idx_e === highlightedIndex ? `outline: 5px solid greenyellow; outline-offset: -2px;` : "")
                 }
             >
-                <div slot="above">
+                <div slot="above" class="wrap-overflow">
                     <p><strong>{getStringValue(event.item2.vMap["pm4net_RenderedMessage"])}</strong></p>
                 </div>
                 <div slot="below" class="wrap-overflow">
