@@ -13,6 +13,7 @@
     import Msagl from "./components/maps/msagl.svelte";
 
     let cyComponent : Cytoscape;
+    let dotComponent : Dot;
     let tracesComponent : Traces;
 
     // The state of the error notification that is shown when an API error occurs
@@ -135,10 +136,12 @@
 
     function forwardHighlightTracesEvent(event: any) {
         cyComponent?.highlightTraces(event.detail);
+        dotComponent?.highlightTraces(event.detail);
     }
 
     function forwardHighlightSpecificTraceEvent(event: any) {
         cyComponent?.highlightSpecificTrace(event.detail);
+        dotComponent?.highlightSpecificTrace(event.detail);
     }
 
     function forwardAnimationStepChanged(event: any) {
@@ -177,7 +180,7 @@
                                         {#await getOcDfgDot()}
                                             <Loading withOverlay={false} description="Loading..." />
                                         {:then dot}
-                                            <Dot dot={dot ?? ""} />
+                                            <Dot bind:this={dotComponent} dot={dot ?? ""} />
                                         {/await}
                                     {:else if $mapSettings[$activeProject ?? ""]?.displayMethod == DisplayMethod.Msagl}
                                         {#await getOcDfgMsagl()}
