@@ -59,7 +59,7 @@
         if (startNode) {
             let ellipse = startNode.querySelector("ellipse");
             if (ellipse) {
-                ellipse.style.stroke = "red";
+                ellipse.style.stroke = "greenyellow";
                 ellipse.style.strokeWidth = "3";
             }
 
@@ -70,8 +70,8 @@
             let polyline = endNode.querySelector("polyline");
             let text = endNode.querySelector("text");
             if (polyline && text) {
-                polyline.style.stroke = "red";
-                text.style.fill = "red";
+                polyline.style.stroke = "greenyellow";
+                text.style.fill = "greenyellow";
             }
 
             previousEndNode = [endNode, objTypeColor ?? ""];
@@ -85,9 +85,9 @@
             let path = startEdge.querySelector("path");
             let polygon = startEdge.querySelector("polygon");
             if (path && polygon) {
-                path.style.stroke = "red";
-                polygon.style.fill = "red";
-                polygon.style.stroke = "red";
+                path.style.stroke = "greenyellow";
+                polygon.style.fill = "greenyellow";
+                polygon.style.stroke = "greenyellow";
             }
 
             previousStartEdge = [startEdge, objTypeColor ?? ""];
@@ -97,9 +97,9 @@
             let path = endEdge.querySelector("path");
             let polygon = endEdge.querySelector("polygon");
             if (path && polygon) {
-                path.style.stroke = "red";
-                polygon.style.fill = "red";
-                polygon.style.stroke = "red";
+                path.style.stroke = "greenyellow";
+                polygon.style.fill = "greenyellow";
+                polygon.style.stroke = "greenyellow";
             }
 
             previousEndEdge = [endEdge, objTypeColor ?? ""];
@@ -117,7 +117,7 @@
         matchingNodes.forEach(n => {
             let polygon = n.querySelector("polygon");
             if (polygon) {
-                polygon.style.stroke = "red";
+                polygon.style.stroke = "greenyellow";
                 polygon.style.strokeWidth = "3";
             }
         });
@@ -144,9 +144,9 @@
             let polygon = e[0].querySelector("polygon");
             let path = e[0].querySelector("path");
             if (polygon && path) {
-                polygon.style.fill = "red";
-                polygon.style.stroke = "red";
-                path.style.stroke = "red";
+                polygon.style.fill = "greenyellow";
+                polygon.style.stroke = "greenyellow";
+                path.style.stroke = "greenyellow";
             }
         });
         previouslyMatchedEdges = matchingEdges;
