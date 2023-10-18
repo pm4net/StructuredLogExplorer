@@ -2471,6 +2471,7 @@ export interface IEdgeOfEdgeInfo {
     info?: FSharpOptionOfEdgeInfo | undefined;
 }
 
+/** The type of optional values. When used from other CLI languages the empty option is the null value. */
 export class FSharpOptionOfString implements IFSharpOptionOfString {
 
     constructor(data?: IFSharpOptionOfString) {
@@ -2498,9 +2499,11 @@ export class FSharpOptionOfString implements IFSharpOptionOfString {
     }
 }
 
+/** The type of optional values. When used from other CLI languages the empty option is the null value. */
 export interface IFSharpOptionOfString {
 }
 
+/** The type of optional values. When used from other CLI languages the empty option is the null value. */
 export class FSharpOptionOfEdgeInfo implements IFSharpOptionOfEdgeInfo {
 
     constructor(data?: IFSharpOptionOfEdgeInfo) {
@@ -2528,6 +2531,7 @@ export class FSharpOptionOfEdgeInfo implements IFSharpOptionOfEdgeInfo {
     }
 }
 
+/** The type of optional values. When used from other CLI languages the empty option is the null value. */
 export interface IFSharpOptionOfEdgeInfo {
 }
 

@@ -39,65 +39,7 @@ namespace Infrastructure.Services
 			float nodeSep,
 			float rankSep)
 		{
-			var nodeCalculations = GetNodeCalculations(projectName);
-			if (nodeCalculations is null)
-			{
-				throw new ArgumentNullException(nameof(nodeCalculations), "Node calculations have not been made yet.");
-			}
-
-			// Define custom functions
-			var lineWrapFunc = new Func<pm4net.Types.GraphLayout.Node<NodeInfo>, IEnumerable<string>>(n => nodeCalculations.FirstOrDefault(x => x.NodeId == n.Id.Trim())?.TextWrap ?? new List<string>());
-			var nodeSizeFunc = new Func<pm4net.Types.GraphLayout.Node<NodeInfo>, pm4net.Types.GraphLayout.Size?>(n => nodeCalculations.FirstOrDefault(x => x.NodeId == n.Id.Trim())?.Size);
-
-			// Get traces in log
-			var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog()).ToList();
-
-			// Retrieve or generate global ranking
-			var globalRanking = GetGlobalRanking(projectName);
-			var projectDb = _projectService.GetProjectDatabase(projectName);
-            var projectInfo = ProjectInfoHelper.GetProjectInformation(projectDb);
-
-            var importedLogs = projectDb.GetCollection<LogFileInfo>(Identifiers.LogFilesInfo)?.FindAll().ToList() ?? new List<LogFileInfo>();
-            if (globalRanking is null || importedLogs.Any(l => l.LastImported >= globalRanking?.LastUpdated) || projectInfo.LastConversions >= globalRanking.LastUpdated)
-            {
-				globalRanking = ProcessGraphLayout.DefaultCustomMeasurements.ComputeGlobalRanking(traces).FromFSharpGlobalRanking();
-				SaveGlobalRanking(projectName, globalRanking);
-			}
-
-			// Perform separate methods, depending on whether the fast method is used
-			if (fixUnforeseenEdges)
-			{
-				var discoveredGraph = ProcessGraphLayout.DefaultCustomMeasurements.ComputeDiscoveredGraph(globalRanking.ToFSharpGlobalRanking(), model, mergeEdges);
-				return ProcessGraphLayout.DefaultCustomMeasurements.ComputeNodePositions(
-					FSharpFunc.FromFunc(lineWrapFunc), 
-					FSharpFunc.FromFunc(nodeSizeFunc), 
-					discoveredGraph, 
-					model, 
-					nodeSep,
-					rankSep)
-					.FromFSharpGraphLayout();
-			}
-			else
-			{
-				var globalOrder = GetGlobalOrder(projectName);
-				if (globalOrder is null || importedLogs.Any(l => l.LastImported >= globalOrder?.LastUpdated) || projectInfo.LastConversions >= globalOrder.LastUpdated)
-                {
-                    var (go, _) = ProcessGraphLayout.FastCustomMeasurements.ComputeGlobalOrder(traces);
-                    globalOrder = new GlobalOrder(go, DateTime.Now);
-					SaveGlobalOrder(projectName, globalOrder);
-				}
-
-                return ProcessGraphLayout.FastCustomMeasurements.ComputeLayout(
-					FSharpFunc.FromFunc(lineWrapFunc), 
-					FSharpFunc.FromFunc(nodeSizeFunc),
-					globalOrder.GlobalOrderGraph,
-					globalRanking.ToFSharpGlobalRanking(),
-					model,
-					nodeSep,
-					rankSep,
-					mergeEdges)
-					.FromFSharpGraphLayout();
-			}
+			throw new NotImplementedException("Not available in this version. The graph layouting algorithm is unfortunately closed-source.");
 		}
 
 		/// <summary>

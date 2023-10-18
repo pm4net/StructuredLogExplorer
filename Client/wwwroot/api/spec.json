@@ -1344,10 +1344,12 @@
       }
     },
     "FSharpOptionOfString": {
-      "type": "object"
+      "type": "object",
+      "description": "The type of optional values. When used from other CLI languages the\n empty option is the null value. "
     },
     "FSharpOptionOfEdgeInfo": {
-      "type": "object"
+      "type": "object",
+      "description": "The type of optional values. When used from other CLI languages the\n empty option is the null value. "
     },
     "GraphLayoutOptions": {
       "type": "object",

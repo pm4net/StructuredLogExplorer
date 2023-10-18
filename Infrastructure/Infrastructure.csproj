@@ -19,8 +19,4 @@
     <PackageReference Include="pm4net" Version="1.0.9" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\process-graph-layout\src\ProcessGraphLayout\ProcessGraphLayout.fsproj" />
-  </ItemGroup>
-
 </Project>
