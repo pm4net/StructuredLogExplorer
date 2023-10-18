@@ -1,5 +1,5 @@
 # Structured Log Explorer
 
-An application to explore structured log files using Process Mining techniques.
+A web application to explore structured log files using object-centric process mining techniques.
 
-More info coming soon...
+Open the solution in Visual Studio or similar IDE and run it. Your can now create projects, import and export [OCEL](https://www.ocel-standard.org/1.0/) files, convert objects to attributes, and finally visualise your data using a Directly-Follows Multigraph with various layouting techniques. Apply a number of filters to narrow down your data and explore individual traces interactively.
