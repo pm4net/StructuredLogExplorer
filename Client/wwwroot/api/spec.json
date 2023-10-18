@@ -821,7 +821,6 @@
     },
     "Size": {
       "type": "object",
-      "description": "The size of a node.",
       "required": [
         "width",
         "height"
@@ -895,7 +894,6 @@
     },
     "Coordinate": {
       "type": "object",
-      "description": "A point in a coordinate system.",
       "required": [
         "x",
         "y"

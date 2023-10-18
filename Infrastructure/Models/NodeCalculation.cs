@@ -9,7 +9,7 @@ namespace Infrastructure.Models
 		{
 		}
 		
-		public NodeCalculation(string nodeId, IEnumerable<string> textWrap, OutputTypes.Size? size, NodeType? nodeType)
+		public NodeCalculation(string nodeId, IEnumerable<string> textWrap, pm4net.Types.GraphLayout.Size? size, NodeType? nodeType)
 		{
 			NodeId = nodeId;
 			TextWrap = textWrap;
@@ -25,7 +25,7 @@ namespace Infrastructure.Models
 
 		public IEnumerable<string> TextWrap { get; set; } = new List<string>();
 
-		public OutputTypes.Size? Size { get; set; }
+		public pm4net.Types.GraphLayout.Size? Size { get; set; }
 
 		public NodeType? NodeType { get; set; }
 	}

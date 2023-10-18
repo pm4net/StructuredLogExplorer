@@ -46,8 +46,8 @@ namespace Infrastructure.Services
 			}
 
 			// Define custom functions
-			var lineWrapFunc = new Func<OutputTypes.Node<NodeInfo>, IEnumerable<string>>(n => nodeCalculations.FirstOrDefault(x => x.NodeId == n.Id.Trim())?.TextWrap ?? new List<string>());
-			var nodeSizeFunc = new Func<OutputTypes.Node<NodeInfo>, OutputTypes.Size?>(n => nodeCalculations.FirstOrDefault(x => x.NodeId == n.Id.Trim())?.Size);
+			var lineWrapFunc = new Func<pm4net.Types.GraphLayout.Node<NodeInfo>, IEnumerable<string>>(n => nodeCalculations.FirstOrDefault(x => x.NodeId == n.Id.Trim())?.TextWrap ?? new List<string>());
+			var nodeSizeFunc = new Func<pm4net.Types.GraphLayout.Node<NodeInfo>, pm4net.Types.GraphLayout.Size?>(n => nodeCalculations.FirstOrDefault(x => x.NodeId == n.Id.Trim())?.Size);
 
 			// Get traces in log
 			var traces = OcelHelpers.AllTracesOfLog(log.ToFSharpOcelLog()).ToList();

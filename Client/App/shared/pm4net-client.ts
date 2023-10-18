@@ -1197,7 +1197,6 @@ export interface INodeCalculation {
     nodeType?: NodeType | undefined;
 }
 
-/** The size of a node. */
 export class Size implements ISize {
     width!: number;
     height!: number;
@@ -1233,7 +1232,6 @@ export class Size implements ISize {
     }
 }
 
-/** The size of a node. */
 export interface ISize {
     width: number;
     height: number;
@@ -1370,7 +1368,6 @@ export interface INode {
     nodeInfo?: NodeInfo | undefined;
 }
 
-/** A point in a coordinate system. */
 export class Coordinate implements ICoordinate {
     x!: number;
     y!: number;
@@ -1406,7 +1403,6 @@ export class Coordinate implements ICoordinate {
     }
 }
 
-/** A point in a coordinate system. */
 export interface ICoordinate {
     x: number;
     y: number;

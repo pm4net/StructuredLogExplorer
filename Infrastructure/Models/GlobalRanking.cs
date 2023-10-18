@@ -1,6 +1,4 @@
 ﻿using FSharpx;
-using LiteDB;
-using static OutputTypes;
 
 namespace Infrastructure.Models
 {
@@ -8,7 +6,7 @@ namespace Infrastructure.Models
 	{
 		public GlobalRanking() { }
 		
-		public GlobalRanking(DirectedGraph<Tuple<string, int>, int> globalRankGraph, IEnumerable<IEnumerable<Tuple<SequenceElement<string>, int>>> skeleton, IEnumerable<ISet<string>> components, DateTime lastUpdated)
+		public GlobalRanking(DirectedGraph<Tuple<string, int>, int> globalRankGraph, IEnumerable<IEnumerable<Tuple<pm4net.Types.GraphLayout.SequenceElement<string>, int>>> skeleton, IEnumerable<ISet<string>> components, DateTime lastUpdated)
 		{
 			GlobalRankGraph = globalRankGraph;
 			Skeleton = skeleton;
@@ -18,7 +16,7 @@ namespace Infrastructure.Models
 
 		public DirectedGraph<Tuple<string, int>, int> GlobalRankGraph { get; set; } = new();
 
-		public IEnumerable<IEnumerable<Tuple<SequenceElement<string>, int>>> Skeleton { get; set; } = new List<IEnumerable<Tuple<SequenceElement<string>, int>>>();
+		public IEnumerable<IEnumerable<Tuple<pm4net.Types.GraphLayout.SequenceElement<string>, int>>> Skeleton { get; set; } = new List<IEnumerable<Tuple<pm4net.Types.GraphLayout.SequenceElement<string>, int>>>();
 
 		public IEnumerable<ISet<string>> Components { get; set; } = new List<ISet<string>>();
 
@@ -27,7 +25,7 @@ namespace Infrastructure.Models
 
 	public static class GlobalRankingExtensions
 	{
-		public static GlobalRanking FromFSharpGlobalRanking(this OutputTypes.GlobalRanking globalRanking)
+		public static GlobalRanking FromFSharpGlobalRanking(this pm4net.Types.GraphLayout.GlobalRanking globalRanking)
 		{
 			return new GlobalRanking
 			{
@@ -38,9 +36,9 @@ namespace Infrastructure.Models
 			};
 		}
 
-		public static OutputTypes.GlobalRanking ToFSharpGlobalRanking(this GlobalRanking globalRanking)
+		public static pm4net.Types.GraphLayout.GlobalRanking ToFSharpGlobalRanking(this GlobalRanking globalRanking)
 		{
-			return new OutputTypes.GlobalRanking(
+			return new pm4net.Types.GraphLayout.GlobalRanking(
 				globalRanking.GlobalRankGraph.ToFSharpDirectedGraph(),
 				globalRanking.Skeleton.Select(x => x.ToFSharpList()).ToFSharpList(),
 				globalRanking.Components.Select(x => x.ToFSharpSet()).ToFSharpList());

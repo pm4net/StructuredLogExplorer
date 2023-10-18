@@ -1,7 +1,7 @@
 ﻿using Infrastructure.Models;
 using LiteDB;
 using Newtonsoft.Json;
-using static OutputTypes;
+using pm4net.Types.GraphLayout;
 
 namespace StructuredLogExplorer.Mappers
 {

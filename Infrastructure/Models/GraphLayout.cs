@@ -21,9 +21,9 @@ namespace Infrastructure.Models
 
 		public NodeType NodeType { get; set; } = new Event();
 
-		public OutputTypes.Coordinate? Position { get; set; } = new(0f, 0f);
+		public pm4net.Types.GraphLayout.Coordinate? Position { get; set; } = new(0f, 0f);
 
-		public OutputTypes.Size? Size { get; set; } = new(0, 0);
+		public pm4net.Types.GraphLayout.Size? Size { get; set; } = new(0, 0);
 
 		public int? Rank { get; set; } = 0;
 
@@ -50,13 +50,13 @@ namespace Infrastructure.Models
 
 	public class Waypoints
 	{
-		public IEnumerable<OutputTypes.Coordinate> Coordinates { get; set; } = Enumerable.Empty<OutputTypes.Coordinate>();
+		public IEnumerable<pm4net.Types.GraphLayout.Coordinate> Coordinates { get; set; } = Enumerable.Empty<pm4net.Types.GraphLayout.Coordinate>();
 
-		public IEnumerable<OutputTypes.Coordinate> CatmullRom { get; set; } = Enumerable.Empty<OutputTypes.Coordinate>();
+		public IEnumerable<pm4net.Types.GraphLayout.Coordinate> CatmullRom { get; set; } = Enumerable.Empty<pm4net.Types.GraphLayout.Coordinate>();
 
-		public IEnumerable<Tuple<OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate>> CubicBezier { get; set; } = new List<Tuple<OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate>>();
+		public IEnumerable<Tuple<pm4net.Types.GraphLayout.Coordinate, pm4net.Types.GraphLayout.Coordinate, pm4net.Types.GraphLayout.Coordinate, pm4net.Types.GraphLayout.Coordinate>> CubicBezier { get; set; } = new List<Tuple<pm4net.Types.GraphLayout.Coordinate, pm4net.Types.GraphLayout.Coordinate, pm4net.Types.GraphLayout.Coordinate, pm4net.Types.GraphLayout.Coordinate>>();
 
-        public IEnumerable<Tuple<OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate>> QuadraticBezier { get; set; } = new List<Tuple<OutputTypes.Coordinate, OutputTypes.Coordinate, OutputTypes.Coordinate>>();
+        public IEnumerable<Tuple<pm4net.Types.GraphLayout.Coordinate, pm4net.Types.GraphLayout.Coordinate, pm4net.Types.GraphLayout.Coordinate>> QuadraticBezier { get; set; } = new List<Tuple<pm4net.Types.GraphLayout.Coordinate, pm4net.Types.GraphLayout.Coordinate, pm4net.Types.GraphLayout.Coordinate>>();
     }
 
 	public class Edge
@@ -87,7 +87,7 @@ namespace Infrastructure.Models
 
 	public static class GraphLayoutExtensions
 	{
-		private static Node FromFSharpNode(this OutputTypes.Node<pm4net.Types.NodeInfo> node)
+		private static Node FromFSharpNode(this pm4net.Types.GraphLayout.Node<pm4net.Types.NodeInfo> node)
 		{
 			var objType = string.Empty;
 			NodeType nodeType = new Event();
@@ -122,7 +122,7 @@ namespace Infrastructure.Models
 			};
 		}
 
-		private static Edge FromFSharpEdge(this OutputTypes.Edge<EdgeInfo> edge)
+		private static Edge FromFSharpEdge(this pm4net.Types.GraphLayout.Edge<EdgeInfo> edge)
 		{
 			return new Edge
 			{
@@ -147,7 +147,7 @@ namespace Infrastructure.Models
 			};
 		}
 
-		public static GraphLayout FromFSharpGraphLayout(this OutputTypes.GraphLayout<pm4net.Types.NodeInfo, EdgeInfo> graphLayout)
+		public static GraphLayout FromFSharpGraphLayout(this pm4net.Types.GraphLayout.GraphLayout<pm4net.Types.NodeInfo, EdgeInfo> graphLayout)
 		{
 			return new GraphLayout
 			{
@@ -224,12 +224,12 @@ namespace Infrastructure.Models
 
                 if (node.TryStartNode(ref objType))
                 {
-                    return global::Constants.objectTypeStartNode + objType;
+                    return pm4net.Types.Constants.objectTypeStartNode + objType;
                 }
 
                 if (node.TryEndNode(ref objType))
                 {
-                    return global::Constants.objectTypeEndNode + objType;
+                    return pm4net.Types.Constants.objectTypeEndNode + objType;
                 }
 
                 throw new ArgumentOutOfRangeException(nameof(node), "Node has unknown type.");
