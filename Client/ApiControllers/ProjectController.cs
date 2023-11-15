@@ -1,5 +1,6 @@
-﻿using Infrastructure.Interfaces;
-using Microsoft.AspNetCore.Http;
+﻿using Infrastructure.Helpers;
+using Infrastructure.Interfaces;
+using Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace StructuredLogExplorer.ApiControllers
@@ -13,6 +14,20 @@ namespace StructuredLogExplorer.ApiControllers
         public ProjectController(IProjectService projectService)
         {
             _projectService = projectService;
+        }
+
+        [HttpGet]
+        [Route("projects")]
+        public IEnumerable<ProjectInfo> GetProjects()
+        {
+            var projects = _projectService.GetAvailableProjects();
+            var projectInfos = projects.Select(name =>
+            {
+                var db = _projectService.GetProjectDatabase(name);
+                var info = ProjectInfoHelper.GetProjectInformation(db);
+                return info;
+            });
+            return projectInfos;
         }
 
         [HttpGet]

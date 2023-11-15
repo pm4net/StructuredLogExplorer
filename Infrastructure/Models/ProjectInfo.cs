@@ -17,6 +17,7 @@ namespace Infrastructure.Models
         }
 
         [BsonId]
+        [JsonProperty("id")]
         public string Name { get; set; }
 
         public string LogDirectory { get; set; }
@@ -31,5 +32,8 @@ namespace Infrastructure.Models
 
         [BsonIgnore]
         public int NoOfObjects { get; set; }
+
+        [BsonIgnore]
+        public bool Active { get; set; }
     }
 }

@@ -604,6 +604,31 @@
         }
       }
     },
+    "/api/Project/projects": {
+      "get": {
+        "tags": [
+          "Project"
+        ],
+        "operationId": "Project_GetProjects",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ProjectInfo"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Project/create": {
       "get": {
         "tags": [
@@ -1582,6 +1607,39 @@
         },
         "codeSnippet": {
           "type": "string"
+        }
+      }
+    },
+    "ProjectInfo": {
+      "type": "object",
+      "required": [
+        "id",
+        "logDirectory",
+        "noOfEvents",
+        "noOfObjects",
+        "active"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "logDirectory": {
+          "type": "string"
+        },
+        "lastConversions": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "noOfEvents": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "noOfObjects": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "active": {
+          "type": "boolean"
         }
       }
     }

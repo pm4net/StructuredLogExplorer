@@ -739,6 +739,8 @@ export class ObjectsClient implements IObjectsClient {
 
 export interface IProjectClient {
 
+    getProjects(): Promise<ProjectInfo[]>;
+
     create(name: string | undefined, logDir: string | undefined): Promise<void>;
 
     delete(name: string | undefined): Promise<void>;
@@ -752,6 +754,47 @@ export class ProjectClient implements IProjectClient {
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "";
+    }
+
+    getProjects(): Promise<ProjectInfo[]> {
+        let url_ = this.baseUrl + "/api/Project/projects";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetProjects(_response);
+        });
+    }
+
+    protected processGetProjects(response: Response): Promise<ProjectInfo[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(ProjectInfo.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<ProjectInfo[]>(null as any);
     }
 
     create(name: string | undefined, logDir: string | undefined): Promise<void> {
@@ -3016,6 +3059,62 @@ export interface IObjectOccurrence {
     sourceFile?: string | undefined;
     lineNumber?: number | undefined;
     codeSnippet?: string | undefined;
+}
+
+export class ProjectInfo implements IProjectInfo {
+    id!: string;
+    logDirectory!: string;
+    lastConversions?: Date | undefined;
+    noOfEvents!: number;
+    noOfObjects!: number;
+    active!: boolean;
+
+    constructor(data?: IProjectInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.logDirectory = _data["logDirectory"];
+            this.lastConversions = _data["lastConversions"] ? new Date(_data["lastConversions"].toString()) : <any>undefined;
+            this.noOfEvents = _data["noOfEvents"];
+            this.noOfObjects = _data["noOfObjects"];
+            this.active = _data["active"];
+        }
+    }
+
+    static fromJS(data: any): ProjectInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProjectInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["logDirectory"] = this.logDirectory;
+        data["lastConversions"] = this.lastConversions ? this.lastConversions.toISOString() : <any>undefined;
+        data["noOfEvents"] = this.noOfEvents;
+        data["noOfObjects"] = this.noOfObjects;
+        data["active"] = this.active;
+        return data;
+    }
+}
+
+export interface IProjectInfo {
+    id: string;
+    logDirectory: string;
+    lastConversions?: Date | undefined;
+    noOfEvents: number;
+    noOfObjects: number;
+    active: boolean;
 }
 
 export interface FileResponse {

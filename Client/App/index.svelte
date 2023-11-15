@@ -14,34 +14,17 @@
         ToolbarSearch
     } from "carbon-components-svelte";
 
-    import { get } from "svelte/store";
     import isValidFilename from "valid-filename";
 
     import { getErrorMessage } from "./shared/helpers";
     import { projectClient } from "./shared/pm4net-client-config";
-    import { getFromJson } from "./shared/config";
     import { activeProject } from "./shared/stores";
+    import { ProjectInfo } from "./shared/pm4net-client";
+    import { onMount } from "svelte";
 
     let pagination = { pageSize: 10, page: 1, filteredRowIds: <number[]>[] }
 
-    // The list of available projects, retrieved from a hidden input with JSON data
-    let projects = getFromJson<{
-        id: string;
-        name: string;
-        logDirectory: string;
-        noOfEvents: number;
-        noOfObjects: number;
-        active: boolean;
-    }[]>("projects").map((val, _) => {
-        val.id = val.name; // Each row has to have an ID
-        val.active = val.name === get(activeProject); // Set active state based on value in local storage
-        return val;
-    });
-
-    // Remove active project if it isn't in list of projects anymore (e.g. file got deleted)
-    if (projects.find(p => p.name === get(activeProject)) === undefined) {
-        activateProject(null);
-    }
+    let projects : ProjectInfo[] = [];
 
     // The state of the modal to create a new project
     let createModal = {
@@ -73,13 +56,13 @@
 
     // Update activated route to disable button, update previously active row to enable button, and save in local storage
     function activateProject(name: string | null) {
-        let prevActiveIdx = projects.findIndex(p => p.name === get(activeProject));
+        let prevActiveIdx = projects.findIndex(p => p.id === $activeProject);
         if (prevActiveIdx !== -1) {
             projects[prevActiveIdx].active = false;
         }
         
         if (typeof name === "string") {
-            let newActiveIdx = projects.findIndex(p => p.name === name);
+            let newActiveIdx = projects.findIndex(p => p.id === name);
             projects[newActiveIdx].active = true;
         }
 
@@ -99,14 +82,13 @@
                 await projectClient.create(createModal.project.value, createModal.logDirectory.value);
 
                 // Add new project to the list
-                projects = [...projects, {
+                projects = [...projects, new ProjectInfo({
                     id: createModal.project.value,
-                    name: createModal.project.value,
                     logDirectory: createModal.logDirectory.value,
                     active: false,
                     noOfEvents: 0,
                     noOfObjects: 0
-                }];
+                })];
                 
                 closeAndResetCreateModal();
             }
@@ -120,9 +102,9 @@
     async function deleteProject(name: string) {
         try {
             await projectClient.delete(name);
-            projects = projects.filter(p => p.name !== name);
+            projects = projects.filter(p => p.id !== name);
 
-            if (get(activeProject) === name) {
+            if ($activeProject === name) {
                 activateProject(null);
             }
         } catch (e: unknown) {
@@ -136,17 +118,28 @@
         createModal.project.invalid =
             createModal.project.value === "" ||
             !isValidFilename(createModal.project.value) ||
-            projects.some(p => p.name == createModal.project.value);
+            projects.some(p => p.id == createModal.project.value);
     }
 
     // Validate that the log directory is not empty
     function validateLogDirectory() {
         createModal.logDirectory.invalid = createModal.logDirectory.value === "";
     }
+
+    onMount(async () => {
+        projects = (await projectClient.getProjects()).map((val, _) => {
+            val.active = val.id === $activeProject;
+            return val;
+        });
+
+        // Remove active project if it isn't in list of projects anymore (e.g. file got deleted)
+        if (projects.find(p => p.id === $activeProject) === undefined) {
+            activateProject(null);
+        }
+    });
 </script>
 
 <Layout>
-
     {#if errorNotification.show}
         <ToastNotification
             title="An error occurred"
@@ -157,14 +150,14 @@
             on:close={() => errorNotification.message = ""}
         />
     {/if}
-    
+
     <DataTable 
         sortable
         sortKey="name"
         title="Projects" 
         description="Each project points to a specific directory with log files."
         headers={[
-            { key: "name", value: "Name" },
+            { key: "id", value: "Name" },
             { key: "logDirectory", value: "Log Directory" },
             { key: "noOfEvents", value: "Events" },
             { key: "noOfObjects", value: "Objects" },
@@ -263,5 +256,4 @@
             invalid={createModal.logDirectory.invalid}
         />
     </Modal>
-
 </Layout>
