@@ -30,8 +30,6 @@ builder.Services.AddSwaggerDocument();
 // Configure caching
 builder.Services.AddOutputCache(options =>
 {
-    options.AddBasePolicy(p => p.Expire(TimeSpan.FromMinutes(5)));
-
     options.AddPolicy(CachePolicies.ObjectTypeInfo, p => p.Tag(CachePolicies.ObjectTypeInfo));
 });
 
